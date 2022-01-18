@@ -4,42 +4,51 @@ from pygame.locals import *
 from files.gui.gui_class import Gui, inGui
 from files.vars import win, modeX, modeY, block_scale_buff, slot_size
 from files.import_imp import Inventory_texture, Blocks_texture
+import files.bucle as b
+import files.Game as gm
 
 inInventory = False
 
 Inventory_slots = {}
-a = 0
 
-# Hotbar slots
-for x in range(9):
-	Inventory_slots[a] = {"Item" : [a+1, 1], "Pos":(8 + ( (2 + slot_size) * x), 140 + 2 , slot_size, slot_size)}
-	a += 1
+def setInventorySlots():
+	global Inventory_slots
+	a = 0
 
-# Inventory slots
-for y in range(3):
+	# Hotbar slots
 	for x in range(9):
-		Inventory_slots[a] = {"Item" : [None, None], "Pos":(8 + ( (2 + slot_size) * x), 84 + ( (2 + slot_size) * y), slot_size, slot_size)}
+		Inventory_slots[a] = {"Item" : [a+1, 64], "Pos":(8 + ( (2 + slot_size) * x), 140 + 2 , slot_size, slot_size)}
 		a += 1
 
-# Armor slots
+	# Inventory slots
+	for y in range(3):
+		for x in range(9):
+			Inventory_slots[a] = {"Item" : [None, None], "Pos":(8 + ( (2 + slot_size) * x), 84 + ( (2 + slot_size) * y), slot_size, slot_size)}
+			a += 1
 
-for y in range(4):
-	Inventory_slots[a] = {"Item" : [None, None], "Pos":(6 + (2),8 + ( (2 + slot_size) * y), slot_size, slot_size)}
+	# Armor slots
+
+	for y in range(4):
+		Inventory_slots[a] = {"Item" : [None, None], "Pos":(6 + (2),8 + ( (2 + slot_size) * y), slot_size, slot_size)}
+		a += 1
+
+	# Second hand
+	Inventory_slots[a] = {"Item" : [None, None], "Pos":(76 + 1, 61 + 1 , slot_size, slot_size)}
 	a += 1
 
-# Second hand
-Inventory_slots[a] = {"Item" : [None, None], "Pos":(76 + 1, 61 + 1 , slot_size, slot_size)}
-a += 1
+	# Crafting
+	for y in range(2):
+		for x in range(2):
+			Inventory_slots[a] = {"Item" : [None, None], "Pos":(98 + ( (2 + slot_size) * x), 18 + ( (2 + slot_size) * y), slot_size, slot_size)}
+			a += 1
 
-# Crafting
-for y in range(2):
-	for x in range(2):
-		Inventory_slots[a] = {"Item" : [None, None], "Pos":(98 + ( (2 + slot_size) * x), 18 + ( (2 + slot_size) * y), slot_size, slot_size)}
-		a += 1
+	# Crafting result
+	Inventory_slots[a] = {"Item" : [None, None], "Pos":(153 + (1), 27 + (1), slot_size, slot_size)}
+	a += 1
 
-# Crafting result
-Inventory_slots[a] = {"Item" : [None, None], "Pos":(153 + (1), 27 + (1), slot_size, slot_size)}
-a += 1
+setInventorySlots()
+
+
 
 class Inventory(Gui):
 	def __init__(self):
@@ -62,9 +71,10 @@ class Inventory(Gui):
 		if inInventory == True:
 			win.blit(self.sprite, (modeX/2 - self.sprite.get_width()/2 , modeY/2 - self.sprite.get_height()/2))
 
-			self.Slots_update(slots=Inventory_slots, mouse=mouse)
+			self.slots_update(slots=Inventory_slots, mouse=mouse)
 
-		self.key_update(keys)
+		if not gm.Pause:
+			self.key_update(keys)
 
 	def key_update(self, keys):
 		if keys[K_ESCAPE] == 1:

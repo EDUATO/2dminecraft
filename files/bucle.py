@@ -9,9 +9,9 @@ import files.draw as dr
 
 	
 def bucle():
-	global mouse_hitbox, deltaTime, FPS
-
-	while Playing == True:
+	global mouse_hitbox, deltaTime, FPS, Pause
+	
+	while Playing == 1:
 		
 		events = pygame.event.get()
 
@@ -27,27 +27,21 @@ def bucle():
 		Events(events)
 
 		update(events)
-
+		
 def Events(events):
-	global Playing, DebugScreen
+	global Playing
 
 	for event in events:
 
 		if event.type == QUIT:
-			Playing = False
+			Playing = 0
 			print("Exit")
 			sys.exit()
-		
-		elif event.type == pygame.KEYDOWN:
-			if event.key == K_F3:
-				if dr.DebugScreen:
-					dr.DebugScreen = False
-				else:
-					dr.DebugScreen = True
+			
 			
 def update(events):
 	# Clear screen
-	win.fill((0,0,0))
+	win.fill((154,203,255))
 
 	# Draw on screen
 	dr.Draw(events)

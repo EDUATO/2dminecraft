@@ -30,9 +30,10 @@ class import_images:
 		pass
 
 	def fonts(self):
-		global Arial
+		global Arial, McFont
 
 		Arial = "fonts/1.ttf"
+		McFont = "fonts/2.ttf"
 
 
 import_images()

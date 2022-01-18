@@ -1,30 +1,15 @@
 import pygame
 
-from files.vars import win, block_scale_buff, camera_coords, block_size
-from files.import_imp import Blocks_texture
-
-Blocks_list = {
-	0 : { "Name" : "Air", "crop" : None, "durability":False, "special":False },
-	1 : { "Name" : "Grass_Block", "crop" : (0,0,16,16), "durability":40, "special":False },
-	2 : { "Name" : "Stone_Block", "crop" : (16,0,16,16), "durability":140, "special":False },
-	3 : { "Name" : "Dirt", "crop" : (32,0,16,16), "durability":35, "special":False},
-	4 : { "Name" : "Oak_Wood", "crop" : (48,0,16,16), "durability":70, "special":False},
-	5 : { "Name" : "Bedrock", "crop" : (64,0,16,16), "durability":False, "special":False},
-	6 : { "Name" : "Iron Ore", "crop" : (80,0,16,16), "durability":150, "special":False},
-	7 : { "Name" : "Wooden Planks", "crop" : (96,0,16,16), "durability":70, "special":False}
-	}
-
-Textures_for_blocks_list = {
-	0 : { "Name" : "Door1", "crop" : (112,0,16,16), "durability":70},
-	1 : { "Name" : "Door2", "crop" : (128,0,16,16), "durability":70}
-}
+from files.vars import win, block_scale_buff, camera_coords, block_size, modeX, modeY
+import files.bucle as b
+from files.gui.gui_class import inGui
+from files.block_data import *
+from files.functions import isSpriteOnTheScreen
 
 Textures_states = {}
 
 for i in range(9):
 	Textures_states[i] = {"Name" : "Break_state_"+str(i), "crop":((16*i)* block_scale_buff, 16* block_scale_buff, 16 * block_scale_buff, 16 * block_scale_buff )}
-
-block_texture = pygame.transform.scale(Blocks_texture, (Blocks_texture.get_width() * block_scale_buff,  Blocks_texture.get_height() * block_scale_buff)) # To the spritesheet
 
 class Block:
 	def __init__(self, ID, block_pos_grid):
@@ -33,7 +18,8 @@ class Block:
 		self.block_texture = block_texture
 		self.pos = []
 		self.glow = False
-		self.block_pos_grid = block_pos_grid
+		self.glow_color = (255,255,0)
+		self.block_pos_grid = block_pos_grid # Block Position in grid
 		self.noise_value = False
 		self.background = False # No hitbox
 
@@ -56,6 +42,8 @@ class Block:
 
 		self.light_val = 0
 
+		self.BlockOnScreen = False
+
 	def update_block(self, init=False):
 		if not self.block_id == 0: # isAir
 			if self.color == False:
@@ -68,14 +56,20 @@ class Block:
 			self.grid(self.block_pos_grid)
 
 	def grid(self, block_pos_grid):
+		# Set the pixel position for each block
 		# x / y
 		for i in range(2):
-			self.pos.append(block_pos_grid[i] * (block_size * block_scale_buff) )
+			if i == 0:
+				self.pos.append(block_pos_grid[i] * (block_size * block_scale_buff)) 
+			elif i == 1:
+				self.pos.append( (-block_pos_grid[i]) * (block_size * block_scale_buff)) 
+			
 
 		self.pos_cam = (self.pos[0] + camera_coords[0], self.pos[1] + camera_coords[1])
 
-	def setglow(self, state):
+	def setglow(self, state, color=(255,255,0)):
 		self.glow = state
+		self.glow_color = color
 
 	def coordsInBlock(self, coords):
 		try:
@@ -86,56 +80,59 @@ class Block:
 
 		return False
 
-	def isGlowing(self):
-		return self.glow
-
-	def getGridCoords(self):
-		return self.block_pos_grid
-
 	def update(self, deltaTime):
 		self.pos_cam = (self.pos[0] + camera_coords[0], self.pos[1] + camera_coords[1])
+
 		if not self.block_id == 0: # isAir
-			try:
-				# Crop block from texture
-				win.blit(self.block_texture, self.pos_cam, tuple(self.crop))
-			except:
-				pass
+			# Update hitbox 
+			self.hitbox = pygame.Rect(self.pos_cam[0], self.pos_cam[1], self.select_rect.get_width(), self.select_rect.get_height())
 
-		self.deltaTime = deltaTime
+			self.DrawOnScreen(deltaTime)
 
-		if not self.color == False:
-			self.color_block.fill(self.color)
-			win.blit(self.color_block, tuple(self.pos_cam))
+	def DrawOnScreen(self, deltaTime):
+		self.BlockOnScreen = self.__isBlockOnScreen__()
 
-		# Update durability
-		self.break_durability = Blocks_list[self.block_id]["durability"]
+		if self.BlockOnScreen:
 
-		# Update hitbox 
-		self.hitbox = pygame.Rect(self.pos_cam[0], self.pos_cam[1], self.select_rect.get_width(), self.select_rect.get_height())
+			if not self.block_id == 0: # isAir
+				try:
+					# Crop block from texture
+					win.blit(self.block_texture, self.pos_cam, tuple(self.crop))
+				except:
+					pass
 
-		# Block light
-		if not self.block_id == 0:
-			self.block_light.fill((0,0,0,self.light_val))
-			win.blit(self.block_light, tuple(self.pos_cam))
+			self.deltaTime = deltaTime
+
+			if not self.color == False:
+				self.color_block.fill(self.color)
+				win.blit(self.color_block, tuple(self.pos_cam))
+
+			# Update durability
+			self.break_durability = Blocks_list[self.block_id]["durability"]
+
+			# Block light
+			if not self.block_id == 0:
+				self.block_light.fill((0,0,0,self.light_val))
+				win.blit(self.block_light, tuple(self.pos_cam))
 
 
-		if self.glow:
-			self.select_rect.fill((255,255,0,128))
-			win.blit(self.select_rect, tuple(self.pos_cam))
+			if self.glow:
+				self.select_rect.fill((self.glow_color[0],self.glow_color[1],self.glow_color[2],128))
+				win.blit(self.select_rect, tuple(self.pos_cam))
 
-	def coll_hitbox(self, shape):
-		if self.block_id != 0: # If is not air
-			self.rect_shape = pygame.Rect(shape[0], shape[1], shape[2], shape[3])
-			if (self.rect_shape.colliderect(self.hitbox)
-				and self.background == False):
-				# Show hitbox
-				#pygame.draw.rect(win, (0,255,0), self.hitbox)
-				return True
+	def coll_hitbox(self, shape, nair=False):
+		if nair == False: 
+			if self.block_id != 0: # If is not air
+				return self.__hitbox_coll__(shape)
+		else:
+			# If air is included
+			return self.__hitbox_coll__(shape)
 
-		return False
+		
+	def check_block_around_coords(self, xval, yval): 
+		# Check the coords from a specific block starting from the initial block coords
+		return (self.block_pos_grid[0] + xval, self.block_pos_grid[1] + yval )
 
-	def getHitbox(self):
-		return self.hitbox
 
 	def setBlock(self, id, color=False, noiseValue=False, background=False):
 		self.color = color
@@ -146,6 +143,11 @@ class Block:
 			self.noise_value = noiseValue
 				
 			self.background = background
+
+			if background:
+				self.light_val = 50
+			else:
+				self.light_val = 0
 
 			self.update_block()
 
@@ -174,7 +176,6 @@ class Block:
 		self.break_state = 0
 		self.break_porcentage = 0
 
-
 	def getId(self):
 		return self.block_id
 
@@ -189,3 +190,29 @@ class Block:
 
 	def isBackground(self):
 		return self.background
+
+	def getBlockOnScreen(self):
+		return self.BlockOnScreen
+
+	def isGlowing(self):
+		return self.glow
+
+	def getGridCoords(self):
+		return self.block_pos_grid
+
+	def getHitbox(self):
+		return self.hitbox
+
+	def __hitbox_coll__(self, shape):
+		self.rect_shape = pygame.Rect(shape[0], shape[1], shape[2], shape[3])
+		if self.__isBlockOnScreen__():
+			if (self.rect_shape.colliderect(self.hitbox) and self.background == False):
+				#pygame.draw.rect(win, (0,255,0), self.hitbox)
+				return True
+
+			return False
+
+	def __isBlockOnScreen__(self):
+		if isSpriteOnTheScreen(camera=self.pos_cam, screenSize=(modeX, modeY), hitboxSize=(block_size * block_scale_buff, block_size * block_scale_buff)):
+			return True
+		return False

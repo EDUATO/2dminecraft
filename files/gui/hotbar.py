@@ -7,6 +7,9 @@ from files.vars import win, modeX, modeY, block_scale_buff
 from files.fonts import *
 import files.functions as f
 from files.Block import Blocks_list, block_texture
+import files.bucle as b
+import files.Game as gm
+from files.gui.gui_class import drawInventoryItem
 
 class Hotbar:
 	def __init__(self):
@@ -19,34 +22,33 @@ class Hotbar:
 
 	def update(self, events):
 
-		# Get slots from Inventory
+		# Update the slots from Inventory
 		self.slots = []
 		for i in range(9):
 			self.slots.append(Inventory_slots[i])
-
+		
+		# Draw HotBar
 		win.blit(self.texture , (modeX/2 - self.texture.get_width()/2,modeY - self.bar_crop[3] - 20), self.bar_crop)
-		#pygame.draw.rect(win, (255,255,0), pygame.Rect(modeX/2 - self.texture.get_width()/2,modeY - self.bar_crop[3] - 20, self.bar_crop[2], self.bar_crop[3]), 2)
 
-		self.mouse_wheel(events)
+		if not gm.Pause:
+			self.mouse_wheel(events)
 
 		self.show_items()
-
+		
+		# Draw HotBar Selector
 		win.blit(self.texture, ((modeX/2 - self.texture.get_width()/2 - 3) + ((self.slot_pos ) * (self.slot_size * block_scale_buff)) ,modeY - self.bar_crop[3] - 23), self.bar_selector_crop)
 
 	def show_items(self):
+		# Draw the player's items
 		for i in range(len(self.slots)):
 			if not self.slots[i]["Item"][0] == None:
-				try:
-					self.crop = (Blocks_list[self.slots[i]["Item"][0]]["crop"][0] * block_scale_buff, Blocks_list[self.slots[i]["Item"][0]]["crop"][1] * block_scale_buff, 
-					Blocks_list[self.slots[i]["Item"][0]]["crop"][2] * block_scale_buff, Blocks_list[self.slots[i]["Item"][0]]["crop"][3] * block_scale_buff)
-				except:
+				DR = drawInventoryItem(item_id= self.slots[i]["Item"],
+									X= (modeX/2 - self.texture.get_width()/2 + 9) + (i) * (self.slot_size * block_scale_buff), 
+									Y= (modeY - self.bar_crop[3] - 11) )
+
+				if DR == False:
 					self.slots[i]["Item"] = [None, None]
-					self.crop = (0,0,0,0)
-
-				win.blit(block_texture, ((modeX/2 - self.texture.get_width()/2) + 9 + (i) * (self.slot_size * block_scale_buff), modeY - self.bar_crop[3] - 11), self.crop)
-
-				if not self.slots[i]["Item"][1] == 1:
-					f.text(str(self.slots[i]["Item"][1]), (modeX/2 - self.texture.get_width()/2 + 10) + (i ) * (self.slot_size * block_scale_buff), modeY - self.bar_crop[3] - 10, Arial_30, (255,255,0) )
+				
 
 	def mouse_wheel(self, events):
 		for event in events:

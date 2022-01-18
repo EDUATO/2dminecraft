@@ -3,10 +3,14 @@ import pygame
 from files.import_imp import *
 from files.vars import win, block_scale_buff, gravity, modeX, modeY
 from files.Block import *
+import files.bucle as b
+import files.Game as mg
 
+ENABLE_PHYSICS = True
 
 class Entity:
 	def __init__(self, pos, texture, hitbox_size, body_parts,camera=False, entity_scale_buff=2):
+		global camera_coords
 		self.pos = pos
 		self.hitbox_size = hitbox_size
 
@@ -20,9 +24,12 @@ class Entity:
 
 		self.resized_body_parts = {}
 
-		self.camera = camera
+		self.camera = camera # If the entity is the main camera
 		self.camera_limit_x = modeX
 		self.camera_limit_y = 300
+
+		"""if self.camera:
+			camera_coords = [pos[0], pos[1]-modeY/2]"""
 
 		self.vel = 4
 
@@ -50,7 +57,9 @@ class Entity:
 
 	def update(self, chunks_list, deltaTime):
 
-		self.physics(chunks_list)
+		if mg.Pause == False:
+			if ENABLE_PHYSICS:
+				self.physics(chunks_list) # The phyisics are kind of laggy
 		
 		self.body_shape(tuple(self.pos), 0)
 
@@ -60,7 +69,8 @@ class Entity:
 
 		#pygame.draw.rect(win, (255,255,0), self.hitbox, 2)
 
-		
+		self.dx = 0
+		self.dy = 0
 
 	def physics(self, chunks_list):
 
@@ -78,24 +88,48 @@ class Entity:
 		self.dy += (self.vel_y * (self.deltaTime))
 
 		c = 0
+		
+		# -----------------------
+		#
+		#	WARNING: THIS NEEDS OPTIMIZATION
+		#
+		# ----------------------
 		# Check collition
 		for c in range(len(self.oneList)):
-			# X collition
-			if self.oneList[c]["BLOCK"].coll_hitbox( (self.pos[0]+ self.dx, self.pos[1] , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff) ):
-				self.dx = 0
-
-			# Y collition
-			if self.oneList[c]["BLOCK"].coll_hitbox( (self.pos[0], self.pos[1] + self.dy, self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff) ):
-				# Check if its under the ground
-				if self.vel_y < 0:
-					self.dy = self.oneList[c]["BLOCK"].getHitbox().bottom - pygame.Rect((self.pos[0], self.pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)).top
-					self.vel_y = 0
-				elif self.vel_y >= 0:
-					self.dy = self.oneList[c]["BLOCK"].getHitbox().top - pygame.Rect((self.pos[0], self.pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)).bottom
-					self.jumping = False
-
+			
+			if self.oneList[c]["BLOCK"].getBlockOnScreen():
 				
-				
+				# X collition
+				if self.oneList[c]["BLOCK"].coll_hitbox( (self.pos[0]+ self.dx, self.pos[1] , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff) ):
+					self.dx = 0
+
+				# Y collition
+				if self.oneList[c]["BLOCK"].coll_hitbox( (self.pos[0], self.pos[1] + self.dy, self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff) ):
+					# Check if its under the ground
+					if self.vel_y < 0:
+						self.dy = self.oneList[c]["BLOCK"].getHitbox().bottom - pygame.Rect((self.pos[0], self.pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)).top
+						self.oneList[c]["BLOCK"].setglow(True)
+						self.vel_y = 0
+
+					elif self.vel_y >= 0:
+						
+						self.hitbox_rect_bottom = pygame.Rect((self.pos[0], self.pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)).bottom
+
+						self.dy = self.oneList[c]["BLOCK"].getHitbox().top - self.hitbox_rect_bottom
+
+						self.jumping = False
+
+						self.oneList[c]["BLOCK"].setglow(True)
+
+						self.block_c = self.oneList[c]["BLOCK"].check_block_around_coords(4,4)
+
+						for i in range(len(self.oneList)):
+							if self.oneList[i]["POS"] == self.block_c:
+								self.oneList[i]["BLOCK"].setglow(True, color=(255,0,255))
+								break	
+			
+
+
 		# Update pos
 		if self.camera:
 			camera_coords[0] -= self.dx
@@ -114,7 +148,7 @@ class Entity:
 		return self.hitbox
 
 	def move(self, direction=None):
-
+		self.jumping = False
 		if direction == "R":
 			self.dx += (self.vel * self.deltaTime)
 			
@@ -124,6 +158,9 @@ class Entity:
 		if direction == "U" and self.jumping == False:
 			self.vel_y = -12
 			self.jumping = True
+
+	def Automate(self):
+		self.move("R")
 
 		
 		

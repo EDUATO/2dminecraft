@@ -3,9 +3,10 @@ import pygame
 from files.import_imp import *
 from files.vars import win, block_scale_buff, camera_coords, modeX, modeY
 from files.entity import Entity
+import files.bucle as b
 
 class Player(Entity):
-	def __init__(self, texture, pos):
+	def __init__(self, texture, pos, camera=False):
 	
 		self.body_parts = {
 			"Head" : (0,0,8,8),
@@ -23,7 +24,7 @@ class Player(Entity):
 		
 		self.pos = self.initial_pos
 
-		super().__init__(self.pos,  texture, (8, 32), self.body_parts, entity_scale_buff=block_scale_buff, camera=True)
+		super().__init__(self.pos,  texture, (8, 32), self.body_parts, entity_scale_buff=block_scale_buff, camera=camera)
 
 		self.inventory = []
 
@@ -86,9 +87,6 @@ class Player(Entity):
 	def keyMovement(self):
 		
 		self.keys = pygame.key.get_pressed()
-
-		self.dx = 0
-		self.dy = 0
 
 		if self.keys[K_d]:
 			if not self.keys[K_a] == 1:
