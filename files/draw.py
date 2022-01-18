@@ -19,14 +19,14 @@ from files.terrain_generator import generate, chunk_blocks_list, seed, chunk_siz
 def generation_loop():
 	times = 0
 	if Playing:
-		for times in range(10):
-			generate(16 * times)
+		for times in range(16):
+			generate(chunk_size[0] * times)
 			print(f"Chunk {times} generated!")
 
 loop = threading.Thread(target=generation_loop, daemon=True) # It destroy when the main thread ends
 loop.start()
 
-p1 = Player(Player_texture, ("m", 200))
+p1 = Player(Player_texture, ("m", 197))
 
 selected_block = None
 pygame.mouse.set_visible(False)
@@ -53,15 +53,14 @@ def Draw(events):
 					ActiveChunks = [chunk_blocks_list[n-1], chunk_blocks_list[n]]
 				except:
 					ActiveChunks = [chunk_blocks_list[n]]
-		# UPDATE ACTIVECHUNKS
-		try:
-			for c in range(len(ActiveChunks)):
-				for i in range(len(ActiveChunks[c])):
-					ActiveChunks[c][i]["BLOCK"].update()
-		except:
-			pass
 
-		#grid(16, (0,0,100))
+			break
+		# UPDATE ACTIVECHUNKS
+		for c in range(len(ActiveChunks)):
+			for i in range(len(ActiveChunks[c])):
+				ActiveChunks[c][i]["BLOCK"].update()
+
+		grid(16, (0,0,100))
 
 		pygame.draw.line(win, (255,255,255), (b.mouse_hitbox[0], 0), (b.mouse_hitbox[0], modeY))
 
@@ -113,8 +112,8 @@ def Draw(events):
 			pass
 
 		
-		p1.update()
-		p1.move(events)
+		p1.update(ActiveChunks)
+		p1.keyMovement()
 		
 		
 
@@ -133,3 +132,7 @@ def Draw(events):
 		f.text("Terrain seed: " + str(seed), modeX-400, 0, Arial_30, (255,255,255))
 		f.text(str(b.fps), 0, 0, Arial_30, (255,255,255))
 		f.text("Selected: " + str(Blocks_list[block_to_put_id]["Name"]), 400, 0, Arial_30, (255,255,255))
+
+		pos = p1.get_pos()
+		f.text("x: " + str(pos[0]), 400, 200, Arial_30, (255,255,255))
+		f.text("y: " + str(pos[1]), 400, 300, Arial_30, (255,255,255))

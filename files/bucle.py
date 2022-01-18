@@ -41,7 +41,7 @@ def Events(events):
 			
 def update(events):
 	# Clear screen
-	win.fill((0,0,0))
+	win.fill((255,255,255))
 
 	# Draw on screen
 	dr.Draw(events)

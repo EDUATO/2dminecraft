@@ -2,6 +2,7 @@ import pygame
 
 from files.import_imp import *
 from files.vars import win, block_scale_buff
+from files.Block import *
 
 
 class Entity:
@@ -19,7 +20,12 @@ class Entity:
 
 		self.resized_body_parts = {}
 
-		self.gravity = 4
+		self.gravity = 8
+
+		self.vel = 5
+
+		self.moving_direction = None
+		self.gravity_direction = "D"
 
 		self.body_parts_keys = list(self.body_parts.keys())
 		for i in range(len(self.body_parts)):
@@ -28,19 +34,22 @@ class Entity:
 				self.resized_body_parts[self.body_parts_keys[i]].append(self.body_parts[self.body_parts_keys[i]][t] * self.entity_scale_buff )
 
 
-	def body_shape(self, pos):
+	def body_shape(self, pos, state=0):
 		pass
 
-	def update(self):
+	def update(self, chunks_list):
+
 		self.hitbox = (self.pos[0], self.pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
 
-		#pygame.draw.rect(win, (255,255,0), self.hitbox)
+		self.physics(chunks_list)
 
-		self.body_shape(tuple(self.pos))
+		pygame.draw.rect(win, (255,255,0), self.hitbox)
+		
+		self.body_shape(tuple(self.pos), 0)
 
-		self.physics()
+		
 
-	def physics(self):
+	def physics(self, chunks_list):
 		pass
 
 	def get_pos(self):
@@ -48,4 +57,10 @@ class Entity:
 
 	def get_hitbox(self):
 		return self.hitbox
+
+	def move(self, direction=None):
+		if direction == "R":
+			self.pos[0] += self.vel
+		elif direction == "L":
+			self.pos[0] -= self.vel
 
