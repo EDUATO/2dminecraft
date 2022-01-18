@@ -26,6 +26,8 @@ block_scale_buff = 3
 
 block_to_put_id = 1
 
+camera_coords = [0,0]
+
 ########## SCENE ############
 Scene = 0
 

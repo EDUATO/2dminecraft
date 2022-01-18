@@ -35,7 +35,9 @@ def Events(events):
 
 		if event.type == QUIT:
 			Playing = False
-			sys.exit()
+			print("Exit")
+			for i in range(10):
+				sys.exit()
 			
 def update(events):
 	# Clear screen

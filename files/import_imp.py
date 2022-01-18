@@ -13,16 +13,13 @@ class import_images:
 
 		import_images.fonts(self)
 
-	def cropped_images(self):
-		global Blocks_texture, Grass
-		Blocks_texture = pygame.image.load("sprites/Blocks.png").convert_alpha()
-
-
 	def images(self):
-		# Get crops from cropped images
-		import_images.cropped_images(self)
+		global Blocks_texture, Player_texture
 
 		# Images
+		Blocks_texture = pygame.image.load("sprites/Blocks.png").convert_alpha()
+
+		Player_texture = pygame.image.load("sprites/player.png").convert_alpha()
 		
 				
 	def audios(self):
