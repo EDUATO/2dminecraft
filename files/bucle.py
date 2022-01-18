@@ -1,6 +1,6 @@
 import pygame
 import sys 
-from pygame.locals import QUIT
+from pygame.locals import *
 
 
 ########## LOCAL MODULES ##########
@@ -29,22 +29,28 @@ def bucle():
 		update(events)
 
 def Events(events):
-	global Playing
+	global Playing, DebugScreen
 
 	for event in events:
 
 		if event.type == QUIT:
 			Playing = False
 			print("Exit")
-			for i in range(10):
-				sys.exit()
+			sys.exit()
+		
+		elif event.type == pygame.KEYDOWN:
+			if event.key == K_F3:
+				if dr.DebugScreen:
+					dr.DebugScreen = False
+				else:
+					dr.DebugScreen = True
 			
 def update(events):
 	# Clear screen
-	win.fill((255,255,255))
+	win.fill((0,0,0))
 
 	# Draw on screen
 	dr.Draw(events)
 
 	# Update each frame
-	pygame.display.update()
+	pygame.display.flip()

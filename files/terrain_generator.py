@@ -5,11 +5,11 @@ import math
 
 from files.noise import Noise
 from files.Block import Block, Blocks_list
-from files.import_imp import Blocks_texture
+from files.vars import chunk_size
 
-chunk_size = (16, 32)
 
 seed = random.randint(1, 999999)
+seed = 0
 Noise_gen = Noise(seed)
 
 chunk_blocks_list = []
@@ -27,9 +27,9 @@ def airGen(in_coords):
 	# Ordered : (0,0) , (1,0), (2,0), (3,0) *chunk_size[0]*, (0,1), (1,1), (2,1), ...
 	for y in range( chunk_size[1] ):
 		for x in range( chunk_size[0] ):
-			POSITION = (x + in_coords, chunk_size[1] - y)
+			POSITION = (x + in_coords, y)
 			chunk_blocks_list[len(chunk_blocks_list)-1].append(
-				{"POS":POSITION, "BLOCK":Block(Blocks_texture, 0, POSITION)}
+				{"POS":POSITION, "BLOCK":Block(0, POSITION)}
 				)
 
 	#print(chunk_blocks_list[len(chunk_blocks_list)-1])
@@ -50,83 +50,50 @@ def generate(in_coords):
 	y = 0
 	for y in range( chunk_size[1] ):
 		for x in range( chunk_size[0] ):
-			
-			#noise_a = Noise_gen.test( noi[0], noi[1])
-			#print("Noise " + str(noise_a))
-			"""
-			if (noise_a <= 0.2):
-				if chunk_blocks_list[len(chunk_blocks_list)-1][a]["POS"][1] >= 6:
-					chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(2)
-					time.sleep(0.000001)
-
-			if (noise_a >= 0.2):
-				if chunk_blocks_list[len(chunk_blocks_list)-1][a]["POS"][1] >= 6:
-					chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(3)
-					time.sleep(0.000001)
-
-			if (noise_a >= 0.4):
-				if chunk_blocks_list[len(chunk_blocks_list)-1][a]["POS"][1] >= 6:
-					chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(4)
-					time.sleep(0.000001)
-
-			if (noise_a >= 0.7):
-				if chunk_blocks_list[len(chunk_blocks_list)-1][a]["POS"][1] >= 6:
-					chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(5)
-					time.sleep(0.000001)"""
-
+			# GENERATE NOISE
 			y_x = ( ((x) + prw_noise[0]), ((y) + prw_noise[1]) )
-			formula2 = ((y_x[0]) * noise_sc, (y_x[1]) * noise_sc)
+			formula = ((y_x[0]) * noise_sc, (y_x[1]) * noise_sc)
 			
+			noise_gen = Noise_gen.test( formula[0], formula[1] )
+			
+			# GENERATE TERRAIN
 
+			# GRASS BLOCKS
+			if (y == 6 ):
+				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(1, noiseValue=noise_gen)
 
-			noise_gen = Noise_gen.test( formula2[0], formula2[1] )
-			if (255 * noise_gen > 255):
-				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(0, color=(0,0,0, 255))
-			elif (255 * noise_gen < 0):
-				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(0, color=(0,0,0, 0))
-			else:
-				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(0, color=(0,0,0, 255.0 * noise_gen ))
+				# Trees
+				if (noise_gen > 0.2):
+					chunk_blocks_list[len(chunk_blocks_list)-1][a - chunk_size[0]]["BLOCK"].setBlock(4, noiseValue=noise_gen)
+					chunk_blocks_list[len(chunk_blocks_list)-1][a - chunk_size[0]]["BLOCK"].setBackground(True)
+					chunk_blocks_list[len(chunk_blocks_list)-1][a - (chunk_size[0]*2)]["BLOCK"].setBlock(4, noiseValue=noise_gen)
+					chunk_blocks_list[len(chunk_blocks_list)-1][a - (chunk_size[0]*2)]["BLOCK"].setBackground(True)
+
+			if (y > 6 ):
+				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(3, noiseValue=noise_gen)
+
+			if (y > 9):
+				if (noise_gen <= 0.1):
+					chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(2, noiseValue=noise_gen)
+
+				if (noise_gen >= 0.1):
+					chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(3, noiseValue=noise_gen)
+
+				if (noise_gen >= 0.7):
+					chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(3, noiseValue=noise_gen)
 
 			
-			if y == 0 and x ==  0:
-				print("CHUNK ID: " + str(len(chunk_blocks_list)-1))
-				print("START")
-				print("Y = 0")
-				print(str((y_x[0])) + " - " + str((y_x[1])))
-				print("---------")
-			if y == chunk_size[1] and x ==  chunk_size[0]:
-				print("CHUNK ID: " + str(len(chunk_blocks_list)-1))
-				print("Y = chunk_size[1]")
-				print(str((y_x[0])) + " - " + str((y_x[1])))
-				print("END")
-				print("---------")
-				print("x-x-x-x---x")
-
-			if y == 0:
-				print("TEST_ Y = 0")
-				print("CHUNK ID: " + str(len(chunk_blocks_list)-1))
-				print(str((y_x[0])) + " - " + str((y_x[1])))
 				
-
-
 
 			# BEDROCK
-			if chunk_blocks_list[len(chunk_blocks_list)-1][a]["POS"][1] == 6:
-				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(5)
-				#chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBreakeable(False)
+			if chunk_blocks_list[len(chunk_blocks_list)-1][a]["POS"][1] == chunk_size[1]-1:
+				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(5, noiseValue=noise_gen)
+				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBreakeable(False)
 
-
-			# Grass
-			"""if chunk_blocks_list[len(chunk_blocks_list)-1][a]["POS"][1] == noise_a:
-				
-				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(1)
-				time.sleep(0.008)"""
-				
-			#print(str(prw_noise[0])  + " - " + str(prw_noise[1]))
 			
 			a += 1
 
-			
+	# Save x and y to continue the noise in the next chunk		
 	prw_noise[0] = x + prw_noise[0]
 
 	prw_noise[1] = prw_noise[1]

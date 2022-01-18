@@ -5,7 +5,7 @@ import threading
 import math
 
 ########## LOCAL MODULES ##########
-from files.vars import Scene, win, modeX, modeY, block_scale_buff, block_to_put_id, Playing, camera_coords
+from files.vars import Scene, win, modeX, modeY, block_scale_buff, Playing, camera_coords, DebugScreen, block_size, chunk_size, block_to_put_id
 import files.bucle as b
 from files.import_imp import Blocks_texture, Player_texture
 from files.fonts import *
@@ -13,7 +13,10 @@ import files.functions as f
 from files.Block import Block, Blocks_list
 from files.grid import grid
 from files.player import Player
-from files.terrain_generator import generate, chunk_blocks_list, seed, chunk_size
+from files.terrain_generator import generate, chunk_blocks_list, seed
+from files.gui.Inventory import Inventory, PlayerInventory
+from files.gui.gui_class import inGui
+from files.gui.hotbar import Hotbar
 
 # Generation
 def generation_loop():
@@ -21,18 +24,22 @@ def generation_loop():
 	if Playing:
 		for times in range(16):
 			generate(chunk_size[0] * times)
-			print(f"Chunk {times} generated!")
+			print(f"[Generation] Chunk {times} generated!")
+
+		print("[Generation] All chunks generated!")
 
 loop = threading.Thread(target=generation_loop, daemon=True) # It destroy when the main thread ends
 loop.start()
 
-p1 = Player(Player_texture, ("m", 197))
+p1 = Player(Player_texture, ("m", 193))
 
 selected_block = None
-pygame.mouse.set_visible(False)
 
 ActiveChunks = [chunk_blocks_list[0]]
 
+pygame.mouse.set_visible(False) # Hide cursor
+
+Player_Hotbar = Hotbar()
 
 def Draw(events):
 	global selected_block, block_to_put_id, ActiveChunks
@@ -40,7 +47,7 @@ def Draw(events):
 		# CHUNCK VIEW
 		for c in range(len(chunk_blocks_list)):
 
-			for n in range(len(chunk_blocks_list)):
+			for n in range(len(chunk_blocks_list[c])):
 				chunk_initial_place = (chunk_size[0] * (16 * block_scale_buff) * (n))
 				chunk_real_size = (chunk_size[0] * (16 * block_scale_buff) * (n+1)) # 16 is the block size
 				if p1.get_pos()[0] - camera_coords[0] > chunk_initial_place and p1.get_pos()[0] - camera_coords[0] < chunk_real_size+1:
@@ -52,33 +59,52 @@ def Draw(events):
 				try:
 					ActiveChunks = [chunk_blocks_list[n-1], chunk_blocks_list[n]]
 				except:
-					ActiveChunks = [chunk_blocks_list[n]]
-
+					try:
+						ActiveChunks = [chunk_blocks_list[n]]
+					except:
+						pass
 			break
 		# UPDATE ACTIVECHUNKS
 		for c in range(len(ActiveChunks)):
 			for i in range(len(ActiveChunks[c])):
-				ActiveChunks[c][i]["BLOCK"].update()
+				ActiveChunks[c][i]["BLOCK"].update(deltaTime=b.deltaTime)
 
-		grid(16, (0,0,100))
+		
 
-		pygame.draw.line(win, (255,255,255), (b.mouse_hitbox[0], 0), (b.mouse_hitbox[0], modeY))
+		# Mouse
+		if inGui == False:
+			pygame.draw.line(win, (255,255,255), (b.mouse_hitbox[0], 0), (b.mouse_hitbox[0], modeY))
+			pygame.draw.line(win, (255,255,255), (0, b.mouse_hitbox[1]), (modeX, b.mouse_hitbox[1]))
+		
+			try:
+				for c in range(len(ActiveChunks)):
+					for i in range(len(ActiveChunks[c])):
+						mouse_col_block = ActiveChunks[c][i]["BLOCK"].coordsInBlock(b.mouse_hitbox)
 
-		pygame.draw.line(win, (255,255,255), (0, b.mouse_hitbox[1]), (modeX, b.mouse_hitbox[1]))
+						if mouse_col_block:
+							ActiveChunks[c][i]["BLOCK"].setglow(True)
+
+							selected_block = ActiveChunks[c][i]
+
+						else:
+							ActiveChunks[c][i]["BLOCK"].resetBreakState() # Reset break state
+							ActiveChunks[c][i]["BLOCK"].setglow(False)
+			except:
+				pass
+
+		# Player
+		p1.update(ActiveChunks, deltaTime=b.deltaTime)
+		p1.keyMovement()
+
+		keys = pygame.key.get_pressed()
+		mouse = pygame.mouse.get_pressed()
+
 		try:
-			for c in range(len(ActiveChunks)):
-				for i in range(len(ActiveChunks[c])):
-					mouse_col_block = ActiveChunks[c][i]["BLOCK"].coordsInBlock(b.mouse_hitbox)
-
-					if mouse_col_block:
-						ActiveChunks[c][i]["BLOCK"].setglow(True)
-
-						selected_block = ActiveChunks[c][i]
-
-					else:
-						ActiveChunks[c][i]["BLOCK"].setglow(False)
+			# Get block id
+			block_to_put_id = Player_Hotbar.get_slot_item()["Item"][0]
 		except:
-			pass
+			block_to_put_id = None
+
 		try:
 			# See if the selected_block is selected
 			if not selected_block["BLOCK"].isGlowing():
@@ -86,53 +112,47 @@ def Draw(events):
 
 			
 			# Clicks
-			for event in events:
-				if event.type == MOUSEBUTTONDOWN:
-					if event.button == 1:
-						selected_block["BLOCK"].setBlock(0)
-						print(selected_block["POS"])
-						
-					elif event.button == 3:
-						selected_block["BLOCK"].setBlock(block_to_put_id)
-						print(selected_block["POS"])
-
-					elif event.button == 4:
-						if block_to_put_id >= len(Blocks_list)-1:
-							block_to_put_id = 1
+			if mouse[0]:
+				selected_block["BLOCK"].breakBlock(0)
+				print(selected_block["POS"])
+			else:
+				selected_block["BLOCK"].resetBreakState()
+				
+			if mouse[2]:
+				if not block_to_put_id == None:
+					if selected_block["BLOCK"].getId() == 0:
+						if keys[K_LALT] == 1:
+							selected_block["BLOCK"].setBlock(block_to_put_id, background=True)
 						else:
-							block_to_put_id += 1
+							selected_block["BLOCK"].setBlock(block_to_put_id)
 
-					elif event.button == 5:
-						if block_to_put_id <= 1:
-							block_to_put_id = len(Blocks_list)-1
-						else:
-							block_to_put_id -= 1
 
-		except:
+		except TypeError:
 			pass
-
 		
-		p1.update(ActiveChunks)
-		p1.keyMovement()
-		
-		
+		Player_Hotbar.update(events)
 
-		# Blocks touching
-		
-		"""
-		p1_hitbox = p1.get_hitbox()
-		for c in range(len(chunk_blocks_list)):
-			for i in range(len(chunk_blocks_list[c])):
-				to = chunk_blocks_list[c][i]["BLOCK"].coll_hitbox(p1_hitbox)
+		PlayerInventory.update(b.mouse_hitbox, keys)
 
-				if to:
-					chunk_blocks_list[c][i]["BLOCK"].setglow(True)
-					to = False"""
+		if DebugScreen:
+			f.text("Terrain seed: " + str(seed), modeX-400, 0, Arial_30, (255,255,255))
+			f.text(str(b.fps), 0, 0, Arial_30, (255,255,255))
+			
 
-		f.text("Terrain seed: " + str(seed), modeX-400, 0, Arial_30, (255,255,255))
-		f.text(str(b.fps), 0, 0, Arial_30, (255,255,255))
-		f.text("Selected: " + str(Blocks_list[block_to_put_id]["Name"]), 400, 0, Arial_30, (255,255,255))
+			try:
+				f.text("Noise Value: " + str(selected_block["BLOCK"].getNoiseValue()) , 400, 50, Arial_30, (255,255,255))
+			except:
+				f.text("Noise Value: None" , 400, 50, Arial_30, (255,255,255))
 
-		pos = p1.get_pos()
-		f.text("x: " + str(pos[0]), 400, 200, Arial_30, (255,255,255))
-		f.text("y: " + str(pos[1]), 400, 300, Arial_30, (255,255,255))
+
+			try:
+				f.text("isBackground : " + str(selected_block["BLOCK"].isBackground()), 0, 50, Arial_30, (255,255,255))
+			except:
+				pass
+
+			try:
+				f.text(str(selected_block["BLOCK"].getBreakPorcentage()) + "%", 250, 50, Arial_30, (255,255,255))
+			except:
+				pass
+
+			grid(block_size, (0,0,100))
