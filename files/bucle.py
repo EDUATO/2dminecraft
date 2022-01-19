@@ -4,11 +4,11 @@ from pygame.locals import *
 
 
 ########## LOCAL MODULES ##########
-from files.vars import mouse_hitbox, fps, Frames_per_second, Playing, win
+from files.vars import mouse_hitbox, fps, Frames_per_second, Playing
 import files.draw as dr
 
 	
-def bucle():
+def bucle(surface):
 	global mouse_hitbox, deltaTime, FPS, Pause
 	
 	while Playing == 1:
@@ -26,7 +26,7 @@ def bucle():
 
 		Events(events)
 
-		update(events)
+		update(surface, events)
 		
 def Events(events):
 	global Playing
@@ -39,12 +39,12 @@ def Events(events):
 			sys.exit()
 			
 			
-def update(events):
+def update(surface, events):
 	# Clear screen
-	win.fill((154,203,255))
+	surface.fill((154,203,255))
 
 	# Draw on screen
-	dr.Draw(events)
+	dr.Draw(surface, events)
 
 	# Update each frame
 	pygame.display.flip()

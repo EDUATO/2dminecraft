@@ -2,12 +2,11 @@ import pygame
 
 import files.Game as mg
 from files.vars import Scene
-from files.fonts import *
 from files.gui.pauseMenu import PauseMenu
 
-def Draw(events):
+def Draw(surface, events):
 	if Scene == 0:
-		mg.game(events=events)
+		mg.game(events=events, surface=surface)
 
 		if mg.Pause:
-			PauseMenu()
+			PauseMenu(surface)

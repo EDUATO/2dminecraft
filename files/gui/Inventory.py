@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 
 from files.gui.gui_class import Gui, inGui
-from files.vars import win, modeX, modeY, block_scale_buff, slot_size
+from files.vars import modeX, modeY, block_scale_buff, slot_size
 from files.import_imp import Inventory_texture, Blocks_texture
 import files.bucle as b
 import files.Game as gm
@@ -67,11 +67,11 @@ class Inventory(Gui):
 		inInventory = False
 		pygame.mouse.set_visible(False)
 
-	def update(self, mouse, keys):
+	def update(self,surface, mouse, keys):
 		if inInventory == True:
-			win.blit(self.sprite, (modeX/2 - self.sprite.get_width()/2 , modeY/2 - self.sprite.get_height()/2))
+			surface.blit(self.sprite, (modeX/2 - self.sprite.get_width()/2 , modeY/2 - self.sprite.get_height()/2))
 
-			self.slots_update(slots=Inventory_slots, mouse=mouse)
+			self.slots_update(surface,slots=Inventory_slots, mouse=mouse)
 
 		if not gm.Pause:
 			self.key_update(keys)

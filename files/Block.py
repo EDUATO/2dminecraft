@@ -1,8 +1,6 @@
 import pygame
 
-from files.vars import win, block_scale_buff, camera_coords, block_size, modeX, modeY
-import files.bucle as b
-from files.gui.gui_class import inGui
+from files.vars import block_scale_buff, camera_coords, block_size, modeX, modeY
 from files.block_data import *
 from files.functions import isSpriteOnTheScreen
 
@@ -80,16 +78,16 @@ class Block:
 
 		return False
 
-	def update(self, deltaTime):
+	def update(self, surface, deltaTime):
 		self.pos_cam = (self.pos[0] + camera_coords[0], self.pos[1] + camera_coords[1])
 
 		if not self.block_id == 0: # isAir
 			# Update hitbox 
 			self.hitbox = pygame.Rect(self.pos_cam[0], self.pos_cam[1], self.select_rect.get_width(), self.select_rect.get_height())
 
-			self.DrawOnScreen(deltaTime)
+			self.DrawOnScreen(surface ,deltaTime)
 
-	def DrawOnScreen(self, deltaTime):
+	def DrawOnScreen(self, surface, deltaTime):
 		self.BlockOnScreen = self.__isBlockOnScreen__()
 
 		if self.BlockOnScreen:
@@ -97,7 +95,7 @@ class Block:
 			if not self.block_id == 0: # isAir
 				try:
 					# Crop block from texture
-					win.blit(self.block_texture, self.pos_cam, tuple(self.crop))
+					surface.blit(self.block_texture, self.pos_cam, tuple(self.crop))
 				except:
 					pass
 
@@ -105,7 +103,7 @@ class Block:
 
 			if not self.color == False:
 				self.color_block.fill(self.color)
-				win.blit(self.color_block, tuple(self.pos_cam))
+				surface.blit(self.color_block, tuple(self.pos_cam))
 
 			# Update durability
 			self.break_durability = Blocks_list[self.block_id]["durability"]
@@ -113,12 +111,12 @@ class Block:
 			# Block light
 			if not self.block_id == 0:
 				self.block_light.fill((0,0,0,self.light_val))
-				win.blit(self.block_light, tuple(self.pos_cam))
+				surface.blit(self.block_light, tuple(self.pos_cam))
 
 
 			if self.glow:
 				self.select_rect.fill((self.glow_color[0],self.glow_color[1],self.glow_color[2],128))
-				win.blit(self.select_rect, tuple(self.pos_cam))
+				surface.blit(self.select_rect, tuple(self.pos_cam))
 
 	def coll_hitbox(self, shape, nair=False):
 		if nair == False: 
@@ -151,7 +149,7 @@ class Block:
 
 			self.update_block()
 
-	def breakBlock(self, id):
+	def breakBlock(self, surface, id):
 		if not self.break_durability == False:
 			self.break_state += (1 * self.deltaTime)
 
@@ -162,7 +160,7 @@ class Block:
 
 			for i in range(9):
 				if self.break_porcentage >= ( (i+1) * 10) and self.break_porcentage < ( (i+2) * 10):
-					win.blit(self.block_texture, self.pos_cam, Textures_states[i]["crop"])
+					surface.blit(self.block_texture, self.pos_cam, Textures_states[i]["crop"])
 					break
 
 			if self.break_state >= self.break_durability:
@@ -207,7 +205,6 @@ class Block:
 		self.rect_shape = pygame.Rect(shape[0], shape[1], shape[2], shape[3])
 		if self.__isBlockOnScreen__():
 			if (self.rect_shape.colliderect(self.hitbox) and self.background == False):
-				#pygame.draw.rect(win, (0,255,0), self.hitbox)
 				return True
 
 			return False

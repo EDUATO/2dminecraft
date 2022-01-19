@@ -1,7 +1,7 @@
 import pygame
 
 from files.import_imp import *
-from files.vars import win, block_scale_buff, gravity, modeX, modeY
+from files.vars import block_scale_buff, gravity, modeX, modeY
 from files.Block import *
 import files.bucle as b
 import files.Game as mg
@@ -52,22 +52,20 @@ class Entity:
 				self.resized_body_parts[self.body_parts_keys[i]].append(self.body_parts[self.body_parts_keys[i]][t] * self.entity_scale_buff )
 
 
-	def body_shape(self, pos, state=0):
+	def body_shape(self,surface, pos, state=0):
 		pass
 
-	def update(self, chunks_list, deltaTime):
+	def update(self, surface, chunks_list, deltaTime):
 
 		if mg.Pause == False:
 			if ENABLE_PHYSICS:
 				self.physics(chunks_list) # The phyisics are kind of laggy
 		
-		self.body_shape(tuple(self.pos), 0)
+		self.body_shape(surface, tuple(self.pos), 0)
 
 		self.hitbox = (self.pos[0], self.pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
 
 		self.deltaTime = deltaTime
-
-		#pygame.draw.rect(win, (255,255,0), self.hitbox, 2)
 
 		self.dx = 0
 		self.dy = 0

@@ -1,7 +1,7 @@
 import pygame
 
 from files.import_imp import *
-from files.vars import win, block_scale_buff, camera_coords, modeX, modeY
+from files.vars import block_scale_buff, camera_coords, modeX, modeY
 from files.entity import Entity
 import files.bucle as b
 
@@ -57,32 +57,32 @@ class Player(Entity):
 
 		self.Front_Arm2 = self.player_texture.subsurface((self.resized_body_parts["Front_Arm"]))
 
-	def body_shape(self, pos, state=0):
+	def body_shape(self,surface, pos, state=0):
 		if state == 0:
-			win.blit(self.head2, (pos)) # Head
+			surface.blit(self.head2, (pos)) # Head
 
-			win.blit(self.arm1, (pos[0] + self.resized_body_parts["Head2"][2]/4 ,pos[1] + self.resized_body_parts["Head2"][3])) # Right hand
+			surface.blit(self.arm1, (pos[0] + self.resized_body_parts["Head2"][2]/4 ,pos[1] + self.resized_body_parts["Head2"][3])) # Right hand
 
-			win.blit(self.body, (pos[0] + self.resized_body_parts["Head2"][2]/4 ,pos[1] + self.resized_body_parts["Head2"][3])) # Body
+			surface.blit(self.body, (pos[0] + self.resized_body_parts["Head2"][2]/4 ,pos[1] + self.resized_body_parts["Head2"][3])) # Body
 
-			win.blit(self.arm2, (pos[0] + self.resized_body_parts["Head2"][2]/4 ,pos[1] + self.resized_body_parts["Head2"][3])) # Right hand
+			surface.blit(self.arm2, (pos[0] + self.resized_body_parts["Head2"][2]/4 ,pos[1] + self.resized_body_parts["Head2"][3])) # Right hand
 
-			win.blit(self.leg1, (pos[0] + self.resized_body_parts["Head2"][2]/4 ,pos[1] + self.resized_body_parts["Head2"][3] + self.resized_body_parts["Body"][3])) # Leg 1
+			surface.blit(self.leg1, (pos[0] + self.resized_body_parts["Head2"][2]/4 ,pos[1] + self.resized_body_parts["Head2"][3] + self.resized_body_parts["Body"][3])) # Leg 1
 
-			win.blit(self.leg2, (pos[0] + self.resized_body_parts["Head2"][2]/4 ,pos[1] + self.resized_body_parts["Head2"][3] + self.resized_body_parts["Body"][3])) # Leg 2
+			surface.blit(self.leg2, (pos[0] + self.resized_body_parts["Head2"][2]/4 ,pos[1] + self.resized_body_parts["Head2"][3] + self.resized_body_parts["Body"][3])) # Leg 2
 
 		elif state == 1:
-			win.blit(self.head1, (pos)) # Head
+			surface.blit(self.head1, (pos)) # Head
 
-			win.blit(self.Front_Body, (pos[0] ,pos[1] + self.resized_body_parts["Head"][3])) # Body
+			surface.blit(self.Front_Body, (pos[0] ,pos[1] + self.resized_body_parts["Head"][3])) # Body
 
-			win.blit(self.leg1, (pos[0] ,pos[1] + self.resized_body_parts["Head"][3] + self.resized_body_parts["Front_Body"][3])) # Leg 1
+			surface.blit(self.leg1, (pos[0] ,pos[1] + self.resized_body_parts["Head"][3] + self.resized_body_parts["Front_Body"][3])) # Leg 1
 
-			win.blit(self.leg2, (pos[0] + self.resized_body_parts["Leg"][2] ,pos[1] + self.resized_body_parts["Head"][3] + self.resized_body_parts["Front_Body"][3])) # Leg 2
+			surface.blit(self.leg2, (pos[0] + self.resized_body_parts["Leg"][2] ,pos[1] + self.resized_body_parts["Head"][3] + self.resized_body_parts["Front_Body"][3])) # Leg 2
 
-			win.blit(self.Front_Arm1, (pos[0] + self.resized_body_parts["Front_Body"][2] ,pos[1] + self.resized_body_parts["Head2"][3])) # Right hand
+			surface.blit(self.Front_Arm1, (pos[0] + self.resized_body_parts["Front_Body"][2] ,pos[1] + self.resized_body_parts["Head2"][3])) # Right hand
 
-			win.blit(self.Front_Arm2, (pos[0] - self.resized_body_parts["Front_Arm"][2] ,pos[1] + self.resized_body_parts["Head2"][3])) # Left hand
+			surface.blit(self.Front_Arm2, (pos[0] - self.resized_body_parts["Front_Arm"][2] ,pos[1] + self.resized_body_parts["Head2"][3])) # Left hand
 
 	def keyMovement(self):
 		

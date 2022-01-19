@@ -1,11 +1,10 @@
 import pygame
 
 ########## LOCAL MODULES ##########
-from files.vars import win
 
-def text(txt,x, y, FUENTE, COLOR):
+def text(surface, txt,x, y, FUENTE, COLOR):
 	text.Text = FUENTE.render(txt,1,(COLOR))
-	win.blit(text.Text,(x,y))
+	surface.blit(text.Text,(x,y))
 
 
 def isSpriteOnTheScreen(camera:tuple, screenSize:tuple, hitboxSize:tuple):

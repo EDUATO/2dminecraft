@@ -3,7 +3,7 @@ from pygame.locals import *
 
 from files.gui.Inventory import Inventory_slots
 from files.import_imp import Widgets_texture
-from files.vars import win, modeX, modeY, block_scale_buff
+from files.vars import modeX, modeY, block_scale_buff
 from files.fonts import *
 import files.functions as f
 from files.Block import Blocks_list, block_texture
@@ -20,7 +20,7 @@ class Hotbar:
 		self.slot_size = 20
 		self.slots = []
 
-	def update(self, events):
+	def update(self, events, surface):
 
 		# Update the slots from Inventory
 		self.slots = []
@@ -28,21 +28,22 @@ class Hotbar:
 			self.slots.append(Inventory_slots[i])
 		
 		# Draw HotBar
-		win.blit(self.texture , (modeX/2 - self.texture.get_width()/2,modeY - self.bar_crop[3] - 20), self.bar_crop)
+		surface.blit(self.texture , (modeX/2 - self.texture.get_width()/2,modeY - self.bar_crop[3] - 20), self.bar_crop)
 
 		if not gm.Pause:
 			self.mouse_wheel(events)
 
-		self.show_items()
+		self.show_items(surface)
 		
 		# Draw HotBar Selector
-		win.blit(self.texture, ((modeX/2 - self.texture.get_width()/2 - 3) + ((self.slot_pos ) * (self.slot_size * block_scale_buff)) ,modeY - self.bar_crop[3] - 23), self.bar_selector_crop)
+		surface.blit(self.texture, ((modeX/2 - self.texture.get_width()/2 - 3) + ((self.slot_pos ) * (self.slot_size * block_scale_buff)) ,modeY - self.bar_crop[3] - 23), self.bar_selector_crop)
 
-	def show_items(self):
+	def show_items(self, surface):
 		# Draw the player's items
 		for i in range(len(self.slots)):
 			if not self.slots[i]["Item"][0] == None:
-				DR = drawInventoryItem(item_id= self.slots[i]["Item"],
+				DR = drawInventoryItem(surface=surface,
+									item_id= self.slots[i]["Item"],
 									X= (modeX/2 - self.texture.get_width()/2 + 9) + (i) * (self.slot_size * block_scale_buff), 
 									Y= (modeY - self.bar_crop[3] - 11) )
 

@@ -1,7 +1,7 @@
 import pygame
 
 from files.block_data import Blocks_list, block_texture
-from files.vars import modeY, modeX, win, block_scale_buff
+from files.vars import modeY, modeX, block_scale_buff
 import files.functions as f
 from files.fonts import *
 
@@ -19,10 +19,7 @@ class Gui:
 		global inGui
 		inGui = state
 
-	def update(self):
-		pass
-
-	def slots_update(self, slots, mouse):
+	def slots_update(self, surface, slots, mouse):
 
 		self.mouse_action = pygame.mouse.get_pressed()
 
@@ -36,15 +33,13 @@ class Gui:
 			
 			self.Slot_Rect = pygame.Rect( self.Slot_Rect_Tuple )
 
-			#pygame.draw.rect(win, (255,255,0), self.Slot_Rect, 2)
-
 			# Draw whats inside the slot
 			if not slots[i]["Item"][0] == None:
-				drawInventoryItem(slots[i]["Item"], self.Slot_Rect_Tuple[0], self.Slot_Rect_Tuple[1])
+				drawInventoryItem(surface, slots[i]["Item"], self.Slot_Rect_Tuple[0], self.Slot_Rect_Tuple[1])
 
-			self.slots_action(mouse=mouse ,slots=slots, slot_num=i)
+			self.slots_action(surface=surface, mouse=mouse ,slots=slots, slot_num=i)
 
-	def slots_action(self, mouse, slots, slot_num):
+	def slots_action(self, surface, mouse, slots, slot_num):
 		# Mouse colliderect
 			if mouse.colliderect(self.Slot_Rect):
 				if not slot_num == self.prew_slot_id:
@@ -53,18 +48,18 @@ class Gui:
 					self.prew_slot_id = slot_num
 					
 				# Draw Slot Selection Shadow
-				self.SlotSelection()
+				self.SlotSelection(surface)
 				
 				self.__LeftClickController__(mouse, slots, slot_num)
 
 				self.__RightClickController__(mouse, slots, slot_num)
 
-			self.itemInCursor(mouse, self.picked_item)
+			self.itemInCursor(surface, mouse, self.picked_item)
 
-	def SlotSelection(self):
+	def SlotSelection(self, surface):
 		self.Slot_RectSurface = pygame.Surface( (self.Slot_Rect[2], self.Slot_Rect[3]), pygame.SRCALPHA )
 		self.Slot_RectSurface.fill((255,255,255,150))
-		win.blit(self.Slot_RectSurface, (self.Slot_Rect[0], self.Slot_Rect[1]))
+		surface.blit(self.Slot_RectSurface, (self.Slot_Rect[0], self.Slot_Rect[1]))
 
 	def __LeftClickController__(self, mouse, slots, slot_num):
 		""" Control the GUI Left Click Events """
@@ -148,10 +143,10 @@ class Gui:
 		elif add != False:
 			slots[slot_id]["Item"][1] += add
 
-	def itemInCursor(self, mouse, item_id):
-		drawInventoryItem(item_id, mouse[0], mouse[1], centered=True)
+	def itemInCursor(self,surface, mouse, item_id):
+		drawInventoryItem(surface, item_id, mouse[0], mouse[1], centered=True)
 
-def drawInventoryItem(item_id, X, Y, centered=False):
+def drawInventoryItem(surface, item_id, X, Y, centered=False):
 	if not item_id[0] == None:
 		try:
 			drawInventoryItem.crop = (
@@ -166,11 +161,11 @@ def drawInventoryItem(item_id, X, Y, centered=False):
 			return False # There is no block 
 
 		if centered:
-			win.blit(block_texture, (X - 16 * block_scale_buff/2 , Y - 16 * block_scale_buff/2), drawInventoryItem.crop)
-			f.text(str(item_id[1]), X - 16 * block_scale_buff/2 , Y - 16 * block_scale_buff/2, Mc_20, (255,255,0) )
+			surface.blit(block_texture, (X - 16 * block_scale_buff/2 , Y - 16 * block_scale_buff/2), drawInventoryItem.crop)
+			f.text(surface, str(item_id[1]), X - 16 * block_scale_buff/2 , Y - 16 * block_scale_buff/2, Mc_20, (255,255,0) )
 		else:
-			win.blit(block_texture, (X , Y), drawInventoryItem.crop)
-			f.text(str(item_id[1]), X , Y, Mc_20, (255,255,0) )
+			surface.blit(block_texture, (X , Y), drawInventoryItem.crop)
+			f.text(surface, str(item_id[1]), X , Y, Mc_20, (255,255,0) )
 
 		
 		

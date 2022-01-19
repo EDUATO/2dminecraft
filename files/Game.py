@@ -5,7 +5,7 @@ import threading
 import math
 
 ########## LOCAL MODULES ##########
-from files.vars import Scene, win, modeX, modeY, block_scale_buff, Playing, camera_coords, DebugScreen, block_size, chunk_size, block_to_put_id, modeY, Pause
+from files.vars import Scene, modeX, modeY, block_scale_buff, Playing, camera_coords, DebugScreen, block_size, chunk_size, block_to_put_id, modeY, Pause
 import files.bucle as b
 from files.import_imp import Blocks_texture, Player_texture
 from files.fonts import *
@@ -18,7 +18,7 @@ from files.gui.Inventory import Inventory, PlayerInventory
 import files.gui.gui_class as gui
 from files.gui.hotbar import Hotbar
 
-loop = threading.Thread(target=generation_loop, daemon=True) # It destroy when the main thread ends
+loop = threading.Thread(target=generation_loop, daemon=True) # It destroys when the main thread ends
 loop.start()
 
 
@@ -46,7 +46,7 @@ pygame.mouse.set_visible(False) # Hide cursor
 Player_Hotbar = Hotbar()
 
 
-def game(events):
+def game(events, surface):
 	global selected_block, block_to_put_id, ActiveChunks
 
 	inGameEvents(events)
@@ -77,23 +77,23 @@ def game(events):
 	# UPDATE ACTIVECHUNKS
 	for c in range(len(ActiveChunks)):
 		for i in range(len(ActiveChunks[c])):
-			ActiveChunks[c][i]["BLOCK"].update(deltaTime=b.deltaTime)
+			ActiveChunks[c][i]["BLOCK"].update(deltaTime=b.deltaTime, surface=surface)
 
 	"""if DebugScreen:
-		grid(block_size, (0,0,100), camera_coords=camera_coords) # Show grid"""
+		grid(surface ,block_size, (0,0,100), camera_coords=camera_coords) # Show grid"""
 
 	# Player
-	p1.update(ActiveChunks, deltaTime=b.deltaTime)
+	p1.update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime)
 
 	# Update entities
 	for i in range(len(EntitiesInGame)):
-		EntitiesInGame[i].update(ActiveChunks, deltaTime=b.deltaTime)
+		EntitiesInGame[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime)
 
 	# Mouse
 	if not (gui.inGui or Pause):
 		# Cursor
-		pygame.draw.line(win, (255,255,255), (b.mouse_hitbox[0], 0), (b.mouse_hitbox[0], modeY))
-		pygame.draw.line(win, (255,255,255), (0, b.mouse_hitbox[1]), (modeX, b.mouse_hitbox[1]))
+		pygame.draw.line(surface, (255,255,255), (b.mouse_hitbox[0], 0), (b.mouse_hitbox[0], modeY))
+		pygame.draw.line(surface, (255,255,255), (0, b.mouse_hitbox[1]), (modeX, b.mouse_hitbox[1]))
 
 		p1.keyMovement() # Be able to move the player
 
@@ -136,7 +136,7 @@ def game(events):
 		# Clicks
 		if not (gui.inGui or Pause):
 			if mouse[0]:
-				selected_block["BLOCK"].breakBlock(0)
+				selected_block["BLOCK"].breakBlock(surface=surface, id=0)
 			else:
 				selected_block["BLOCK"].resetBreakState()
 		else:
@@ -155,27 +155,27 @@ def game(events):
 	except TypeError:
 		pass
 	
-	Player_Hotbar.update(events)
+	Player_Hotbar.update(events, surface)
 
-	PlayerInventory.update(b.mouse_hitbox, keys)
+	PlayerInventory.update(surface, b.mouse_hitbox, keys)
 
 	if DebugScreen:
 		
-		f.text("Terrain seed: " + str(seed), modeX-400, 0, Arial_30, (255,255,255))
-		f.text(str(b.fps), 0, 0, Arial_30, (255,255,255))
+		f.text(surface, "Terrain seed: " + str(seed), modeX-400, 0, Arial_30, (255,255,255))
+		f.text(surface, str(b.fps), 0, 0, Arial_30, (255,255,255))
 		
 		try:
-			f.text("Noise Value: " + str(selected_block["BLOCK"].getNoiseValue()) , 400, 50, Arial_30, (255,255,255))
+			f.text(surface, "Noise Value: " + str(selected_block["BLOCK"].getNoiseValue()) , 400, 50, Arial_30, (255,255,255))
 		except:
-			f.text("Noise Value: None" , 400, 50, Arial_30, (255,255,255))
+			f.text(surface, "Noise Value: None" , 400, 50, Arial_30, (255,255,255))
 
 		try:
-			f.text("isBackground : " + str(selected_block["BLOCK"].isBackground()), 0, 50, Arial_30, (255,255,255))
+			f.text(surface, "isBackground : " + str(selected_block["BLOCK"].isBackground()), 0, 50, Arial_30, (255,255,255))
 		except:
 			pass
 
 		try:
-			f.text(str(selected_block["BLOCK"].getBreakPorcentage()) + "%", 250, 50, Arial_30, (255,255,255))
+			f.text(surface, str(selected_block["BLOCK"].getBreakPorcentage()) + "%", 250, 50, Arial_30, (255,255,255))
 		except:
 			pass
 
