@@ -99,5 +99,14 @@ class Player(Entity):
 		if self.keys[K_SPACE]:
 			self.move(direction="U")
 
+		# FOR TESTING PURPOSES ONLY
+		if self.keys[K_w]:
+			if not self.keys[K_s] == 1:
+				self.move(direction="W")
+
+		if self.keys[K_s]:
+			if not self.keys[K_w] == 1:
+				self.move(direction="S")
+
 
 

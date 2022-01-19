@@ -89,7 +89,7 @@ def game(events, surface):
 	for i in range(len(EntitiesInGame)):
 		EntitiesInGame[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime)
 
-	# Mouse
+	### MOUSE CONTROLLER ###
 	if not (gui.inGui or Pause):
 		# Cursor
 		pygame.draw.line(surface, (255,255,255), (b.mouse_hitbox[0], 0), (b.mouse_hitbox[0], modeY))
@@ -97,24 +97,21 @@ def game(events, surface):
 
 		p1.keyMovement() # Be able to move the player
 
-	try:
-		for c in range(len(ActiveChunks)):
-			for i in range(len(ActiveChunks[c])):
-				if not (gui.inGui or Pause) :
-					mouse_col_block = ActiveChunks[c][i]["BLOCK"].coordsInBlock(b.mouse_hitbox)
+	for c in range(len(ActiveChunks)):
+		for i in range(len(ActiveChunks[c])):
+			if not (gui.inGui or Pause) :
+				# Detect a block being touched by the cursor
+				mouse_col_block = ActiveChunks[c][i]["BLOCK"].coordsInBlock(b.mouse_hitbox)
+				if mouse_col_block:
+					selected_block = ActiveChunks[c][i]
+					selected_block["BLOCK"].setglow(True)
 
-					if mouse_col_block:
-						ActiveChunks[c][i]["BLOCK"].setglow(True)
-
-						selected_block = ActiveChunks[c][i]
-
-					else:
-						ActiveChunks[c][i]["BLOCK"].resetBreakState() # Reset break state
-						ActiveChunks[c][i]["BLOCK"].setglow(False)
 				else:
+					ActiveChunks[c][i]["BLOCK"].resetBreakState() # Reset break state
 					ActiveChunks[c][i]["BLOCK"].setglow(False)
-	except:
-		pass
+			else:
+				pass
+				ActiveChunks[c][i]["BLOCK"].setglow(False)
 
 	
 
@@ -137,6 +134,7 @@ def game(events, surface):
 		if not (gui.inGui or Pause):
 			if mouse[0]:
 				selected_block["BLOCK"].breakBlock(surface=surface, id=0)
+				print(selected_block["BLOCK"].block_pos_grid)
 			else:
 				selected_block["BLOCK"].resetBreakState()
 		else:

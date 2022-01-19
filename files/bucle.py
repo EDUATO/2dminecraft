@@ -7,7 +7,8 @@ from pygame.locals import *
 from files.vars import mouse_hitbox, fps, Frames_per_second, Playing
 import files.draw as dr
 
-	
+FramebyFrame_mode = False
+
 def bucle(surface):
 	global mouse_hitbox, deltaTime, FPS, Pause
 	
@@ -24,12 +25,13 @@ def bucle(surface):
 		#DeltaTime
 		deltaTime = FPS/15
 
-		Events(events)
+		Events(surface, events)
 
-		update(surface, events)
+		if not FramebyFrame_mode:
+			update(surface, events)
 		
-def Events(events):
-	global Playing
+def Events(surface, events):
+	global Playing, FramebyFrame_mode
 
 	for event in events:
 
@@ -37,6 +39,22 @@ def Events(events):
 			Playing = 0
 			print("Exit")
 			sys.exit()
+
+		if event.type == pygame.KEYDOWN:
+			if event.key == K_F2:
+				if FramebyFrame_mode:
+					FramebyFrame_mode = False
+					pygame.mouse.set_visible(False)
+					print("[FramebyFrame] FramebyFrame mode Desactivated!")
+				else:
+					FramebyFrame_mode = True
+					pygame.mouse.set_visible(True)
+					print("[FramebyFrame] FramebyFrame mode Activated!")
+					print("[FramebyFrame] Use the plus key to go to the following frame")
+
+			elif event.key == K_PLUS:
+				if FramebyFrame_mode:
+					update(surface, events)
 			
 			
 def update(surface, events):

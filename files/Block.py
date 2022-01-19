@@ -69,9 +69,9 @@ class Block:
 		self.glow = state
 		self.glow_color = color
 
-	def coordsInBlock(self, coords):
+	def coordsInBlock(self, Coords_Rect):
 		try:
-			if (coords[0] >= self.pos_cam[0] and coords[0] < self.pos_cam[0] + (block_size * block_scale_buff)) and (coords[1] >= self.pos_cam[1] and coords[1] < self.pos_cam[1] + (block_size * block_scale_buff)):
+			if Coords_Rect.colliderect(self.hitbox):
 				return True
 		except IndexError as e:
 			print(e)

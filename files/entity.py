@@ -1,4 +1,5 @@
 import pygame
+import threading
 
 from files.import_imp import *
 from files.vars import block_scale_buff, gravity, modeX, modeY
@@ -57,25 +58,43 @@ class Entity:
 
 	def update(self, surface, chunks_list, deltaTime):
 
+		self.hitbox = (self.pos[0], self.pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+
 		if mg.Pause == False:
 			if ENABLE_PHYSICS:
-				self.physics(chunks_list) # The phyisics are kind of laggy
+				collided_blocks = self.nearbyblocks(chunks_list)
+				self.physics(collided_blocks) # The phyisics are kind of laggy
+				self.update_pos()
 		
 		self.body_shape(surface, tuple(self.pos), 0)
-
-		self.hitbox = (self.pos[0], self.pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
 
 		self.deltaTime = deltaTime
 
 		self.dx = 0
 		self.dy = 0
 
-	def physics(self, chunks_list):
+	def nearbyblocks(self, chunks_list):
+		# Between all the blocks from the screen detect the ones that are closer to the player
+		increaseSize = 50
+		biggerHitbox = ( # Make the entity hitbox bigger to detect the surrounding blocks
+					self.hitbox[0] - increaseSize//2,
+					self.hitbox[1] - increaseSize//2,
+					self.hitbox[2] + increaseSize,
+					self.hitbox[3] + increaseSize
+		)
 
-		self.oneList = []
-		for c in range(len(chunks_list)):
-			for i in range(len(chunks_list[c])):
-				self.oneList.append(chunks_list[c][i])
+		output = []
+		for c in range(len(chunks_list)): # Active chunks
+			for i in range(len(chunks_list[c])): # Blocks from each chunk
+				if chunks_list[c][i]["BLOCK"].coordsInBlock(pygame.Rect(biggerHitbox)):
+					output.append(chunks_list[c][i])
+					#chunks_list[c][i]["BLOCK"].setglow(True)
+		
+		return output
+			
+
+	def physics(self, blocks_list):
+		self.oneList = blocks_list
 				
 					
 		# Gravity 
@@ -87,11 +106,6 @@ class Entity:
 
 		c = 0
 		
-		# -----------------------
-		#
-		#	WARNING: THIS NEEDS OPTIMIZATION
-		#
-		# ----------------------
 		# Check collition
 		for c in range(len(self.oneList)):
 			
@@ -128,6 +142,9 @@ class Entity:
 			
 
 
+		
+
+	def update_pos(self):
 		# Update pos
 		if self.camera:
 			camera_coords[0] -= self.dx
@@ -152,6 +169,12 @@ class Entity:
 			
 		if direction == "L":
 			self.dx -= (self.vel * self.deltaTime)
+
+		if direction == "W":
+			self.dy -= (self.vel * self.deltaTime)
+
+		if direction == "S":
+			self.dy += (self.vel * self.deltaTime)
 
 		if direction == "U" and self.jumping == False:
 			self.vel_y = -12
