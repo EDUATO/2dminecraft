@@ -26,8 +26,8 @@ p1 = Player(Player_texture, ("m", 0),camera=True)
 
 cacaxd = []
 
-for a in range(10):
-	cacaxd.append(Player(Player_texture, ((22)*(a+2), 193),camera=False ))
+for a in range(2):
+	cacaxd.append(Player(Player_texture, ((40)*(a+2), 193),camera=False ))
 
 
 selected_block = None

@@ -81,11 +81,10 @@ class Block:
 	def update(self, surface, deltaTime):
 		self.pos_cam = (self.pos[0] + camera_coords[0], self.pos[1] + camera_coords[1])
 
-		if not self.block_id == 0: # isAir
-			# Update hitbox 
-			self.hitbox = pygame.Rect(self.pos_cam[0], self.pos_cam[1], self.select_rect.get_width(), self.select_rect.get_height())
+		# Update hitbox 
+		self.hitbox = pygame.Rect(self.pos_cam[0], self.pos_cam[1], self.select_rect.get_width(), self.select_rect.get_height())
 
-			self.DrawOnScreen(surface ,deltaTime)
+		self.DrawOnScreen(surface, deltaTime)
 
 	def DrawOnScreen(self, surface, deltaTime):
 		self.BlockOnScreen = self.__isBlockOnScreen__()
