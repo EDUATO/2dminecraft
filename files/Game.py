@@ -17,6 +17,7 @@ from files.terrain_generator import generate, chunk_blocks_list, seed, generatio
 from files.gui.Inventory import Inventory, PlayerInventory
 import files.gui.gui_class as gui
 from files.gui.hotbar import Hotbar
+from files.debugScreen import DebugScreen
 
 loop = threading.Thread(target=generation_loop, daemon=True) # It destroys when the main thread ends
 loop.start()
@@ -44,6 +45,8 @@ ActiveEntities = []
 pygame.mouse.set_visible(False) # Hide cursor
 
 Player_Hotbar = Hotbar()
+
+debug_screen = DebugScreen()
 
 
 def game(events, surface):
@@ -157,28 +160,30 @@ def game(events, surface):
 
 	PlayerInventory.update(surface, b.mouse_hitbox, keys)
 
-	if DebugScreen:
-		
-		f.text(surface, "Terrain seed: " + str(seed), modeX-400, 0, Arial_30, (255,255,255))
-		f.text(surface, str(b.fps), 0, 0, Arial_30, (255,255,255))
-		
-		try:
-			f.text(surface, "Noise Value: " + str(selected_block["BLOCK"].getNoiseValue()) , 400, 50, Arial_30, (255,255,255))
-		except:
-			f.text(surface, "Noise Value: None" , 400, 50, Arial_30, (255,255,255))
-
-		try:
-			f.text(surface, "isBackground : " + str(selected_block["BLOCK"].isBackground()), 0, 50, Arial_30, (255,255,255))
-		except:
-			pass
-
-		try:
-			f.text(surface, str(selected_block["BLOCK"].getBreakPorcentage()) + "%", 250, 50, Arial_30, (255,255,255))
-		except:
-			pass
+	Debugging_Screen(selected_block=selected_block)
 
 	if Pause:
 		pygame.mouse.set_visible(True)
+
+def Debugging_Screen(selected_block):
+	""" It shows some variables that may be useful to test """
+	if DebugScreen:
+		try:
+			debug_screen.addDebugText(text=f"FPS: {round(b.fps.get_fps())}", color=(200,0,0))
+			
+			debug_screen.addDebugText(text=f"Terrain seed: {seed}", color=(255,255,255))
+
+			debug_screen.addDebugText(text=f"Noise Value: {selected_block['BLOCK'].getNoiseValue()}", color=(255,255,255))
+
+			debug_screen.addDebugText(text=f"isBackground: {selected_block['BLOCK'].isBackground()}", color=(255,255,255))
+
+			debug_screen.addDebugText(text=f"{selected_block['BLOCK'].getBreakPorcentage()} %", color=(255,255,255))
+
+			debug_screen.Show(surface)
+
+			debug_screen.resetDebugList()
+		except TypeError: # 'NoneType' object is not subscripable
+			pass
 		
 
 	
