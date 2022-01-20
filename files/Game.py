@@ -5,48 +5,16 @@ import threading
 import math
 
 ########## LOCAL MODULES ##########
-from files.vars import Scene, modeX, modeY, block_scale_buff, Playing, camera_coords, DebugScreen, block_size, chunk_size, block_to_put_id, modeY, Pause
+from files.vars import Scene, modeX, modeY, block_scale_buff, Playing, DebugScreen, block_size, chunk_size, block_to_put_id, modeY, Pause
 import files.bucle as b
-from files.import_imp import Blocks_texture, Player_texture
 from files.fonts import *
 import files.functions as f
-from files.Block import Block, Blocks_list, camera_coords
+from files.Block import Blocks_list
 from files.grid import grid
-from files.player import Player
-from files.terrain_generator import generate, chunk_blocks_list, seed, generation_loop
-from files.gui.Inventory import Inventory, PlayerInventory
 import files.gui.gui_class as gui
-from files.gui.hotbar import Hotbar
-from files.debugScreen import DebugScreen
 
-loop = threading.Thread(target=generation_loop, daemon=True) # It destroys when the main thread ends
-loop.start()
+from files.classes_init import * # All the classes/methods will be initialized here
 
-
-p1 = Player(Player_texture, ("m", 0),camera=True)
-
-cacaxd = []
-
-for a in range(2):
-	cacaxd.append(Player(Player_texture, ((40)*(a+2), 193),camera=False ))
-
-
-selected_block = None
-
-ActiveChunks = [chunk_blocks_list[0]]
-
-EntitiesInGame = []
-
-for i in range(len(cacaxd)):
-	EntitiesInGame.append(cacaxd[i])
-
-ActiveEntities = []
-
-pygame.mouse.set_visible(False) # Hide cursor
-
-Player_Hotbar = Hotbar()
-
-debug_screen = DebugScreen()
 
 
 def game(events, surface):
@@ -61,7 +29,7 @@ def game(events, surface):
 		for n in range(len(chunk_blocks_list[c])):
 			chunk_initial_place = (chunk_size[0] * (16 * block_scale_buff) * (n))
 			chunk_real_size = (chunk_size[0] * (16 * block_scale_buff) * (n+1)) # 16 is the block size
-			if p1.get_pos()[0] - camera_coords[0] > chunk_initial_place and p1.get_pos()[0] - camera_coords[0] < chunk_real_size+1:
+			if p1.get_pos()[0] - CameraMain.get_xy()[0] > chunk_initial_place and p1.get_pos()[0] - CameraMain.get_xy()[0] < chunk_real_size+1:
 				break
 
 		try:
@@ -80,17 +48,10 @@ def game(events, surface):
 	# UPDATE ACTIVECHUNKS
 	for c in range(len(ActiveChunks)):
 		for i in range(len(ActiveChunks[c])):
-			ActiveChunks[c][i]["BLOCK"].update(deltaTime=b.deltaTime, surface=surface)
+			ActiveChunks[c][i]["BLOCK"].update(deltaTime=b.deltaTime, surface=surface, Camera=CameraMain)
 
 	"""if DebugScreen:
-		grid(surface ,block_size, (0,0,100), camera_coords=camera_coords) # Show grid"""
-
-	# Player
-	p1.update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime)
-
-	# Update entities
-	for i in range(len(EntitiesInGame)):
-		EntitiesInGame[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime)
+		grid(surface ,block_size, (0,0,100), camera_coords=CameraMain) # Show grid"""
 
 	### MOUSE CONTROLLER ###
 	if not (gui.inGui or Pause):
@@ -116,7 +77,12 @@ def game(events, surface):
 				pass
 				ActiveChunks[c][i]["BLOCK"].setglow(False)
 
-	
+	# Player
+	p1.update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain)
+
+	# Update entities
+	"""for i in range(len(EntitiesInGame)):
+		EntitiesInGame[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime)"""
 
 	keys = pygame.key.get_pressed()
 	mouse = pygame.mouse.get_pressed()
@@ -160,12 +126,12 @@ def game(events, surface):
 
 	PlayerInventory.update(surface, b.mouse_hitbox, keys)
 
-	Debugging_Screen(selected_block=selected_block)
+	Debugging_Screen(surface=surface, selected_block=selected_block)
 
 	if Pause:
 		pygame.mouse.set_visible(True)
 
-def Debugging_Screen(selected_block):
+def Debugging_Screen(surface, selected_block):
 	""" It shows some variables that may be useful to test """
 	if DebugScreen:
 		try:

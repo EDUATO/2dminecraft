@@ -10,10 +10,11 @@ import files.Game as mg
 ENABLE_PHYSICS = True
 
 class Entity:
-	def __init__(self, pos, texture, hitbox_size, body_parts,camera=False, entity_scale_buff=2):
-		global camera_coords
+	def __init__(self, pos, texture, hitbox_size, camera, body_parts,Camera_Focus=False, entity_scale_buff=2):
 		self.pos = pos
 		self.hitbox_size = hitbox_size
+
+		self.camera_updater(Camera=camera)
 
 		self.texture = texture
 
@@ -25,12 +26,9 @@ class Entity:
 
 		self.resized_body_parts = {}
 
-		self.camera = camera # If the entity is the main camera
+		self.Camera_Focus = Camera_Focus # If the entity is the main camera
 		self.camera_limit_x = modeX
 		self.camera_limit_y = 300
-
-		"""if self.camera:
-			camera_coords = [pos[0], pos[1]-modeY/2]"""
 
 		self.vel = 4
 
@@ -56,7 +54,9 @@ class Entity:
 	def body_shape(self,surface, pos, state=0):
 		pass
 
-	def update(self, surface, chunks_list, deltaTime):
+	def update(self, surface, chunks_list, deltaTime, camera):
+
+		self.camera_updater(Camera=camera)
 
 		self.hitbox = (self.pos[0], self.pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
 
@@ -78,9 +78,9 @@ class Entity:
 		increaseSize = 50
 		biggerHitbox = ( # Make the entity hitbox bigger to detect the surrounding blocks
 					self.hitbox[0] - increaseSize//2,
-					self.hitbox[1] - increaseSize//2,
+					self.hitbox[1] - increaseSize,
 					self.hitbox[2] + increaseSize,
-					self.hitbox[3] + increaseSize
+					self.hitbox[3] + increaseSize*2
 		)
 
 		output = []
@@ -88,7 +88,7 @@ class Entity:
 			for i in range(len(chunks_list[c])): # Blocks from each chunk
 				if chunks_list[c][i]["BLOCK"].coordsInBlock(pygame.Rect(biggerHitbox)):
 					output.append(chunks_list[c][i])
-					#chunks_list[c][i]["BLOCK"].setglow(True)
+					chunks_list[c][i]["BLOCK"].setglow(True)
 		
 		return output
 			
@@ -114,7 +114,7 @@ class Entity:
 				# X collition
 				if self.oneList[c]["BLOCK"].coll_hitbox( (self.pos[0]+ self.dx, self.pos[1] , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff) ):
 					self.dx = 0
-
+					print("UP")
 				# Y collition
 				if self.oneList[c]["BLOCK"].coll_hitbox( (self.pos[0], self.pos[1] + self.dy, self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff) ):
 					# Check if its under the ground
@@ -141,18 +141,20 @@ class Entity:
 								break	
 			
 
-
+	def camera_updater(self, Camera):
+		self.CameraMain = Camera
+		self.CameraXY = Camera.get_xy()
 		
 
 	def update_pos(self):
 		# Update pos
-		if self.camera:
-			camera_coords[0] -= self.dx
+		if self.Camera_Focus:
+			self.CameraMain.set_x_coord(value=-self.dx, addToTheVar=True)
 		else:
 			self.pos[0] += self.dx
 		
-		if self.camera:
-			camera_coords[1] -= self.dy
+		if self.Camera_Focus:
+			self.CameraMain.set_y_coord(value=-self.dy, addToTheVar=True)
 		else:
 			self.pos[1] += self.dy	
 

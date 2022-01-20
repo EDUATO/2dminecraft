@@ -20,7 +20,7 @@ noise_sc = .1
 
 prw_noise = [1,1]
 
-def airGen(in_coords):
+def airGen(in_coords, Camera):
 	chunk_blocks_list.append([])
 	
 	# Fill the screen with air blocks, to define the blocks
@@ -28,11 +28,9 @@ def airGen(in_coords):
 	for y in range( chunk_size[1] ):
 		for x in range( chunk_size[0] ):
 			POSITION = (x + in_coords, y)
-			#print(f"{in_coords} - {y} - {x}")
-			#print(f"{chunk_size[1] - y} - {chunk_size[0] - x}")
-			#print(POSITION)
 			chunk_blocks_list[len(chunk_blocks_list)-1].append(
-				{"POS":POSITION, "BLOCK":Block(0, POSITION)}
+				{"POS":POSITION,
+				"BLOCK":Block(ID=0, block_pos_grid=POSITION,Camera=Camera)}
 				)
 
 	#print(chunk_blocks_list[len(chunk_blocks_list)-1])
@@ -43,10 +41,10 @@ for i in range(255):
 	if not (i+1) > 255:
 		colors.append( ((i+1), (i+1), (i+1)) )
 
-def generate(in_coords, time_s):
+def generate(in_coords, time_s, Camera):
 	global prw_noise
 	# GENERATE AIR BLOCKS
-	airGen(in_coords)
+	airGen(in_coords, Camera=Camera)
 	
 	# GENERATE TERRAIN
 	a = 0
@@ -113,11 +111,11 @@ def find_coicidences(chunk_index, block_id):
 	return coincidences_list
 
 # Generation
-def generation_loop():
+def generation_loop(Camera):
 	times = 0
 	if Playing:
 		for times in range(3):
-			generate(chunk_size[0] * times, 0)
+			generate(chunk_size[0] * times, 0, Camera)
 			print(f"[Generation] Chunk {times} generated!")
 
 		print("[Generation] All chunks generated!")

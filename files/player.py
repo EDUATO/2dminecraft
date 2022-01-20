@@ -1,12 +1,12 @@
 import pygame
 
 from files.import_imp import *
-from files.vars import block_scale_buff, camera_coords, modeX, modeY
+from files.vars import block_scale_buff, modeX, modeY
 from files.entity import Entity
 import files.bucle as b
 
 class Player(Entity):
-	def __init__(self, texture, pos, camera=False):
+	def __init__(self, texture, pos, Camera, Camera_Focus):
 	
 		self.body_parts = {
 			"Head" : (0,0,8,8),
@@ -24,7 +24,7 @@ class Player(Entity):
 		
 		self.pos = self.initial_pos
 
-		super().__init__(self.pos,  texture, (8, 32), self.body_parts, entity_scale_buff=block_scale_buff, camera=camera)
+		super().__init__(self.pos,  texture, (8, 32), Camera, self.body_parts,Camera_Focus=Camera_Focus, entity_scale_buff=block_scale_buff,)
 
 		self.inventory = []
 

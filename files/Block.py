@@ -1,6 +1,6 @@
 import pygame
 
-from files.vars import block_scale_buff, camera_coords, block_size, modeX, modeY
+from files.vars import block_scale_buff, block_size, modeX, modeY
 from files.block_data import *
 from files.functions import isSpriteOnTheScreen
 
@@ -10,7 +10,7 @@ for i in range(9):
 	Textures_states[i] = {"Name" : "Break_state_"+str(i), "crop":((16*i)* block_scale_buff, 16* block_scale_buff, 16 * block_scale_buff, 16 * block_scale_buff )}
 
 class Block:
-	def __init__(self, ID, block_pos_grid):
+	def __init__(self, ID, block_pos_grid, Camera):
 		self.block_id = ID
 		self.color = False
 		self.block_texture = block_texture
@@ -20,6 +20,9 @@ class Block:
 		self.block_pos_grid = block_pos_grid # Block Position in grid
 		self.noise_value = False
 		self.background = False # No hitbox
+
+		# Camera
+		self.camera_updater(Camera=Camera)
 
 		self.break_state = 0
 
@@ -32,7 +35,7 @@ class Block:
 
 		self.update_block(True)
 
-		self.hitbox = pygame.Rect(self.pos[0] + camera_coords[0], self.pos[1] + camera_coords[1], self.select_rect.get_width(), self.select_rect.get_height())
+		self.hitbox = pygame.Rect(self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1], self.select_rect.get_width(), self.select_rect.get_height())
 
 		self.deltaTime = 1
 
@@ -41,6 +44,10 @@ class Block:
 		self.light_val = 0
 
 		self.BlockOnScreen = False
+
+	def camera_updater(self, Camera):
+		self.CameraMain = Camera
+		self.CameraXY = Camera.get_xy()
 
 	def update_block(self, init=False):
 		if not self.block_id == 0: # isAir
@@ -63,7 +70,7 @@ class Block:
 				self.pos.append( (-block_pos_grid[i]) * (block_size * block_scale_buff)) 
 			
 
-		self.pos_cam = (self.pos[0] + camera_coords[0], self.pos[1] + camera_coords[1])
+		self.pos_cam = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
 
 	def setglow(self, state, color=(255,255,0)):
 		self.glow = state
@@ -78,8 +85,10 @@ class Block:
 
 		return False
 
-	def update(self, surface, deltaTime):
-		self.pos_cam = (self.pos[0] + camera_coords[0], self.pos[1] + camera_coords[1])
+	def update(self, surface, deltaTime, Camera):
+		self.camera_updater(Camera)
+
+		self.pos_cam = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
 
 		# Update hitbox 
 		self.hitbox = pygame.Rect(self.pos_cam[0], self.pos_cam[1], self.select_rect.get_width(), self.select_rect.get_height())

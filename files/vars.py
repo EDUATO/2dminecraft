@@ -27,8 +27,6 @@ block_scale_buff = 3
 
 block_to_put_id = 1
 
-camera_coords = [0,0]
-
 gravity = 8
 
 chunk_size = (32, 64)

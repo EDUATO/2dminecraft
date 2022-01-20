@@ -82,6 +82,3 @@ class Inventory(Gui):
 
 		elif keys[K_e] == 1:
 			self.open()
-
-
-PlayerInventory = Inventory()
