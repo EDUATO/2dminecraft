@@ -7,12 +7,13 @@ import threading
 from files.noise import Noise
 from files.Block import Block, Blocks_list
 from files.vars import chunk_size, Playing
+from files.chunk import Chunk
 
 
 seed = random.randint(1, 999999)
 Noise_gen = Noise(seed)
 
-chunk_blocks_list = []
+chunks_list = []
 
 con = 1
 
@@ -20,35 +21,42 @@ noise_sc = .1
 
 prw_noise = [1,1]
 
-def airGen(in_coords, Camera):
-	chunk_blocks_list.append([])
-	
+def airGen(in_coords, Camera, chunk_identifier):
+	global chunks_list
+	chunk_blocks_list = []
 	# Fill the screen with air blocks, to define the blocks
 	# Ordered : (0,0) , (1,0), (2,0), (3,0) *chunk_size[0]*, (0,1), (1,1), (2,1), ...
 	for y in range( chunk_size[1] ):
 		for x in range( chunk_size[0] ):
 			POSITION = (x + in_coords, y)
-			chunk_blocks_list[len(chunk_blocks_list)-1].append(
+			chunk_blocks_list.append(
 				{"POS":POSITION,
 				"BLOCK":Block(ID=0, block_pos_grid=POSITION,Camera=Camera)}
 				)
-
-	#print(chunk_blocks_list[len(chunk_blocks_list)-1])
-
+	# SINTAX : chunks_list[num]['BLOCKS'][list_num]['BLOCK'].method()
+	chunks_list.append(
+		{"CHUNK_DATA": Chunk(id=chunk_identifier, size=chunk_size, x_start_pos=in_coords),
+		"BLOCKS":chunk_blocks_list}
+	)
+	
 colors = [(0, 0, 0)]
 
 for i in range(255):
 	if not (i+1) > 255:
 		colors.append( ((i+1), (i+1), (i+1)) )
 
-def generate(in_coords, time_s, Camera):
+def setBlock(chunk_id, block_index, block_id, noise_gen):
+	chunks_list[chunk_id]["BLOCKS"][block_index]["BLOCK"].setBlock(block_id, noiseValue=noise_gen)
+
+def generate(in_coords, time_s, Camera, chunk_identifier):
 	global prw_noise
 	# GENERATE AIR BLOCKS
-	airGen(in_coords, Camera=Camera)
+	airGen(in_coords, Camera=Camera, chunk_identifier=chunk_identifier)
 	
 	# GENERATE TERRAIN
-	a = 0
+	block_index = 0
 	y = 0
+	chunk_id = chunk_identifier
 	for y in range( chunk_size[1] ):
 		for x in range( chunk_size[0] ):
 			# GENERATE NOISE
@@ -61,31 +69,29 @@ def generate(in_coords, time_s, Camera):
 
 			# GRASS BLOCKS
 			if (y == 10):
-				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(1, noiseValue=noise_gen)
+				setBlock(chunk_id=chunk_id, block_index=block_index, block_id=1, noise_gen=noise_gen)
 
 			if (y < 10 ):
-				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(3, noiseValue=noise_gen)
+				setBlock(chunk_id=chunk_id, block_index=block_index, block_id=3, noise_gen=noise_gen)
 
 			if (y < 9):
 				if (noise_gen <= 0.1):
-					chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(2, noiseValue=noise_gen)
+					setBlock(chunk_id=chunk_id, block_index=block_index, block_id=2, noise_gen=noise_gen)
 
 				if (noise_gen >= 0.1):
-					chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(3, noiseValue=noise_gen)
+					setBlock(chunk_id=chunk_id, block_index=block_index, block_id=3, noise_gen=noise_gen)
 
 				if (noise_gen >= 0.7):
-					chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(3, noiseValue=noise_gen)
-
+					setBlock(chunk_id=chunk_id, block_index=block_index, block_id=3, noise_gen=noise_gen)
 			
 				
 			
 			# BEDROCK
-			if chunk_blocks_list[len(chunk_blocks_list)-1][a]["POS"][1] == 0:
-				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBlock(5, noiseValue=noise_gen)
-				chunk_blocks_list[len(chunk_blocks_list)-1][a]["BLOCK"].setBreakeable(False)
-
-
-			a += 1
+			if chunks_list[chunk_id]["BLOCKS"][block_index]["POS"][1] == 0:
+				setBlock(chunk_id=chunk_id, block_index=block_index, block_id=5, noise_gen=noise_gen)
+				chunks_list[chunk_id]["BLOCKS"][block_index]["BLOCK"].setBreakeable(False)
+			
+			block_index += 1
 
 			
 
@@ -98,15 +104,15 @@ def generate(in_coords, time_s, Camera):
 
 def find_coicidences(chunk_index, block_id):
 	coincidences_list = []
-	a = 0
+	block_index = 0
 	for _ in range( chunk_size[1] ):
 		
 		for _ in range( chunk_size[0] ):
 			
-			if chunk_blocks_list[chunk_index][a]["BLOCK"].getId() == block_id:
+			if chunks_list[chunk_id]["BLOCKS"][block_index]["BLOCK"].getId() == block_id:
 				coincidences_list.append(a)
 
-			a += 1
+			block_index += 1
 
 	return coincidences_list
 
@@ -114,8 +120,8 @@ def find_coicidences(chunk_index, block_id):
 def generation_loop(Camera):
 	times = 0
 	if Playing:
-		for times in range(3):
-			generate(chunk_size[0] * times, 0, Camera)
+		for times in range(5):
+			generate(chunk_size[0] * times, 0, Camera, times)
 			print(f"[Generation] Chunk {times} generated!")
 
 		print("[Generation] All chunks generated!")

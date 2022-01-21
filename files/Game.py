@@ -15,40 +15,14 @@ import files.gui.gui_class as gui
 
 from files.classes_init import * # All the classes/methods will be initialized here
 
-ActiveChunks = chunk_blocks_list
-
 def game(events, surface):
 	global selected_block, block_to_put_id, ActiveChunks
-
 	inGameEvents(events)
 
-	# CHUNCK VIEW
-	# This definitely needs a change
-	"""for c in range(len(chunk_blocks_list)):
-
-		for n in range(len(chunk_blocks_list[c])):
-			chunk_initial_place = (chunk_size[0] * (16 * block_scale_buff) * (n))
-			chunk_real_size = (chunk_size[0] * (16 * block_scale_buff) * (n+1)) # 16 is the block size
-			if p1.get_camera_pos()[0] - CameraMain.get_xy()[0] > chunk_initial_place and p1.get_camera_pos()[0] - CameraMain.get_xy()[0] < chunk_real_size+1:
-				break
-
-		try:
-			ActiveChunks = [chunk_blocks_list[n-1], chunk_blocks_list[n], chunk_blocks_list[n+1]]
-		except:
-			try:
-				ActiveChunks = [chunk_blocks_list[n-1], chunk_blocks_list[n]]
-			except:
-				try:
-					ActiveChunks = [chunk_blocks_list[n]]
-				except:
-					pass
-				
-
-		break"""
 	# UPDATE ACTIVECHUNKS
 	for c in range(len(ActiveChunks)):
-		for i in range(len(ActiveChunks[c])):
-			ActiveChunks[c][i]["BLOCK"].update(deltaTime=b.deltaTime, surface=surface, Camera=CameraMain)
+		for i in range(len(ActiveChunks[c]["BLOCKS"])):
+			ActiveChunks[c]["BLOCKS"][i]["BLOCK"].update(deltaTime=b.deltaTime, surface=surface, Camera=CameraMain)
 
 	"""if DebugScreen:
 		grid(surface ,block_size, (0,0,100), camera_coords=CameraMain) # Show grid"""
@@ -64,30 +38,22 @@ def game(events, surface):
 		p1.keyMovement() # Be able to move the player
 
 	for c in range(len(ActiveChunks)):
-		for i in range(len(ActiveChunks[c])):
+		for i in range(len(ActiveChunks[c]["BLOCKS"])):
 			if not (gui.inGui or Pause) :
 				# Detect a block being touched by the cursor
-				mouse_col_block = ActiveChunks[c][i]["BLOCK"].coll_hitbox2(b.mouse_hitbox)
+				mouse_col_block = ActiveChunks[c]["BLOCKS"][i]["BLOCK"].coll_hitbox2(b.mouse_hitbox)
 				if mouse_col_block:
-					selected_block = ActiveChunks[c][i]
+					selected_block = ActiveChunks[c]["BLOCKS"][i]
 					selected_block["BLOCK"].setglow(True)
 					
 				else:
-					ActiveChunks[c][i]["BLOCK"].resetBreakState() # Reset break state
-					ActiveChunks[c][i]["BLOCK"].setglow(False)
+					ActiveChunks[c]["BLOCKS"][i]["BLOCK"].resetBreakState() # Reset break state
+					ActiveChunks[c]["BLOCKS"][i]["BLOCK"].setglow(False)
 			else:
-				pass
-				ActiveChunks[c][i]["BLOCK"].setglow(False)
-
-	# Player
-	p1.update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain)
+				ActiveChunks[c]["BLOCKS"][i]["BLOCK"].setglow(False)
 
 	global p1_pos
-	p1_pos = p1.get_camera_pos()
-
-	# Update entities
-	for i in range(len(EntitiesInGame)):
-		EntitiesInGame[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain)
+	p1_pos = p1.get_screen_pos()
 
 	keys = pygame.key.get_pressed()
 	mouse = pygame.mouse.get_pressed()
@@ -132,15 +98,29 @@ def game(events, surface):
 
 	Debugging_Screen(surface=surface, selected_block=selected_block)
 
+	# Player
+	p1.update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain)
 
+	# Update entities
+	for i in range(len(EntitiesInGame)):
+		EntitiesInGame[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain, test=True)
+
+	# FOCUS CAMERA
+	pe =  f.convert_blocks_pos_to_camera_xy(p1.get_block_pos())
+	CameraMain.set_x_coord(value=(pe[0] + CameraMain.get_camera_size()[0]//2))
+	CameraMain.set_y_coord(value=(pe[1] + CameraMain.get_camera_size()[1]//2 - 100))
 	
+	
+
 	# TEST ONLY
 	for event in events:
 		
 		if event.type == pygame.KEYDOWN:
 			if event.key == K_t:
-				CameraMain.set_x_coord(a[0])
-				CameraMain.set_y_coord(a[1])
+				ch = f.convert_blocks_pos_to_camera_xy(grid_pos=selected_block["BLOCK"].getGridCoords())	
+
+				CameraMain.set_x_coord(ch[0])
+				CameraMain.set_y_coord(ch[1])
 
 	vel = 5
 	keys = pygame.key.get_pressed()
@@ -161,16 +141,11 @@ def game(events, surface):
 	if Pause:
 		pygame.mouse.set_visible(True)
 
-	# FOLLOW PLAYER
-	Player_coords = p1.get_camera_pos()
-	"""CameraMain.set_x_coord(Player_coords[0])
-	CameraMain.set_y_coord(Player_coords[1])"""
-
 def Debugging_Screen(surface, selected_block):
 	""" It shows some variables that may be useful to test """
 	rounded_xy = (round(CameraMain.get_xy()[0]), round(CameraMain.get_xy()[1]))
 	player_pos_in_blocks = f.convert_camera_xy_to_block_pos(xy_pos=((p1_pos[0] - rounded_xy[0]), p1_pos[1] - rounded_xy[1]))
-	Player_coords = p1.get_camera_pos()
+	Player_coords = p1.get_screen_pos()
 
 
 	if DebugScreen:

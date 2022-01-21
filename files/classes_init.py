@@ -2,7 +2,7 @@ import pygame
 import threading
 
 from files.vars import modeX, modeY
-from files.terrain_generator import generate, chunk_blocks_list, seed, generation_loop
+from files.terrain_generator import generate, seed, generation_loop, chunks_list
 from files.import_imp import Blocks_texture, Player_texture
 from files.debugScreen import DebugScreen
 from files.camera import Camera
@@ -24,7 +24,7 @@ CameraMain.set_y_coord(coords_to_spawn_cam[1])
 loop = threading.Thread(target=generation_loop, daemon=True, args=[CameraMain]) # It destroys when the main thread ends
 loop.start()
 
-ActiveChunks = [chunk_blocks_list[0]] # Chunks that are active and will be updated
+ActiveChunks = chunks_list # [FIX] Chunks that are active and will be updated
 
 # PLAYER'S
 p1 = Player(Player_texture, (5, 20), Camera=CameraMain) # Main player

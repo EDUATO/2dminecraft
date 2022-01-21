@@ -6,7 +6,7 @@ from files.vars import gravity
 from files.Block import *
 import files.bucle as b
 import files.Game as mg
-from files.functions import convert_blocks_pos_to_camera_xy
+from files.functions import convert_blocks_pos_to_camera_xy, convert_camera_xy_to_block_pos
 
 ENABLE_PHYSICS = True
 
@@ -20,7 +20,7 @@ class Entity:
 
 		self.camera_updater(Camera=camera)
 
-		self.update_camera_pos()
+		self.update_screen_pos()
 
 		self.texture = texture
 
@@ -48,6 +48,8 @@ class Entity:
 
 		self.deltaTime = 1
 
+		self.Automate_Init() # FOR TESTING PURPOSES
+
 		# body 
 		self.body_parts_keys = list(self.body_parts.keys())
 		for i in range(len(self.body_parts)):
@@ -58,26 +60,36 @@ class Entity:
 	def body_shape(self,surface, pos, state=0):
 		pass
 
-	def update(self, surface, chunks_list, deltaTime, camera):
+	def update(self,surface, chunks_list, deltaTime, camera, test=False):
 
 		self.camera_updater(Camera=camera)
 
-		self.hitbox = (self.cam_pos[0], self.cam_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+		self.hitbox = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+
+		self.update_screen_pos()
 
 		if mg.Pause == False:
 			if ENABLE_PHYSICS:
 				collided_blocks = self.nearbyblocks(chunks_list)
-				self.physics(collided_blocks) # The phyisics are kind of laggy
+				self.physics(collided_blocks)
 				self.update_pos()
-		
-		self.body_shape(surface, tuple(self.cam_pos), 0)
 
 		self.deltaTime = deltaTime
+
+		self.Draw(surface)
 
 		self.dx = 0
 		self.dy = 0
 
+		if test:
+			self.Automate()
+
+	def Draw(self, surface):
+		self.body_shape(surface, tuple(self.screen_pos), 0)
+
 	def nearbyblocks(self, chunks_list):
+		# This causes certain lag
+
 		# Between all the blocks from the screen detect the ones that are closer to the player
 		increaseSize = 50
 		biggerHitbox = ( # Make the entity hitbox bigger to detect the surrounding blocks
@@ -89,62 +101,61 @@ class Entity:
 
 		output = []
 		for c in range(len(chunks_list)): # Active chunks
-			for i in range(len(chunks_list[c])): # Blocks from each chunk
-				if chunks_list[c][i]["BLOCK"].coll_hitbox2(pygame.Rect(biggerHitbox)):
-					output.append(chunks_list[c][i])
+			for i in range(len(chunks_list[c]["BLOCKS"])): # Blocks from each chunk
+				if chunks_list[c]["BLOCKS"][i]["BLOCK"].coll_hitbox2(pygame.Rect(biggerHitbox)):
+					output.append(chunks_list[c]["BLOCKS"][i])
 					#chunks_list[c][i]["BLOCK"].setglow(True)
 		
 		return output
 			
 
-	def physics(self, blocks_list):
+	def physics(self, blocks_list, noGravity=False):
 		self.oneList = blocks_list
 				
-					
 		# Gravity 
 		self.vel_y += (1 * self.deltaTime)
 		if self.vel_y > gravity:
 			self.vel_y = gravity
 
 		self.dy += (self.vel_y * (self.deltaTime))
-
-		c = 0
 		
 		# Check collition
 		for c in range(len(self.oneList)):
-			
-			if self.oneList[c]["BLOCK"].getBlockOnScreen():
+			self.block = self.oneList[c]["BLOCK"]
+			self.block_pos = self.oneList[c]["POS"]
+
+			if self.block.getBlockOnScreen():
 				
-				x_formula = (self.cam_pos[0]+ self.dx, self.cam_pos[1] , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+				x_formula = (self.screen_pos[0]+ self.dx, self.screen_pos[1] , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
 				# X collition
-				if self.oneList[c]["BLOCK"].coll_hitbox( pygame.Rect(x_formula), undetectable_ids=[0] ):
+				if self.block.coll_hitbox( pygame.Rect(x_formula), undetectable_ids=[0] ):
 					self.dx = 0
 
-				y_formula = (self.cam_pos[0], self.cam_pos[1] + self.dy, self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+				y_formula = (self.screen_pos[0], self.screen_pos[1] + self.dy, self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
 				# Y collition
-				if self.oneList[c]["BLOCK"].coll_hitbox( pygame.Rect(y_formula), undetectable_ids=[0] ):
+				if self.block.coll_hitbox( pygame.Rect(y_formula), undetectable_ids=[0] ):
 					# Check if its under the ground
 					if self.vel_y < 0:
-						self.dy = self.oneList[c]["BLOCK"].getHitbox().bottom - pygame.Rect((self.cam_pos[0], self.cam_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)).top
+						self.dy = self.block.getHitbox().bottom - pygame.Rect((self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)).top
 						self.vel_y = 0
 
 					elif self.vel_y >= 0:
 						
-						self.hitbox_rect_bottom = pygame.Rect((self.cam_pos[0], self.cam_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)).bottom
+						self.hitbox_rect_bottom = pygame.Rect((self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)).bottom
 
-						self.dy = self.oneList[c]["BLOCK"].getHitbox().top - self.hitbox_rect_bottom
+						self.dy = self.block.getHitbox().top - self.hitbox_rect_bottom
 
 						self.jumping = False
 
-						self.block_c = self.oneList[c]["BLOCK"].check_block_around_coords(4,4)
+						self.block_c = self.block.check_block_around_coords(4,4)
 
 						for i in range(len(self.oneList)):
-							if self.oneList[i]["POS"] == self.block_c:
-								self.oneList[i]["BLOCK"].setglow(True, color=(255,0,255))
+							if self.block_pos == self.block_c:
+								self.block.setglow(True, color=(255,0,255))
 								break	
 			
-	def update_camera_pos(self):
-		self.cam_pos = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
+	def update_screen_pos(self):
+		self.screen_pos = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
 
 	def camera_updater(self, Camera):
 		self.CameraMain = Camera
@@ -157,10 +168,11 @@ class Entity:
 		self.pos[0] += self.dx
 		self.pos[1] += self.dy
 
-		self.update_camera_pos()
+	def get_screen_pos(self):
+		return self.screen_pos 
 
-	def get_camera_pos(self):
-		return self.cam_pos #FIX
+	def get_block_pos(self):
+		return convert_camera_xy_to_block_pos(xy_pos=((self.screen_pos[0] - self.CameraXY[0]), self.screen_pos[1] - self.CameraXY[1]))
 
 	def get_hitbox(self):
 		return self.hitbox
@@ -177,8 +189,19 @@ class Entity:
 			self.vel_y = -12
 			self.jumping = True
 
+	def Automate_Init(self):
+		self.move_time = 0
+		self.Adir = "R"
 	def Automate(self):
-		self.move("R")
+		self.move(self.Adir)
+		self.move_time += 1
+		if self.move_time > 300:
+			if self.Adir == "R":
+				self.Adir = "L"
+			else:
+				self.Adir = "R"
+			
+			self.move_time = 0
 
 		
 		

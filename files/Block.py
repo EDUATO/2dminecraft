@@ -68,7 +68,7 @@ class Block:
 			if i == 0:
 				self.pos.append(block_pos_grid[i] * (block_size * block_scale_buff)) 
 			elif i == 1:
-				self.pos.append( (-block_pos_grid[i]) * (block_size * block_scale_buff)) 
+				self.pos.append( -(block_pos_grid[i]) * (block_size * block_scale_buff)) 
 			
 
 		self.pos_cam = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
@@ -96,8 +96,8 @@ class Block:
 				try:
 					# Crop block from texture
 					surface.blit(self.block_texture, self.pos_cam, tuple(self.crop))
-				except:
-					pass
+				except Exception as e:
+					print(e)
 
 			self.deltaTime = deltaTime
 
@@ -198,6 +198,9 @@ class Block:
 
 	def getGridCoords(self):
 		return self.block_pos_grid
+
+	def get_pos(self):
+		return self.pos
 
 	def getHitbox(self):
 		return self.hitbox
