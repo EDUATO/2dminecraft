@@ -68,13 +68,13 @@ class Gui:
 		if self.mouse_action[0] == 1 and self.pressed[0] == False:
 			self.pressed[0] = True
 
-			# Grab one item if the mouse has no item
 			if self.picked_item[0] == None:
+				# Grab one item if the mouse has no item
 				self.picked_item = [slots[slot_num]["Item"][0], slots[slot_num]["Item"][1]]
 				self.replace_slot(slots=slots, item=[None, 0], slot_id=slot_num)
 
-			# Leave one item in the Inventory
 			elif self.picked_item[0] != None:
+				# Leave the item in the Inventory
 				if slots[slot_num]["Item"][0] == None:
 					self.replace_slot(slots=slots, item=self.picked_item, slot_id=slot_num)
 					self.picked_item = [None, 0]
@@ -83,6 +83,14 @@ class Gui:
 				elif slots[slot_num]["Item"][0] == self.picked_item[0]:
 					self.replace_slot(slots=slots, item=self.picked_item, slot_id=slot_num, add=self.picked_item[1])
 					self.picked_item = [None, 0]
+
+				# Switch places with the inventory item with the picked one
+				elif slots[slot_num]["Item"][0] != self.picked_item[0]:
+					a = list(slots[slot_num]["Item"])
+					self.replace_slot(slots=slots, item=self.picked_item, slot_id=slot_num)
+					self.picked_item = a
+					
+					
 					
 		# Reset pressed[0] to False
 		elif self.mouse_action[0] == 0 and self.pressed[0] == True:
@@ -99,9 +107,7 @@ class Gui:
 				# Grab half the item amount
 				if slots[slot_num]["Item"][1] > 1:
 					self.calc = slots[slot_num]["Item"][1]//2
-
 					self.picked_item = [slots[slot_num]["Item"][0], slots[slot_num]["Item"][1] - self.calc]
-
 					slots[slot_num]["Item"][1] = self.calc
 
 			# Leave one Item in the slot

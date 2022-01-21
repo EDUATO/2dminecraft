@@ -1,7 +1,8 @@
 
 class Camera:
-    def __init__(self, init_xy):
+    def __init__(self, init_xy, camera_size):
         self.xy = init_xy
+        self.camera_size = camera_size
 
     def set_x_coord(self, value:int, addToTheVar:bool=False):
         self.__setcoords__(0, value, addToTheVar=addToTheVar)
@@ -21,3 +22,6 @@ class Camera:
 
     def get_xy(self):
         return tuple(self.xy)
+
+    def get_camera_size(self):
+        return self.camera_size

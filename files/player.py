@@ -1,13 +1,15 @@
 import pygame
 
 from files.import_imp import *
-from files.vars import block_scale_buff, modeX, modeY
+from files.vars import block_scale_buff
 from files.entity import Entity
 import files.bucle as b
 
 class Player(Entity):
-	def __init__(self, texture, pos, Camera, Camera_Focus):
+	def __init__(self, texture, pos, Camera):
 	
+		self.camera_updater(Camera)
+
 		self.body_parts = {
 			"Head" : (0,0,8,8),
 			"Head2" : (8,0,8,8),
@@ -18,13 +20,13 @@ class Player(Entity):
 			"Front_Arm" : (28, 8, 4, 12)
 		}
 		if pos[0] == "m": # Middle screen
-			self.initial_pos = [modeX/2 - 8/2, pos[1]]
+			self.initial_pos = [self.camera_size[0]/2 - 8/2, pos[1]]
 		else:
 			self.initial_pos = list(pos)
 		
 		self.pos = self.initial_pos
 
-		super().__init__(self.pos,  texture, (8, 32), Camera, self.body_parts,Camera_Focus=Camera_Focus, entity_scale_buff=block_scale_buff,)
+		super().__init__(self.pos,  texture, (8, 32), Camera, self.body_parts, entity_scale_buff=block_scale_buff,)
 
 		self.inventory = []
 

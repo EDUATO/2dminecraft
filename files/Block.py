@@ -1,6 +1,6 @@
 import pygame
 
-from files.vars import block_scale_buff, block_size, modeX, modeY
+from files.vars import block_scale_buff, block_size
 from files.block_data import *
 from files.functions import isSpriteOnTheScreen
 
@@ -48,6 +48,7 @@ class Block:
 	def camera_updater(self, Camera):
 		self.CameraMain = Camera
 		self.CameraXY = Camera.get_xy()
+		self.camera_size = Camera.get_camera_size()
 
 	def update_block(self, init=False):
 		if not self.block_id == 0: # isAir
@@ -75,15 +76,6 @@ class Block:
 	def setglow(self, state, color=(255,255,0)):
 		self.glow = state
 		self.glow_color = color
-
-	def coordsInBlock(self, Coords_Rect):
-		try:
-			if Coords_Rect.colliderect(self.hitbox):
-				return True
-		except IndexError as e:
-			print(e)
-
-		return False
 
 	def update(self, surface, deltaTime, Camera):
 		self.camera_updater(Camera)
@@ -126,13 +118,14 @@ class Block:
 				self.select_rect.fill((self.glow_color[0],self.glow_color[1],self.glow_color[2],128))
 				surface.blit(self.select_rect, tuple(self.pos_cam))
 
-	def coll_hitbox(self, shape, nair=False):
-		if nair == False: 
-			if self.block_id != 0: # If is not air
-				return self.__hitbox_coll__(shape)
-		else:
-			# If air is included
-			return self.__hitbox_coll__(shape)
+	def coll_hitbox(self, Rect, undetectable_ids=[]):
+		""" Check if a Rect is colliderecting with the block """
+		if self.block_id not in undetectable_ids or self.background:
+			return self.__hitbox_coll__(Rect)
+
+	def coll_hitbox2(self, Rect):
+		""" Check if a Rect is colliderecting with EVERY block (FASTER THAN coll_hitbox)"""
+		return self.__hitbox_coll__(Rect)
 
 		
 	def check_block_around_coords(self, xval, yval): 
@@ -209,15 +202,13 @@ class Block:
 	def getHitbox(self):
 		return self.hitbox
 
-	def __hitbox_coll__(self, shape):
-		self.rect_shape = pygame.Rect(shape[0], shape[1], shape[2], shape[3])
-		if self.__isBlockOnScreen__():
-			if (self.rect_shape.colliderect(self.hitbox) and self.background == False):
-				return True
+	def __hitbox_coll__(self, Rect):
+		if Rect.colliderect(self.hitbox):
+			return True
 
-			return False
+		return False
 
 	def __isBlockOnScreen__(self):
-		if isSpriteOnTheScreen(camera=self.pos_cam, screenSize=(modeX, modeY), hitboxSize=(block_size * block_scale_buff, block_size * block_scale_buff)):
+		if isSpriteOnTheScreen(camera=self.pos_cam, screenSize=self.camera_size, hitboxSize=(block_size * block_scale_buff, block_size * block_scale_buff)):
 			return True
 		return False
