@@ -8,6 +8,7 @@ from files.noise import Noise
 from files.Block import Block, Blocks_list
 from files.vars import chunk_size, Playing
 from files.chunk import Chunk
+from files.functions import convert_camera_xy_to_block_pos
 
 
 seed = random.randint(1, 999999)
@@ -35,7 +36,7 @@ def airGen(in_coords, Camera, chunk_identifier):
 				)
 	# SINTAX : chunks_list[num]['BLOCKS'][list_num]['BLOCK'].method()
 	chunks_list.append(
-		{"CHUNK_DATA": Chunk(id=chunk_identifier, size=chunk_size, x_start_pos=in_coords),
+		{"CHUNK_DATA": Chunk(id=chunk_identifier, size=chunk_size),
 		"BLOCKS":chunk_blocks_list}
 	)
 	
@@ -91,6 +92,8 @@ def generate(in_coords, time_s, Camera, chunk_identifier):
 				setBlock(chunk_id=chunk_id, block_index=block_index, block_id=5, noise_gen=noise_gen)
 				chunks_list[chunk_id]["BLOCKS"][block_index]["BLOCK"].setBreakeable(False)
 			
+
+			time.sleep(time_s)
 			block_index += 1
 
 			
@@ -118,7 +121,7 @@ def find_coicidences(chunk_index, block_id):
 
 # Generation
 def generation_loop(Camera):
-	times = 0
+	times = 3
 	if Playing:
 		for times in range(5):
 			generate(chunk_size[0] * times, 0, Camera, times)

@@ -25,3 +25,7 @@ class Camera:
 
     def get_camera_size(self):
         return self.camera_size
+
+    def convert_screen_pos_to_camera_xy(self, screen_pos):
+        """ Does not work in some cases """
+        return (screen_pos[0] - self.xy[0]), (screen_pos[1] - self.xy[1])

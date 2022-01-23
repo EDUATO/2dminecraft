@@ -14,7 +14,6 @@ class Entity:
 	def __init__(self, pos, texture, hitbox_size, camera, body_parts, entity_scale_buff=2):
 		self.block_pos = pos # The position is in blocks
 		self.pos = list(convert_blocks_pos_to_camera_xy(grid_pos=(-self.block_pos[0], -self.block_pos[1])))
-		print(f"TRUE POS: {self.pos}")
 
 		self.hitbox_size = hitbox_size
 
@@ -48,6 +47,8 @@ class Entity:
 
 		self.deltaTime = 1
 
+		self.update_hitbox()
+
 		self.Automate_Init() # FOR TESTING PURPOSES
 
 		# body 
@@ -60,11 +61,14 @@ class Entity:
 	def body_shape(self,surface, pos, state=0):
 		pass
 
+	def update_hitbox(self):
+		self.hitbox = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+
 	def update(self,surface, chunks_list, deltaTime, camera, test=False):
 
 		self.camera_updater(Camera=camera)
 
-		self.hitbox = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+		#self.update_hitbox()
 
 		self.update_screen_pos()
 
@@ -73,6 +77,8 @@ class Entity:
 				collided_blocks = self.nearbyblocks(chunks_list)
 				self.physics(collided_blocks)
 				self.update_pos()
+
+		self.update_hitbox()
 
 		self.deltaTime = deltaTime
 
@@ -172,7 +178,14 @@ class Entity:
 		return self.screen_pos 
 
 	def get_block_pos(self):
-		return convert_camera_xy_to_block_pos(xy_pos=((self.screen_pos[0] - self.CameraXY[0]), self.screen_pos[1] - self.CameraXY[1]))
+		return convert_camera_xy_to_block_pos(xy_pos=(self.get_camera_pos()))
+
+	def get_camera_pos(self):
+		return self.CameraMain.convert_screen_pos_to_camera_xy((self.screen_pos[0], self.screen_pos[1]))
+
+	def get_hitbox(self):
+		""" Get the hitbox as a tuple """
+		return self.hitbox
 
 	def get_hitbox(self):
 		return self.hitbox

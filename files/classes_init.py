@@ -36,8 +36,9 @@ Player_Hotbar = Hotbar()
 # ENTITIES
 EntitiesInGame = []
 
-for a in range(2):
-	EntitiesInGame.append(Player(Player_texture, (15, 20),Camera=CameraMain))
+
+for a in range(4):
+	EntitiesInGame.append(Player(Player_texture, (0.3*a, 20),Camera=CameraMain))
 
 
 debug_screen = DebugScreen()

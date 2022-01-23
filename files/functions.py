@@ -26,6 +26,13 @@ def Lock_to(lock, x, y, width, height, screen_areas=(0, 0, modeX, modeY)):
 
 	return 0
 
+def toNegative(_tuple):
+	output = []
+	for i in range(len(_tuple)):
+		output.append(-(_tuple[i]))
+
+	return output
+
 def isSpriteOnTheScreen(camera:tuple, screenSize:tuple, hitboxSize:tuple):
 	if (camera[0] >= (0 - (hitboxSize[0])) and camera[0] <= screenSize[0] + (hitboxSize[0]) and (camera[1] >= (0 - (hitboxSize[1]) ) and camera[1] <= screenSize[1] + (hitboxSize[1]) )):
 		return True

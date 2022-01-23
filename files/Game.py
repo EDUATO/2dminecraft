@@ -15,8 +15,11 @@ import files.gui.gui_class as gui
 
 from files.classes_init import * # All the classes/methods will be initialized here
 
+inChunkID = "None"
+
 def game(events, surface):
-	global selected_block, block_to_put_id, ActiveChunks
+	global selected_block, block_to_put_id, ActiveChunks, inChunkID
+	inChunkID = "None"
 	inGameEvents(events)
 
 	# UPDATE ACTIVECHUNKS
@@ -24,10 +27,34 @@ def game(events, surface):
 		for i in range(len(ActiveChunks[c]["BLOCKS"])):
 			ActiveChunks[c]["BLOCKS"][i]["BLOCK"].update(deltaTime=b.deltaTime, surface=surface, Camera=CameraMain)
 
+		
+		
+
+
+		
+
+
 	"""if DebugScreen:
 		grid(surface ,block_size, (0,0,100), camera_coords=CameraMain) # Show grid"""
 
+	# Player
+	p1.update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain)
+
+	# Update entities
+	for i in range(len(EntitiesInGame)):
+		EntitiesInGame[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain)
+
 	camera_size = CameraMain.get_camera_size()
+
+	for c in range(len(ActiveChunks)):
+		ActiveChunks[c]["CHUNK_DATA"].DrawChunkLimits(surface=surface, camera=CameraMain)
+
+		Entity_hitbox = p1.get_hitbox()
+		ChunkID = ActiveChunks[c]["CHUNK_DATA"].isRectInChunk(surface=surface, camera=CameraMain, Rect=pygame.Rect(Entity_hitbox))
+
+		if ChunkID == True:
+			inChunkID = ActiveChunks[c]["CHUNK_DATA"].get_chunk_id()
+
 
 	### MOUSE CONTROLLER ###
 	if not (gui.inGui or Pause):
@@ -53,7 +80,7 @@ def game(events, surface):
 				ActiveChunks[c]["BLOCKS"][i]["BLOCK"].setglow(False)
 
 	global p1_pos
-	p1_pos = p1.get_screen_pos()
+	p1_pos = p1.get_camera_pos()
 
 	keys = pygame.key.get_pressed()
 	mouse = pygame.mouse.get_pressed()
@@ -98,17 +125,10 @@ def game(events, surface):
 
 	Debugging_Screen(surface=surface, selected_block=selected_block)
 
-	# Player
-	p1.update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain)
-
-	# Update entities
-	for i in range(len(EntitiesInGame)):
-		EntitiesInGame[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain, test=True)
-
 	# FOCUS CAMERA
-	pe =  f.convert_blocks_pos_to_camera_xy(p1.get_block_pos())
+	"""pe =  f.convert_blocks_pos_to_camera_xy(p1.get_block_pos())
 	CameraMain.set_x_coord(value=(pe[0] + CameraMain.get_camera_size()[0]//2))
-	CameraMain.set_y_coord(value=(pe[1] + CameraMain.get_camera_size()[1]//2 - 100))
+	CameraMain.set_y_coord(value=(pe[1] + CameraMain.get_camera_size()[1]//2 - 100))"""
 	
 	
 
@@ -143,9 +163,8 @@ def game(events, surface):
 
 def Debugging_Screen(surface, selected_block):
 	""" It shows some variables that may be useful to test """
-	rounded_xy = (round(CameraMain.get_xy()[0]), round(CameraMain.get_xy()[1]))
-	player_pos_in_blocks = f.convert_camera_xy_to_block_pos(xy_pos=((p1_pos[0] - rounded_xy[0]), p1_pos[1] - rounded_xy[1]))
-	Player_coords = p1.get_screen_pos()
+
+	player_pos_in_blocks = f.convert_camera_xy_to_block_pos(xy_pos=( (p1_pos[0], p1_pos[1]) ))
 
 
 	if DebugScreen:
@@ -155,7 +174,11 @@ def Debugging_Screen(surface, selected_block):
 
 		debug_screen.addDebugText(text=f"PLAYER POS: {round(player_pos_in_blocks[0], 3)}, {round(player_pos_in_blocks[1], 3)}", color=(0,200,0))
 
-		debug_screen.addDebugText(text=f"PLAYER POS2: {round(Player_coords[0], 3)}, {round(Player_coords[1], 3)}", color=(0,200,0))
+		debug_screen.addDebugText(text=f"IN CHUNK: {inChunkID}", color=(0,200,0))
+
+		debug_screen.addDebugText(text=f"PLAYER POS2: {round(p1_pos[0], 3)}, {round(p1_pos[1], 3)}", color=(0,200,0))
+
+		
 
 		if selected_block != None: 
 
@@ -165,7 +188,7 @@ def Debugging_Screen(surface, selected_block):
 
 			#debug_screen.addDebugText(text=f"{selected_block['BLOCK'].getBreakPorcentage()} %", color=(255,255,255))
 
-		debug_screen.addDebugText(text=f"CAMERA MAIN: {rounded_xy}", color=(0,0,200))
+		debug_screen.addDebugText(text=f"CAMERA MAIN: {CameraMain.get_xy()}", color=(0,0,200))
 
 		debug_screen.addDebugText(text=f"CAMERA MAIN COORDS: {a}", color=(0,200,0))
 		
