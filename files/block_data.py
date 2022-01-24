@@ -10,7 +10,8 @@ Blocks_list = {
 	4 : { "Name" : "Oak_Wood", "crop" : (48,0,16,16), "durability":70, "special":False},
 	5 : { "Name" : "Bedrock", "crop" : (64,0,16,16), "durability":False, "special":False},
 	6 : { "Name" : "Iron Ore", "crop" : (80,0,16,16), "durability":150, "special":False},
-	7 : { "Name" : "Wooden Planks", "crop" : (96,0,16,16), "durability":70, "special":False}
+	7 : { "Name" : "Wooden Planks", "crop" : (96,0,16,16), "durability":70, "special":False},
+	8 : { "Name" : "SECRET", "crop" : (64,0,16,16), "durability":4, "special":False}
 	}
 
 Textures_for_blocks_list = {

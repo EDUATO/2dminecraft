@@ -75,7 +75,7 @@ class Entity:
 		if mg.Pause == False:
 			if ENABLE_PHYSICS:
 				collided_blocks = self.nearbyblocks(chunks_list)
-				self.physics(collided_blocks)
+				self.physics(collided_blocks, surface)
 				self.update_pos()
 
 		self.update_hitbox()
@@ -115,7 +115,7 @@ class Entity:
 		return output
 			
 
-	def physics(self, blocks_list, noGravity=False):
+	def physics(self, blocks_list, surface):
 		self.oneList = blocks_list
 				
 		# Gravity 
@@ -129,12 +129,16 @@ class Entity:
 		for c in range(len(self.oneList)):
 			self.block = self.oneList[c]["BLOCK"]
 			self.block_pos = self.oneList[c]["POS"]
+			self.player_hitbox = pygame.Rect(self.hitbox)
+			self.block_hitbox = pygame.Rect(self.oneList[c]["BLOCK"].getHitbox())
 
 			if self.block.getBlockOnScreen():
 				
 				x_formula = (self.screen_pos[0]+ self.dx, self.screen_pos[1] , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+
 				# X collition
 				if self.block.coll_hitbox( pygame.Rect(x_formula), undetectable_ids=[0] ):
+
 					self.dx = 0
 
 				y_formula = (self.screen_pos[0], self.screen_pos[1] + self.dy, self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
@@ -159,7 +163,13 @@ class Entity:
 							if self.block_pos == self.block_c:
 								self.block.setglow(True, color=(255,0,255))
 								break	
+				
+				pygame.draw.rect(surface, (0,0,255), pygame.Rect(x_formula))
+				pygame.draw.rect(surface, (255,0,0), pygame.Rect(y_formula))
 			
+
+		self.hitbox = (self.player_hitbox.left, self.player_hitbox.right, self.player_hitbox.width, self.player_hitbox.height)
+
 	def update_screen_pos(self):
 		self.screen_pos = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
 

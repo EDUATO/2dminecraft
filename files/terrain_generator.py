@@ -9,6 +9,7 @@ from files.Block import Block, Blocks_list
 from files.vars import chunk_size, Playing
 from files.chunk import Chunk
 from files.functions import convert_camera_xy_to_block_pos
+from files.chunk_generator import Chunk_Manager_List
 
 
 seed = random.randint(1, 999999)
@@ -47,10 +48,9 @@ for i in range(255):
 		colors.append( ((i+1), (i+1), (i+1)) )
 
 def setBlock(chunk_id, block_index, block_id, noise_gen):
-	chunks_list[chunk_id]["BLOCKS"][block_index]["BLOCK"].setBlock(block_id, noiseValue=noise_gen)
+	chunks_list[len(chunks_list)-1]["BLOCKS"][block_index]["BLOCK"].setBlock(block_id, noiseValue=noise_gen)
 
 def generate(in_coords, time_s, Camera, chunk_identifier):
-	global prw_noise
 	# GENERATE AIR BLOCKS
 	airGen(in_coords, Camera=Camera, chunk_identifier=chunk_identifier)
 	
@@ -58,6 +58,7 @@ def generate(in_coords, time_s, Camera, chunk_identifier):
 	block_index = 0
 	y = 0
 	chunk_id = chunk_identifier
+	prw_noise = [1 + (15 * chunk_identifier), 1]
 	for y in range( chunk_size[1] ):
 		for x in range( chunk_size[0] ):
 			# GENERATE NOISE
@@ -88,22 +89,15 @@ def generate(in_coords, time_s, Camera, chunk_identifier):
 				
 			
 			# BEDROCK
-			if chunks_list[chunk_id]["BLOCKS"][block_index]["POS"][1] == 0:
+			if chunks_list[len(chunks_list)-1]["BLOCKS"][block_index]["POS"][1] == 0:
 				setBlock(chunk_id=chunk_id, block_index=block_index, block_id=5, noise_gen=noise_gen)
-				chunks_list[chunk_id]["BLOCKS"][block_index]["BLOCK"].setBreakeable(False)
+				chunks_list[len(chunks_list)-1]["BLOCKS"][block_index]["BLOCK"].setBreakeable(False)
 			
 
 			time.sleep(time_s)
 			block_index += 1
-
-			
-
-	# Save x and y to continue the noise in the next chunk		
-	prw_noise[0] = x + prw_noise[0]
-
-	prw_noise[1] = prw_noise[1]
 	
-
+	print(chunk_identifier, "finished")
 
 def find_coicidences(chunk_index, block_id):
 	coincidences_list = []
@@ -121,12 +115,12 @@ def find_coicidences(chunk_index, block_id):
 
 # Generation
 def generation_loop(Camera):
-	times = 3
-	if Playing:
-		for times in range(5):
-			generate(chunk_size[0] * times, 0, Camera, times)
-			print(f"[Generation] Chunk {times} generated!")
+	if Chunk_Manager_List != []:
+		for times in range(len(Chunk_Manager_List)):
+			generate((chunk_size[0] * Chunk_Manager_List[0]), 0, Camera, Chunk_Manager_List[0])
+			print(f"[Generation] Chunk {Chunk_Manager_List[0]} generated!")
+			Chunk_Manager_List.pop(0)
 
-		print("[Generation] All chunks generated!")
+			
 
 

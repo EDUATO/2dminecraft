@@ -11,13 +11,13 @@ modeY = 720
 
 flags =  pygame.DOUBLEBUF
 
-win = pygame.display.set_mode((modeX,modeY))
+win = pygame.display.set_mode((modeX,modeY), pygame.HWSURFACE)
 
 pygame.display.set_caption("Programa") # Win's name
 
 fps = pygame.time.Clock()
 
-Frames_per_second = 60
+Frames_per_second = -1
 
 # Mouse hitbox
 mouse_hitbox = pygame.Rect((0,0), (1,1))

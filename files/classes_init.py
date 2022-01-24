@@ -19,12 +19,11 @@ coords_to_spawn_cam = convert_blocks_pos_to_camera_xy(grid_pos=(4,20))
 CameraMain.set_x_coord(coords_to_spawn_cam[0])
 CameraMain.set_y_coord(coords_to_spawn_cam[1])
 
-
 # TERRAIN GENERATOR
 loop = threading.Thread(target=generation_loop, daemon=True, args=[CameraMain]) # It destroys when the main thread ends
 loop.start()
 
-ActiveChunks = chunks_list # [FIX] Chunks that are active and will be updated
+ActiveChunks = [] # Chunks that are active and will be updated
 
 # PLAYER'S
 p1 = Player(Player_texture, (5, 20), Camera=CameraMain) # Main player
@@ -37,7 +36,7 @@ Player_Hotbar = Hotbar()
 EntitiesInGame = []
 
 
-for a in range(4):
+for a in range(1):
 	EntitiesInGame.append(Player(Player_texture, (0.3*a, 20),Camera=CameraMain))
 
 

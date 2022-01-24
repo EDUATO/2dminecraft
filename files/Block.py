@@ -29,19 +29,22 @@ class Block:
 		self.break_durability = 0
 		self.break_porcentage = 0
 
-		self.select_rect = pygame.Surface((block_size * block_scale_buff, (block_size * block_scale_buff)), pygame.SRCALPHA)
-		self.color_block = pygame.Surface((block_size * block_scale_buff, (block_size * block_scale_buff)), pygame.SRCALPHA)
-		self.block_light = pygame.Surface((block_size * block_scale_buff, (block_size * block_scale_buff)), pygame.SRCALPHA).convert_alpha()
+		self.block_size = (block_size * block_scale_buff), (block_size * block_scale_buff)
+
+		self.select_rect = pygame.Surface((self.block_size), pygame.SRCALPHA).convert_alpha()
+		self.color_block = pygame.Surface((self.block_size), pygame.SRCALPHA).convert()
+		self.block_light = pygame.Surface((self.block_size), pygame.SRCALPHA).convert_alpha()
 
 		self.update_block(True)
 
-		self.hitbox = pygame.Rect(self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1], self.select_rect.get_width(), self.select_rect.get_height())
+		self.hitbox = pygame.Rect(self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1], self.block_size[0], self.block_size[1])
 
 		self.deltaTime = 1
 
 		self.Breakeable = True
 
-		self.light_val = 0
+		self.light_val = 45
+		self.background_val = 30
 
 		self.BlockOnScreen = False
 
@@ -93,11 +96,8 @@ class Block:
 		if self.BlockOnScreen:
 
 			if not self.block_id == 0: # isAir
-				try:
-					# Crop block from texture
-					surface.blit(self.block_texture, self.pos_cam, tuple(self.crop))
-				except Exception as e:
-					print(e)
+				# Crop block from texture
+				surface.blit(self.block_texture, self.pos_cam, tuple(self.crop))
 
 			self.deltaTime = deltaTime
 
@@ -108,10 +108,15 @@ class Block:
 			# Update durability
 			self.break_durability = Blocks_list[self.block_id]["durability"]
 
-			# Block light
-			if not self.block_id == 0:
-				self.block_light.fill((0,0,0,self.light_val))
-				surface.blit(self.block_light, tuple(self.pos_cam))
+			# LIGHT
+			self.block_light.fill((0,0,0, self.light_val))
+			if self.background:
+				# Block light in background
+				if (self.background_val + self.light_val) > 255: self.block_light.fill((0,0,0,255))
+				else: self.block_light.fill((0,0,0,self.background_val + self.light_val))
+					
+
+			surface.blit(self.block_light, tuple(self.pos_cam))
 
 
 			if self.glow:
@@ -120,8 +125,9 @@ class Block:
 
 	def coll_hitbox(self, Rect, undetectable_ids=[]):
 		""" Check if a Rect is colliderecting with the block """
-		if self.block_id not in undetectable_ids or self.background:
-			return self.__hitbox_coll__(Rect)
+		if (self.block_id not in undetectable_ids):
+			if not self.background:
+				return self.__hitbox_coll__(Rect)
 
 	def coll_hitbox2(self, Rect):
 		""" Check if a Rect is colliderecting with EVERY block (FASTER THAN coll_hitbox)"""
@@ -143,11 +149,6 @@ class Block:
 				
 			self.background = background
 
-			if background:
-				self.light_val = 50
-			else:
-				self.light_val = 0
-
 			self.update_block()
 
 	def breakBlock(self, surface, id):
@@ -167,6 +168,8 @@ class Block:
 			if self.break_state >= self.break_durability:
 				self.block_id = id
 				self.resetBreakState()
+
+				self.background = False
 
 	def getBreakPorcentage(self):
 		return self.break_porcentage
@@ -204,6 +207,10 @@ class Block:
 
 	def getHitbox(self):
 		return self.hitbox
+
+	def set_light_val(self, value):
+		""" Set shadow block value. (up to 255) """
+		self.light_val = value
 
 	def __hitbox_coll__(self, Rect):
 		if Rect.colliderect(self.hitbox):

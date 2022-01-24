@@ -22,9 +22,6 @@ class Chunk:
     def isRectInChunk(self,surface, camera, Rect):
         chunk_limit = self.ChunkLimits(camera)
 
-        pygame.draw.rect(surface, (255,0,0), pygame.Rect(Rect))
-
-
         if Rect.colliderect(pygame.Rect(chunk_limit)):
             return True
 
