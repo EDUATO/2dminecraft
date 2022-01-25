@@ -1,5 +1,4 @@
 import pygame
-import threading
 
 from files.vars import modeX, modeY
 from files.terrain_generator import generate, seed, generation_loop, chunks_list
@@ -19,10 +18,6 @@ coords_to_spawn_cam = convert_blocks_pos_to_camera_xy(grid_pos=(4,20))
 CameraMain.set_x_coord(coords_to_spawn_cam[0])
 CameraMain.set_y_coord(coords_to_spawn_cam[1])
 
-# TERRAIN GENERATOR
-loop = threading.Thread(target=generation_loop, daemon=True, args=[CameraMain]) # It destroys when the main thread ends
-loop.start()
-
 ActiveChunks = [] # Chunks that are active and will be updated
 
 # PLAYER'S
@@ -34,6 +29,7 @@ Player_Hotbar = Hotbar()
 
 # ENTITIES
 EntitiesInGame = []
+ActiveEntities = []
 
 
 for a in range(1):

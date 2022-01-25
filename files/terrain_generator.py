@@ -23,6 +23,8 @@ noise_sc = .1
 
 prw_noise = [1,1]
 
+
+
 def airGen(in_coords, Camera, chunk_identifier):
 	global chunks_list
 	chunk_blocks_list = []

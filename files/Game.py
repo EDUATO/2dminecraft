@@ -29,6 +29,7 @@ def game(events, surface):
 
 
 		if ChunkID:
+			p1.Enable_Physics()
 			if not ch == 0:
 				ActiveChunks.append(chunks_list[ch-1])
 			ActiveChunks.append(chunks_list[ch])
@@ -50,9 +51,8 @@ def game(events, surface):
 	for c in range(len(ActiveChunks)):
 		for i in range(len(ActiveChunks[c]["BLOCKS"])):
 			ActiveChunks[c]["BLOCKS"][i]["BLOCK"].update(deltaTime=b.deltaTime, surface=surface, Camera=CameraMain)
-			ActiveChunks[c]["BLOCKS"][i]["BLOCK"].set_light_val(value=200)
 
-		
+	
 
 	for c in range(len(ActiveChunks)):
 		ActiveChunks[c]["CHUNK_DATA"].DrawChunkLimits(surface=surface, camera=CameraMain)
@@ -79,6 +79,7 @@ def game(events, surface):
 				if mouse_col_block:
 					selected_block = ActiveChunks[c]["BLOCKS"][i]
 					selected_block["BLOCK"].setglow(True)
+					#print(selected_block["BLOCK"].getId())
 					
 				else:
 					ActiveChunks[c]["BLOCKS"][i]["BLOCK"].resetBreakState() # Reset break state
@@ -120,7 +121,8 @@ def game(events, surface):
 						if keys[K_LALT] == 1:
 							selected_block["BLOCK"].setBlock(block_to_put_id, background=True)
 						else:
-							selected_block["BLOCK"].setBlock(block_to_put_id, background=False)
+							if not selected_block["BLOCK"].coll_hitbox2(Rect=pygame.Rect(p1.get_hitbox())):
+								selected_block["BLOCK"].setBlock(block_to_put_id, background=False)
 
 
 	except TypeError:

@@ -1,6 +1,6 @@
 import pygame
 
-from files.vars import block_scale_buff, block_size
+from files.vars import block_scale_buff, block_size, block_detection_after_screen
 from files.block_data import *
 from files.functions import isSpriteOnTheScreen
 
@@ -43,7 +43,7 @@ class Block:
 
 		self.Breakeable = True
 
-		self.light_val = 45
+		self.light_val = 0
 		self.background_val = 30
 
 		self.BlockOnScreen = False
@@ -91,7 +91,7 @@ class Block:
 		self.DrawOnScreen(surface, deltaTime)
 
 	def DrawOnScreen(self, surface, deltaTime):
-		self.BlockOnScreen = self.__isBlockOnScreen__()
+		self.BlockOnScreen = self.isBlockOnScreen()
 
 		if self.BlockOnScreen:
 
@@ -109,14 +109,15 @@ class Block:
 			self.break_durability = Blocks_list[self.block_id]["durability"]
 
 			# LIGHT
-			self.block_light.fill((0,0,0, self.light_val))
-			if self.background:
-				# Block light in background
-				if (self.background_val + self.light_val) > 255: self.block_light.fill((0,0,0,255))
-				else: self.block_light.fill((0,0,0,self.background_val + self.light_val))
+			if not self.block_id == 0:
+				self.block_light.fill((0,0,0, self.light_val))
+				if self.background:
+					# Block light in background
+					if (self.background_val + self.light_val) > 255: self.block_light.fill((0,0,0,255))
+					else: self.block_light.fill((0,0,0,self.background_val + self.light_val))
 					
 
-			surface.blit(self.block_light, tuple(self.pos_cam))
+				surface.blit(self.block_light, tuple(self.pos_cam))
 
 
 			if self.glow:
@@ -166,7 +167,7 @@ class Block:
 					break
 
 			if self.break_state >= self.break_durability:
-				self.block_id = id
+				self.block_id = 0
 				self.resetBreakState()
 
 				self.background = False
@@ -212,13 +213,14 @@ class Block:
 		""" Set shadow block value. (up to 255) """
 		self.light_val = value
 
+	def isBlockOnScreen(self):
+		return isSpriteOnTheScreen(cameraSize=self.camera_size, screenHitbox=self.hitbox)
+
+	def blockDetection(self):
+		return isSpriteOnTheScreen(
+			cameraSize= (self.camera_size[0] + block_detection_after_screen*self.block_size[0], self.camera_size[0] + block_detection_after_screen*self.block_size[1]), 
+			screenHitbox= self.hitbox,
+			startCameraPos=(-(block_detection_after_screen*self.block_size[0]), -(block_detection_after_screen*self.block_size[1]) ))
+
 	def __hitbox_coll__(self, Rect):
-		if Rect.colliderect(self.hitbox):
-			return True
-
-		return False
-
-	def __isBlockOnScreen__(self):
-		if isSpriteOnTheScreen(camera=self.pos_cam, screenSize=self.camera_size, hitboxSize=(block_size * block_scale_buff, block_size * block_scale_buff)):
-			return True
-		return False
+		return Rect.colliderect(self.hitbox)

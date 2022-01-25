@@ -8,8 +8,6 @@ import files.bucle as b
 import files.Game as mg
 from files.functions import convert_blocks_pos_to_camera_xy, convert_camera_xy_to_block_pos
 
-ENABLE_PHYSICS = True
-
 class Entity:
 	def __init__(self, pos, texture, hitbox_size, camera, body_parts, entity_scale_buff=2):
 		self.block_pos = pos # The position is in blocks
@@ -33,6 +31,8 @@ class Entity:
 
 		self.camera_limit_x = self.camera_size
 		self.camera_limit_y = 300
+
+		self.EnablePhysics = True
 
 		self.vel = 4
 
@@ -70,10 +70,15 @@ class Entity:
 
 		#self.update_hitbox()
 
+		if self.__isEntityOnScreen__():
+			self.Enable_Physics()
+		else:
+			self.Disable_Phyisics()
+
 		self.update_screen_pos()
 
 		if mg.Pause == False:
-			if ENABLE_PHYSICS:
+			if self.EnablePhysics:
 				collided_blocks = self.nearbyblocks(chunks_list)
 				self.physics(collided_blocks, surface)
 				self.update_pos()
@@ -92,6 +97,8 @@ class Entity:
 
 	def Draw(self, surface):
 		self.body_shape(surface, tuple(self.screen_pos), 0)
+		#pygame.draw.rect(surface, (255,0,0), pygame.Rect( ( self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff) ))
+
 
 	def nearbyblocks(self, chunks_list):
 		# This causes certain lag
@@ -125,47 +132,73 @@ class Entity:
 
 		self.dy += (self.vel_y * (self.deltaTime))
 		
+		self.player_hitbox = pygame.Rect(self.hitbox)
+		self.screen_entity_hitbox = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+
+		self.collitions_ready = [False, False] # Collition x and y
+
 		# Check collition
 		for c in range(len(self.oneList)):
 			self.block = self.oneList[c]["BLOCK"]
 			self.block_pos = self.oneList[c]["POS"]
-			self.player_hitbox = pygame.Rect(self.hitbox)
 			self.block_hitbox = pygame.Rect(self.oneList[c]["BLOCK"].getHitbox())
 
-			if self.block.getBlockOnScreen():
+			if self.block.blockDetection():
 				
 				x_formula = (self.screen_pos[0]+ self.dx, self.screen_pos[1] , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
 
 				# X collition
-				if self.block.coll_hitbox( pygame.Rect(x_formula), undetectable_ids=[0] ):
+				if self.block.coll_hitbox( pygame.Rect(x_formula), undetectable_ids=[0] ) and not self.collitions_ready[0]:
+					done = False
+					if self.dx > 0:
+						resting = 0
+						for resting in range(self.vel):
+							self.entity_hitbox_test = (self.screen_entity_hitbox[0] - (resting - 5), self.screen_entity_hitbox[1], self.screen_entity_hitbox[2], self.screen_entity_hitbox[3])
+							if not self.block.coll_hitbox( pygame.Rect(self.entity_hitbox_test), undetectable_ids=[0] ):
+								self.dx -= (resting + 5)
+								done = True
+								break
 
-					self.dx = 0
+							
+					elif self.dx < 0:
+						done = False
+						resting = 0
+						for resting in range(self.vel):
+							self.entity_hitbox_test = (self.screen_entity_hitbox[0] + (resting - 5), self.screen_entity_hitbox[1], self.screen_entity_hitbox[2], self.screen_entity_hitbox[3])
+							if not self.block.coll_hitbox( pygame.Rect(self.entity_hitbox_test), undetectable_ids=[0] ):
+								self.dx += (resting + 5)
+								done = True
+								break
+
+
+					if not done:
+						self.dx = 0
+
+					self.collitions_ready[0] = True
+
+					
+					
+
 
 				y_formula = (self.screen_pos[0], self.screen_pos[1] + self.dy, self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
 				# Y collition
 				if self.block.coll_hitbox( pygame.Rect(y_formula), undetectable_ids=[0] ):
+
 					# Check if its under the ground
-					if self.vel_y < 0:
-						self.dy = self.block.getHitbox().bottom - pygame.Rect((self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)).top
+					if self.dy < 0:
+						self.dy = (self.block.getHitbox().bottom) - pygame.Rect(self.screen_entity_hitbox).top
 						self.vel_y = 0
 
-					elif self.vel_y >= 0:
-						
-						self.hitbox_rect_bottom = pygame.Rect((self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)).bottom
+					elif self.dy >= 0:
 
-						self.dy = self.block.getHitbox().top - self.hitbox_rect_bottom
+						self.dy = (self.block.getHitbox().top) - pygame.Rect(self.screen_entity_hitbox).bottom
 
 						self.jumping = False
 
 						self.block_c = self.block.check_block_around_coords(4,4)
-
-						for i in range(len(self.oneList)):
-							if self.block_pos == self.block_c:
-								self.block.setglow(True, color=(255,0,255))
-								break	
 				
-				pygame.draw.rect(surface, (0,0,255), pygame.Rect(x_formula))
-				pygame.draw.rect(surface, (255,0,0), pygame.Rect(y_formula))
+				"""pygame.draw.rect(surface, (0,0,255), pygame.Rect(x_formula))
+				pygame.draw.rect(surface, (255,0,0), pygame.Rect(y_formula))"""
 			
 
 		self.hitbox = (self.player_hitbox.left, self.player_hitbox.right, self.player_hitbox.width, self.player_hitbox.height)
@@ -178,6 +211,11 @@ class Entity:
 		self.CameraXY = Camera.get_xy()
 		self.camera_size = Camera.get_camera_size()
 		
+	def Disable_Phyisics(self):
+		self.EnablePhysics = False
+
+	def Enable_Physics(self):
+		self.EnablePhysics = True
 
 	def update_pos(self):
 		# Update pos
@@ -225,6 +263,9 @@ class Entity:
 				self.Adir = "R"
 			
 			self.move_time = 0
+
+	def __isEntityOnScreen__(self):
+		return isSpriteOnTheScreen(cameraSize=self.camera_size, screenHitbox=pygame.Rect((self.screen_pos[0], self.screen_pos[1], self.hitbox[2], self.hitbox[3])))
 
 		
 		

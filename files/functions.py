@@ -33,9 +33,8 @@ def toNegative(_tuple):
 
 	return output
 
-def isSpriteOnTheScreen(camera:tuple, screenSize:tuple, hitboxSize:tuple):
-	if (camera[0] >= (0 - (hitboxSize[0])) and camera[0] <= screenSize[0] + (hitboxSize[0]) and (camera[1] >= (0 - (hitboxSize[1]) ) and camera[1] <= screenSize[1] + (hitboxSize[1]) )):
-		return True
+def isSpriteOnTheScreen(cameraSize:tuple, screenHitbox:pygame.Rect, startCameraPos=(0,0)):
+	return pygame.Rect((startCameraPos[0], startCameraPos[1], cameraSize[0], cameraSize[1])).colliderect(screenHitbox)
 
 def convert_blocks_pos_to_camera_xy(grid_pos:tuple, block_size=(block_size*block_scale_buff)):
 	return (-(grid_pos[0] * block_size), (grid_pos[1] * block_size))
