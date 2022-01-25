@@ -17,9 +17,9 @@ from files.classes_init import * # All the classes/methods will be initialized h
 
 lastChunkID = "None"
 inChunkID = "None"
-
+foc = True
 def game(events, surface):
-	global selected_block, block_to_put_id, ActiveChunks, inChunkID, lastChunkID
+	global selected_block, block_to_put_id, ActiveChunks, inChunkID, lastChunkID, p1, foc
 	inGameEvents(events)
 	Entity_hitbox = p1.get_hitbox()
 
@@ -51,8 +51,6 @@ def game(events, surface):
 	for c in range(len(ActiveChunks)):
 		for i in range(len(ActiveChunks[c]["BLOCKS"])):
 			ActiveChunks[c]["BLOCKS"][i]["BLOCK"].update(deltaTime=b.deltaTime, surface=surface, Camera=CameraMain)
-
-	
 
 	for c in range(len(ActiveChunks)):
 		ActiveChunks[c]["CHUNK_DATA"].DrawChunkLimits(surface=surface, camera=CameraMain)
@@ -128,36 +126,22 @@ def game(events, surface):
 	except TypeError:
 		pass
 
-	# Player
-	p1.update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain)
+	classes = Entities_man.getEntitiesClasses()
 
-	# Update entities
-	for i in range(len(EntitiesInGame)):
-		EntitiesInGame[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain)
-
-	Player_Hotbar.update(events, surface)
-
-	PlayerInventory.update(surface, b.mouse_hitbox, keys)
+	for i in range(len(classes)):
+		classes[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain, test=False)
 
 	Debugging_Screen(surface=surface, selected_block=selected_block)
 
-	# FOCUS CAMERA
-	pe =  f.convert_blocks_pos_to_camera_xy(p1.get_block_pos())
-	CameraMain.set_x_coord(value=(pe[0] + CameraMain.get_camera_size()[0]//2))
-	CameraMain.set_y_coord(value=(pe[1] + CameraMain.get_camera_size()[1]//2 - 100))
+	if foc == True:
+		# FOCUS CAMERA
+		pe =  f.convert_blocks_pos_to_camera_xy(p1.get_block_pos())
+		CameraMain.set_x_coord(value=(pe[0] + CameraMain.get_camera_size()[0]//2))
+		CameraMain.set_y_coord(value=(pe[1] + CameraMain.get_camera_size()[1]//2 - 100))
 	
 	
 
 	# TEST ONLY
-	for event in events:
-		
-		if event.type == pygame.KEYDOWN:
-			if event.key == K_t:
-				ch = f.convert_blocks_pos_to_camera_xy(grid_pos=selected_block["BLOCK"].getGridCoords())	
-
-				CameraMain.set_x_coord(ch[0])
-				CameraMain.set_y_coord(ch[1])
-
 	vel = 5
 	keys = pygame.key.get_pressed()
 	
@@ -174,6 +158,18 @@ def game(events, surface):
 	if keys[K_DOWN]:
 		CameraMain.set_y_coord(-vel,addToTheVar=True)
 
+	if keys[K_0]:
+		p1 = Entities_man.GetEntityClass(Entityid=0)
+
+	if keys[K_1]:
+		p1 = Entities_man.GetEntityClass(Entityid=1)
+
+	if keys[K_f]:
+		if foc:
+			foc = False
+		else:
+			foc = True
+
 	if Pause:
 		pygame.mouse.set_visible(True)
 
@@ -186,6 +182,9 @@ def Debugging_Screen(surface, selected_block):
 	if DebugScreen:
 		debug_screen.addDebugText(text=f"FPS: {round(b.fps.get_fps())}", color=(200,0,0))
 		
+		if not foc:
+			debug_screen.addDebugText(text=f"[Free cam]", color=(170,0,0))
+
 		debug_screen.addDebugText(text=f"Terrain seed: {seed}", color=(255,255,255))
 
 		debug_screen.addDebugText(text=f"PLAYER POS: {round(player_pos_in_blocks[0], 3)}, {round(player_pos_in_blocks[1], 3)}", color=(0,200,0))
@@ -206,7 +205,7 @@ def Debugging_Screen(surface, selected_block):
 
 		debug_screen.addDebugText(text=f"CAMERA MAIN: {round(CameraMain.get_xy()[0],2), round(CameraMain.get_xy()[1],2)}", color=(0,0,200))
 
-		debug_screen.addDebugText(text=f"CAMERA MAIN COORDS: {a}", color=(0,200,0))
+		#debug_screen.addDebugText(text=f"CAMERA MAIN COORDS: {a}", color=(0,200,0))
 		
 
 		debug_screen.Show(surface)

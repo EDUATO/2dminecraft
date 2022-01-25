@@ -2,16 +2,22 @@ import pygame
 import threading
 
 from files.import_imp import *
+from files.functions import text
+from files.fonts import *
 from files.vars import gravity
 from files.Block import *
 import files.bucle as b
 import files.Game as mg
 from files.functions import convert_blocks_pos_to_camera_xy, convert_camera_xy_to_block_pos
+from files.gui.hotbar import Hotbar
+from files.gui.Inventory import Inventory
 
 class Entity:
-	def __init__(self, pos, texture, hitbox_size, camera, body_parts, entity_scale_buff=2):
+	def __init__(self, pos, texture, hitbox_size, camera, body_parts,entity_id, entity_scale_buff=2):
 		self.block_pos = pos # The position is in blocks
 		self.pos = list(convert_blocks_pos_to_camera_xy(grid_pos=(-self.block_pos[0], -self.block_pos[1])))
+
+		self.entity_id = entity_id
 
 		self.hitbox_size = hitbox_size
 
@@ -32,24 +38,13 @@ class Entity:
 		self.camera_limit_x = self.camera_size
 		self.camera_limit_y = 300
 
-		self.EnablePhysics = True
-
-		self.vel = 4
-
-		self.vel_y = 0
-
-		self.dy = 0
-		self.dx = 0
-
-		self.jumping = False
-
-		self.gamemode = 0
-
-		self.deltaTime = 1
+		self.physics_variables()
 
 		self.update_hitbox()
 
 		self.Automate_Init() # FOR TESTING PURPOSES
+
+		self.set_Inventory()
 
 		# body 
 		self.body_parts_keys = list(self.body_parts.keys())
@@ -61,10 +56,31 @@ class Entity:
 	def body_shape(self,surface, pos, state=0):
 		pass
 
+	def DrawTag(self, surface):
+		text(surface, txt=str(self.entity_id), x=self.hitbox[0], y=self.hitbox[1]-20, FUENTE=Mc_15, COLOR=(255,0,0))
+
+	def physics_variables(self):
+		self.EnablePhysics = True
+
+		self.vel = 4
+
+		self.vel_y = 0
+
+		self.dy = 0
+		self.dx = 0
+
+		self.jumping = False
+
+		self.deltaTime = 1
+
+	def set_Inventory(self):
+		self.EntityInventory = Inventory()
+		self.EntityHotbar = Hotbar()
+
 	def update_hitbox(self):
 		self.hitbox = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
 
-	def update(self,surface, chunks_list, deltaTime, camera, test=False):
+	def update(self, surface, chunks_list, deltaTime, camera, test=False):
 
 		self.camera_updater(Camera=camera)
 
@@ -97,6 +113,7 @@ class Entity:
 
 	def Draw(self, surface):
 		self.body_shape(surface, tuple(self.screen_pos), 0)
+		self.DrawTag(surface)
 		#pygame.draw.rect(surface, (255,0,0), pygame.Rect( ( self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff) ))
 
 
@@ -237,6 +254,9 @@ class Entity:
 
 	def get_hitbox(self):
 		return self.hitbox
+
+	def get_id(self):
+		return self.entity_id
 
 	def move(self, direction=None):
 		self.jumping = False

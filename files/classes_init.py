@@ -5,9 +5,8 @@ from files.terrain_generator import generate, seed, generation_loop, chunks_list
 from files.import_imp import Blocks_texture, Player_texture
 from files.debugScreen import DebugScreen
 from files.camera import Camera
-from files.gui.hotbar import Hotbar
-from files.gui.Inventory import Inventory
 from files.player import Player
+from files.Entity_manager import Entities
 from files.functions import convert_blocks_pos_to_camera_xy
 
 # Camera
@@ -20,21 +19,10 @@ CameraMain.set_y_coord(coords_to_spawn_cam[1])
 
 ActiveChunks = [] # Chunks that are active and will be updated
 
+Entities_man = Entities(CameraMain)
+
 # PLAYER'S
-p1 = Player(Player_texture, (5, 20), Camera=CameraMain) # Main player
-
-PlayerInventory = Inventory()
-
-Player_Hotbar = Hotbar()
-
-# ENTITIES
-EntitiesInGame = []
-ActiveEntities = []
-
-
-for a in range(1):
-	EntitiesInGame.append(Player(Player_texture, (0.3*a, 20),Camera=CameraMain))
-
+p1 = Entities_man.GetEntityClass(Entityid=1)
 
 debug_screen = DebugScreen()
 
