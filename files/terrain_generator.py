@@ -4,6 +4,7 @@ import time
 import math
 import threading
 
+from files.noise import Noise
 from files.Block import Block, Blocks_list
 from files.vars import chunk_size, Playing
 from files.chunk import Chunk
@@ -12,7 +13,7 @@ from files.chunk_generator import Chunk_Manager_List
 
 
 seed = 10
-#Noise_gen = Noise(seed)
+Noise_gen = Noise(seed)
 
 chunks_list = []
 
@@ -48,11 +49,8 @@ for i in range(255):
 	if not (i+1) > 255:
 		colors.append( ((i+1), (i+1), (i+1)) )
 
-def get_blocks_chunks_list(index):
-	return chunks_list[index]["BLOCKS"]
-
 def gettBlockIndex(chunk_id, xy):
-	blocks = get_blocks_chunks_list(index=len(chunks_list)-1)
+	blocks = chunks_list[len(chunks_list)-1]["BLOCKS"]
 
 	block_index = 0
 
@@ -64,11 +62,9 @@ def gettBlockIndex(chunk_id, xy):
 	return block_index
 
 def setBlock(chunk_id, block_index, block_id, noise_gen):
-	blocks = get_blocks_chunks_list(index=len(chunks_list)-1)
+	blocks = chunks_list[len(chunks_list)-1]["BLOCKS"]
 
 	blocks[block_index]["BLOCK"].setBlock(block_id, noiseValue=noise_gen)
-
-import noise
 
 def generate(in_coords, time_s, Camera, chunk_identifier):
 	# GENERATE AIR BLOCKS
@@ -81,31 +77,13 @@ def generate(in_coords, time_s, Camera, chunk_identifier):
 
 	# NEW #
 	for x in range(chunk_size[0]):
-		for y in range(chunk_size[1]):
-			x_formula = in_coords + x
-			y_formula = y
-			block_index = gettBlockIndex(chunk_id, (x, y))
+		y_x = ( ((x) + prw_noise[0]), ((seed) + prw_noise[1]) )
 
-
-			""" Noise """
-			y_x = ( ((x) + prw_noise[0]), ((y) + prw_noise[1]) )
-
-			perlinHeight = int(noise.pnoise1(x=x_formula*0.5, octaves=3, persistence=1, lacunarity=3, repeat=99999999) * 5)
-
+		perlinHeight = round(Noise_gen.test(y_x[0], seed, chunk_size[1]))
+		for y in range(perlinHeight):
 			blockIndex = gettBlockIndex(chunk_id=1, xy=(x, y))
 
-
-			if get_blocks_chunks_list(index=len(chunks_list)-1)[block_index]["POS"][1] == 8 - perlinHeight:
-				setBlock(chunk_id, block_index, 1, None)
-
-			elif get_blocks_chunks_list(index=len(chunks_list)-1)[block_index]["POS"][1] < 8 - perlinHeight:
-				setBlock(chunk_id, block_index, 3, None)
-
-			if get_blocks_chunks_list(index=len(chunks_list)-1)[block_index]["POS"][1] < 8 - perlinHeight - 3:
-				setBlock(chunk_id, block_index, 2, None)
-
-
-			#setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=1, noise_gen=perlinHeight)
+			setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=1, noise_gen=perlinHeight)
 
 	
 	print(chunk_identifier, "finished")
