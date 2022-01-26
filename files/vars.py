@@ -23,13 +23,13 @@ Frames_per_second = -1
 mouse_hitbox = pygame.Rect((0,0), (1,1))
 
 # BLOCK SCALE
-block_scale_buff = 2
+block_scale_buff = 3
 
 block_to_put_id = 1
 
 gravity = 8
 
-chunk_size = (32, 30)
+chunk_size = (16, 30)
 block_size = 16
 
 slot_size = 16

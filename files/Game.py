@@ -149,16 +149,16 @@ def game(events, surface):
 	
 
 	if keys[K_RIGHT]:
-		CameraMain.set_x_coord(-vel,addToTheVar=True)
+		CameraMain.set_x_coord(-vel * b.deltaTime,addToTheVar=True)
 
 	if keys[K_LEFT]:
-		CameraMain.set_x_coord(vel,addToTheVar=True)
+		CameraMain.set_x_coord(vel * b.deltaTime,addToTheVar=True)
 
 	if keys[K_UP]:
-		CameraMain.set_y_coord(vel,addToTheVar=True)
+		CameraMain.set_y_coord(vel * b.deltaTime,addToTheVar=True)
 
 	if keys[K_DOWN]:
-		CameraMain.set_y_coord(-vel,addToTheVar=True)
+		CameraMain.set_y_coord(-vel * b.deltaTime,addToTheVar=True)
 
 	if keys[K_1]:
 		p1 = Entities_man.GetEntityClass(Entityid=1)
