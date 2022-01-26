@@ -13,7 +13,7 @@ class Camera:
     def __setcoords__(self,index, value, addToTheVar=False):
         if addToTheVar:
             # Add value to the y var
-            self.xy[index] += value
+            self.xy[index] += (round(value))
             return self.xy[index]
 
         # Set the y var according to value

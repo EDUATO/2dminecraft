@@ -166,12 +166,14 @@ def drawInventoryItem(surface, item_id, X, Y, centered=False):
 			drawInventoryItem.crop = (0,0,0,0)
 			return False # There is no block 
 
+		color = (250,250,250)
+		# Draw Text
 		if centered:
 			surface.blit(block_texture, (X - 16 * block_scale_buff/2 , Y - 16 * block_scale_buff/2), drawInventoryItem.crop)
-			f.text(surface, str(item_id[1]), X - 16 * block_scale_buff/2 , Y - 16 * block_scale_buff/2, Mc_20, (255,255,0) )
+			f.text(surface, str(item_id[1]), X - 16 * block_scale_buff/2 , Y - 16 * block_scale_buff/2, Mc_20, color )
 		else:
 			surface.blit(block_texture, (X , Y), drawInventoryItem.crop)
-			f.text(surface, str(item_id[1]), X , Y, Mc_20, (255,255,0) )
+			f.text(surface, str(item_id[1]), X , Y, Mc_20, color )
 
 		
 		

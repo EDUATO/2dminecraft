@@ -14,8 +14,8 @@ CameraMain = Camera(init_xy=[0,0], camera_size=[modeX, modeY])
 
 coords_to_spawn_cam = convert_blocks_pos_to_camera_xy(grid_pos=(4,20))
 
-CameraMain.set_x_coord(coords_to_spawn_cam[0])
-CameraMain.set_y_coord(coords_to_spawn_cam[1])
+CameraMain.set_x_coord(37)
+CameraMain.set_y_coord(640)
 
 ActiveChunks = [] # Chunks that are active and will be updated
 

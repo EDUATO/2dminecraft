@@ -1,7 +1,6 @@
 import pygame
 from pygame.locals import *
 
-from files.gui.Inventory import Inventory_slots
 from files.import_imp import Widgets_texture
 from files.vars import modeX, modeY, block_scale_buff
 from files.fonts import *
@@ -20,7 +19,7 @@ class Hotbar:
 		self.slot_size = 20
 		self.slots = []
 
-	def update(self, events, surface):
+	def update(self, events, surface, Inventory_slots):
 
 		# Update the slots from Inventory
 		self.slots = []

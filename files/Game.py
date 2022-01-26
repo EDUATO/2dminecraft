@@ -17,26 +17,31 @@ from files.classes_init import * # All the classes/methods will be initialized h
 
 lastChunkID = "None"
 inChunkID = "None"
-foc = True
+foc = False
 def game(events, surface):
 	global selected_block, block_to_put_id, ActiveChunks, inChunkID, lastChunkID, p1, foc
+	if foc == True:
+		# FOCUS CAMERA
+		pe =  f.convert_blocks_pos_to_camera_xy(p1.get_block_pos())
+		pe_alt = p1.get_screen_pos()
+		print(f"pe: {pe}")
+		print(f"pe alt {pe_alt}")
+		CameraMain.set_x_coord(value=(pe[0] + CameraMain.get_camera_size()[0]/2))
+		CameraMain.set_y_coord(value=(pe[1] + CameraMain.get_camera_size()[1]/2 - 100))
+
+
 	inGameEvents(events)
 	Entity_hitbox = p1.get_hitbox()
 
 	ActiveChunks = []
+	ActiveChunks = chunks_list
 	for ch in range(len(chunks_list)):
 		ChunkID = chunks_list[ch]["CHUNK_DATA"].isRectInChunk(surface=surface, camera=CameraMain, Rect=pygame.Rect(Entity_hitbox))
+		ChunkRect = chunks_list[ch]["CHUNK_DATA"].get_chunkBlockRect()
+		LoadChunk = False
 
-
-		if ChunkID:
-			p1.Enable_Physics()
-			if not ch == 0:
-				ActiveChunks.append(chunks_list[ch-1])
-			ActiveChunks.append(chunks_list[ch])
-			try:
-				ActiveChunks.append(chunks_list[ch+1])
-			except IndexError:
-				pass
+		if Entity_hitbox[1] > ChunkRect[1] and Entity_hitbox[1] < ChunkRect[3]:
+			LoadChunk = True
 
 
 			if inChunkID == "None":
@@ -52,8 +57,9 @@ def game(events, surface):
 		for i in range(len(ActiveChunks[c]["BLOCKS"])):
 			ActiveChunks[c]["BLOCKS"][i]["BLOCK"].update(deltaTime=b.deltaTime, surface=surface, Camera=CameraMain)
 
-	for c in range(len(ActiveChunks)):
-		ActiveChunks[c]["CHUNK_DATA"].DrawChunkLimits(surface=surface, camera=CameraMain)
+	if DebugScreen:
+		for c in range(len(ActiveChunks)):
+			ActiveChunks[c]["CHUNK_DATA"].DrawChunkLimits(surface=surface, camera=CameraMain)
 
 		
 		
@@ -91,9 +97,11 @@ def game(events, surface):
 	keys = pygame.key.get_pressed()
 	mouse = pygame.mouse.get_pressed()
 
+	p1.updateInventory(surface=surface, events=events, mouse=b.mouse_hitbox, keys=keys)
+
 	try:
 		# Get block id
-		block_to_put_id = Player_Hotbar.get_slot_item()["Item"][0]
+		block_to_put_id = p1.getEntityHotbar().get_slot_item()["Item"][0]
 	except:
 		block_to_put_id = None
 
@@ -132,12 +140,6 @@ def game(events, surface):
 		classes[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain, test=False)
 
 	Debugging_Screen(surface=surface, selected_block=selected_block)
-
-	if foc == True:
-		# FOCUS CAMERA
-		pe =  f.convert_blocks_pos_to_camera_xy(p1.get_block_pos())
-		CameraMain.set_x_coord(value=(pe[0] + CameraMain.get_camera_size()[0]//2))
-		CameraMain.set_y_coord(value=(pe[1] + CameraMain.get_camera_size()[1]//2 - 100))
 	
 	
 
@@ -158,11 +160,11 @@ def game(events, surface):
 	if keys[K_DOWN]:
 		CameraMain.set_y_coord(-vel,addToTheVar=True)
 
-	if keys[K_0]:
-		p1 = Entities_man.GetEntityClass(Entityid=0)
-
 	if keys[K_1]:
 		p1 = Entities_man.GetEntityClass(Entityid=1)
+
+	if keys[K_2]:
+		p1 = Entities_man.GetEntityClass(Entityid=2)
 
 	if keys[K_f]:
 		if foc:

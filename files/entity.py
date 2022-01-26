@@ -82,9 +82,9 @@ class Entity:
 
 	def update(self, surface, chunks_list, deltaTime, camera, test=False):
 
-		self.camera_updater(Camera=camera)
-
 		#self.update_hitbox()
+
+		self.camera_updater(Camera=camera)
 
 		if self.__isEntityOnScreen__():
 			self.Enable_Physics()
@@ -99,6 +99,8 @@ class Entity:
 				self.physics(collided_blocks, surface)
 				self.update_pos()
 
+		self.camera_updater(Camera=camera)
+
 		self.update_hitbox()
 
 		self.deltaTime = deltaTime
@@ -110,6 +112,13 @@ class Entity:
 
 		if test:
 			self.Automate()
+
+	def updateInventory(self, surface, events, mouse, keys):
+		self.EntityInventory.update(surface, mouse, keys)
+		self.EntityHotbar.update(events, surface, Inventory_slots=self.EntityInventory.getInventorySlots())
+	
+	def getEntityHotbar(self):
+		return self.EntityHotbar
 
 	def Draw(self, surface):
 		self.body_shape(surface, tuple(self.screen_pos), 0)

@@ -4,7 +4,14 @@ from files.vars import modeX, modeY, block_scale_buff, block_size
 ########## LOCAL MODULES ##########
 
 def text(surface, txt,x, y, FUENTE, COLOR):
-	text.Text = FUENTE.render(txt,1,(COLOR))
+	v = 2
+	# Shadow text
+	text.TextShadow = FUENTE.render(txt,0,(0,0,0))
+	surface.blit(text.TextShadow,(x+v, y))
+	surface.blit(text.TextShadow,(x, y+v))
+
+
+	text.Text = FUENTE.render(txt,0,(COLOR))
 	surface.blit(text.Text,(x,y))
 
 def Lock_to(lock, x, y, width, height, screen_areas=(0, 0, modeX, modeY)):

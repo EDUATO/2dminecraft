@@ -4,7 +4,6 @@ import time
 import math
 import threading
 
-from files.noise import Noise
 from files.Block import Block, Blocks_list
 from files.vars import chunk_size, Playing
 from files.chunk import Chunk
@@ -12,8 +11,8 @@ from files.functions import convert_camera_xy_to_block_pos
 from files.chunk_generator import Chunk_Manager_List
 
 
-seed = random.randint(1, 999999)
-Noise_gen = Noise(seed)
+seed = 10
+#Noise_gen = Noise(seed)
 
 chunks_list = []
 
@@ -49,55 +48,65 @@ for i in range(255):
 	if not (i+1) > 255:
 		colors.append( ((i+1), (i+1), (i+1)) )
 
+def get_blocks_chunks_list(index):
+	return chunks_list[index]["BLOCKS"]
+
+def gettBlockIndex(chunk_id, xy):
+	blocks = get_blocks_chunks_list(index=len(chunks_list)-1)
+
+	block_index = 0
+
+	for s in range(len(blocks)):
+		if blocks[s]["POS"] == xy:
+			block_index = s
+			break
+
+	return block_index
+
 def setBlock(chunk_id, block_index, block_id, noise_gen):
-	chunks_list[len(chunks_list)-1]["BLOCKS"][block_index]["BLOCK"].setBlock(block_id, noiseValue=noise_gen)
+	blocks = get_blocks_chunks_list(index=len(chunks_list)-1)
+
+	blocks[block_index]["BLOCK"].setBlock(block_id, noiseValue=noise_gen)
+
+import noise
 
 def generate(in_coords, time_s, Camera, chunk_identifier):
 	# GENERATE AIR BLOCKS
 	airGen(in_coords, Camera=Camera, chunk_identifier=chunk_identifier)
 	
 	# GENERATE TERRAIN
-	block_index = 0
 	y = 0
 	chunk_id = chunk_identifier
 	prw_noise = [1 + (15 * chunk_identifier), 1]
-	for y in range( chunk_size[1] ):
-		for x in range( chunk_size[0] ):
-			# GENERATE NOISE
+
+	# NEW #
+	for x in range(chunk_size[0]):
+		for y in range(chunk_size[1]):
+			x_formula = in_coords + x
+			y_formula = y
+			block_index = gettBlockIndex(chunk_id, (x, y))
+
+
+			""" Noise """
 			y_x = ( ((x) + prw_noise[0]), ((y) + prw_noise[1]) )
-			formula = ((y_x[0]) * noise_sc, (y_x[1]) * noise_sc)
-			
-			noise_gen = Noise_gen.test( formula[0], formula[1] )
-			
-			# GENERATE TERRAIN
 
-			# GRASS BLOCKS
-			if (y == 10):
-				setBlock(chunk_id=chunk_id, block_index=block_index, block_id=1, noise_gen=noise_gen)
+			perlinHeight = int(noise.pnoise1(x=x_formula*0.5, octaves=3, persistence=1, lacunarity=3, repeat=99999999) * 5)
 
-			if (y < 10 ):
-				setBlock(chunk_id=chunk_id, block_index=block_index, block_id=3, noise_gen=noise_gen)
+			blockIndex = gettBlockIndex(chunk_id=1, xy=(x, y))
 
-			if (y < 9):
-				if (noise_gen <= 0.1):
-					setBlock(chunk_id=chunk_id, block_index=block_index, block_id=2, noise_gen=noise_gen)
 
-				if (noise_gen >= 0.1):
-					setBlock(chunk_id=chunk_id, block_index=block_index, block_id=3, noise_gen=noise_gen)
+			if get_blocks_chunks_list(index=len(chunks_list)-1)[block_index]["POS"][1] == 8 - perlinHeight:
+				setBlock(chunk_id, block_index, 1, None)
 
-				if (noise_gen >= 0.7):
-					setBlock(chunk_id=chunk_id, block_index=block_index, block_id=3, noise_gen=noise_gen)
-			
-				
-			
-			# BEDROCK
-			if chunks_list[len(chunks_list)-1]["BLOCKS"][block_index]["POS"][1] == 0:
-				setBlock(chunk_id=chunk_id, block_index=block_index, block_id=5, noise_gen=noise_gen)
-				chunks_list[len(chunks_list)-1]["BLOCKS"][block_index]["BLOCK"].setBreakeable(False)
-			
+			elif get_blocks_chunks_list(index=len(chunks_list)-1)[block_index]["POS"][1] < 8 - perlinHeight:
+				setBlock(chunk_id, block_index, 3, None)
 
-			time.sleep(time_s)
-			block_index += 1
+			if get_blocks_chunks_list(index=len(chunks_list)-1)[block_index]["POS"][1] < 8 - perlinHeight - 3:
+				setBlock(chunk_id, block_index, 2, None)
+
+
+			#setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=1, noise_gen=perlinHeight)
+
 	
 	print(chunk_identifier, "finished")
 
