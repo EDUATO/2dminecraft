@@ -1,5 +1,9 @@
 import pygame
-from files.vars import modeX, modeY, block_scale_buff, block_size
+
+if __name__ == "__main__":
+	from vars import modeX, modeY, block_scale_buff, block_size
+else:
+	from files.vars import modeX, modeY, block_scale_buff, block_size
 
 ########## LOCAL MODULES ##########
 
@@ -46,5 +50,22 @@ def isSpriteOnTheScreen(cameraSize:tuple, screenHitbox:pygame.Rect, startCameraP
 def convert_blocks_pos_to_camera_xy(grid_pos:tuple, block_size=(block_size*block_scale_buff)):
 	return (-(grid_pos[0] * block_size), (grid_pos[1] * block_size))
 
+def convert_screen_pos_to_camera_xy(screen_pos):
+	return (-(screen_pos[0]), screen_pos[1])
+
 def convert_camera_xy_to_block_pos(xy_pos:tuple, block_size=(block_size*block_scale_buff)):
-	return ((xy_pos[0] / block_size), -(xy_pos[1] / block_size))
+	return (-(xy_pos[0] / block_size), (xy_pos[1] / block_size))
+
+
+if __name__ == "__main__":
+	a = (-5.0, -15.985)
+
+	print(a)
+
+	a_block = convert_blocks_pos_to_camera_xy(grid_pos=a)
+
+	print(a_block)
+
+	a_again = convert_camera_xy_to_block_pos(a_block)
+
+	print(a_again)

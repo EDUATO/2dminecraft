@@ -4,21 +4,55 @@ class Camera:
         self.xy = init_xy
         self.camera_size = camera_size
 
-    def set_x_coord(self, value:int, addToTheVar:bool=False):
-        self.__setcoords__(0, value, addToTheVar=addToTheVar)
+        self.updateWaitList = {"X": [], "Xtype": "SET",
+                                "Y": [], "Ytype": "SET"}
 
-    def set_y_coord(self, value:int, addToTheVar:bool=False):
-        self.__setcoords__(1, value, addToTheVar=addToTheVar)
+    def set_x_coord(self, value:int):
+        self.__setcoords__("X", value)
 
-    def __setcoords__(self,index, value, addToTheVar=False):
-        if addToTheVar:
-            # Add value to the y var
-            self.xy[index] += (round(value))
-            return self.xy[index]
+    def set_y_coord(self, value:int):
+        self.__setcoords__("Y", value)
 
-        # Set the y var according to value
-        self.xy[index] = value
-        return self.xy[index]
+    def add_to_x_coord(self, value):
+        self.__addToCoords__("X", value)
+
+    def add_to_y_coord(self, value):
+        self.__addToCoords__("Y", value)
+
+    def __setcoords__(self,index, value):
+        # Set value
+        self.updateWaitList[index] = [] # Reset the X/Y list
+        self.updateWaitList[f"{index}type"] = "SET"
+        self.updateWaitList[index].append(value)
+
+    def __addToCoords__(self, index, value):
+        # Add the value to a list, so it can be added to the xy variable later
+        if self.updateWaitList[f"{index}type"] == "SET":
+            self.updateWaitList[index] = []
+            self.updateWaitList[f"{index}type"] = "ADD"
+
+        self.updateWaitList[index].append(value)
+
+    def UpdateValues(self):
+        for x in range(len(self.updateWaitList["X"])):
+            if self.updateWaitList["Xtype"] == "ADD":
+                self.xy[0] += self.updateWaitList["X"][x]
+
+            elif self.updateWaitList["Xtype"] == "SET":
+                self.xy[0] = self.updateWaitList["X"][0]
+                break
+
+        for y in range(len(self.updateWaitList["Y"])):
+            if self.updateWaitList["Ytype"] == "ADD":
+                self.xy[1] += self.updateWaitList["Y"][y]
+
+            elif self.updateWaitList["Ytype"] == "SET":
+                self.xy[1] = self.updateWaitList["Y"][0]
+                break
+
+        # Reset the list
+        self.updateWaitList["X"] = []
+        self.updateWaitList["Y"] = []
 
     def get_xy(self):
         return tuple(self.xy)

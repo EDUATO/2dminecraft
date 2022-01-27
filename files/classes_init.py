@@ -21,8 +21,13 @@ ActiveChunks = [] # Chunks that are active and will be updated
 
 Entities_man = Entities(CameraMain)
 
+# Spawn player
+p1_uuid = Entities_man.spawnEntity(CameraMain, type="Player", Blockpos=(3, 20))
+
+Entities_man.spawnEntity(CameraMain, type="Player", Blockpos=(1, 20))
+
 # PLAYER'S
-p1 = Entities_man.GetEntityClass(Entityid=1)
+p1 = Entities_man.GetEntityClass(Entityid=p1_uuid)
 
 debug_screen = DebugScreen()
 

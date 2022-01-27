@@ -64,6 +64,9 @@ class Block:
 		if init:
 			self.grid(self.block_pos_grid)
 
+	def update_screen_pos(self):
+		self.screen_pos = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
+
 	def grid(self, block_pos_grid):
 		# Set the pixel position for each block
 		# x / y
@@ -74,7 +77,7 @@ class Block:
 				self.pos.append( -(block_pos_grid[i]) * (block_size * block_scale_buff)) 
 			
 
-		self.pos_cam = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
+		self.update_screen_pos()
 
 	def setglow(self, state, color=(255,255,0)):
 		self.glow = state
@@ -83,10 +86,10 @@ class Block:
 	def update(self, surface, deltaTime, Camera):
 		self.camera_updater(Camera)
 
-		self.pos_cam = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
+		self.update_screen_pos()
 
 		# Update hitbox 
-		self.hitbox = pygame.Rect(self.pos_cam[0], self.pos_cam[1], self.select_rect.get_width(), self.select_rect.get_height())
+		self.hitbox = pygame.Rect(self.screen_pos[0], self.screen_pos[1], self.select_rect.get_width(), self.select_rect.get_height())
 
 		self.DrawOnScreen(surface, deltaTime)
 
@@ -97,13 +100,13 @@ class Block:
 
 			if not self.block_id == 0: # isAir
 				# Crop block from texture
-				surface.blit(self.block_texture, self.pos_cam, tuple(self.crop))
+				surface.blit(self.block_texture, self.screen_pos, tuple(self.crop))
 
 			self.deltaTime = deltaTime
 
 			if not self.color == False:
 				self.color_block.fill(self.color)
-				surface.blit(self.color_block, tuple(self.pos_cam))
+				surface.blit(self.color_block, tuple(self.screen_pos))
 
 			# Update durability
 			self.break_durability = Blocks_list[self.block_id]["durability"]
@@ -117,12 +120,12 @@ class Block:
 					else: self.block_light.fill((0,0,0,self.background_val + self.light_val))
 					
 
-				surface.blit(self.block_light, tuple(self.pos_cam))
+				surface.blit(self.block_light, tuple(self.screen_pos))
 
 
 			if self.glow:
 				self.select_rect.fill((self.glow_color[0],self.glow_color[1],self.glow_color[2],128))
-				surface.blit(self.select_rect, tuple(self.pos_cam))
+				surface.blit(self.select_rect, tuple(self.screen_pos))
 
 	def coll_hitbox(self, Rect, undetectable_ids=[]):
 		""" Check if a Rect is colliderecting with the block """
@@ -163,7 +166,7 @@ class Block:
 
 			for i in range(9):
 				if self.break_porcentage >= ( (i+1) * 10) and self.break_porcentage < ( (i+2) * 10):
-					surface.blit(self.block_texture, self.pos_cam, Textures_states[i]["crop"])
+					surface.blit(self.block_texture, self.screen_pos, Textures_states[i]["crop"])
 					break
 
 			if self.break_state >= self.break_durability:

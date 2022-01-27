@@ -9,18 +9,17 @@ class Entities:
         self.EntitiesInGame = []
         self.ActiveEntities = []
 
-        self.spawnEntity(CameraMain=CameraMain, type="Player", Blockpos=(5, 20), EntityId=id)
-        self.spawnEntity(CameraMain=CameraMain, type="Player", Blockpos=(10, 20), EntityId=2)
+    def spawnEntity(self, CameraMain, type, Blockpos, custom_uuid=False):
+        """ It will spawn an Entity and return its UUID """
 
-    def spawnEntity(self, CameraMain, type, Blockpos, EntityId):
         self.EntitiesInGame.append(EntitiesTypes[type]["class"](
                                                                 texture=EntitiesTypes[type]["texture"],
                                                                 pos=Blockpos,
                                                                 Camera=CameraMain,
-                                                                id=EntityId)
+                                                                custom_uuid=custom_uuid)
                                                                 )
 
-        print(self.EntitiesInGame)
+        return self.EntitiesInGame[len(self.EntitiesInGame)-1].get_uuid()
 
     def getEntitiesClasses(self):
         classes = []
@@ -32,7 +31,7 @@ class Entities:
     def GetEntityClass(self, Entityid):
         output = None
         for i in range(len(self.EntitiesInGame)):
-            if self.EntitiesInGame[i].get_id() == Entityid:
+            if self.EntitiesInGame[i].get_uuid()== Entityid:
                 output = self.EntitiesInGame[i]
                 break
 

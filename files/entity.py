@@ -1,5 +1,6 @@
 import pygame
 import threading
+import uuid
 
 from files.import_imp import *
 from files.functions import text
@@ -13,11 +14,14 @@ from files.gui.hotbar import Hotbar
 from files.gui.Inventory import Inventory
 
 class Entity:
-	def __init__(self, pos, texture, hitbox_size, camera, body_parts,entity_id, entity_scale_buff=2):
+	def __init__(self, pos, texture, hitbox_size, camera, body_parts, custom_uuid=False, entity_scale_buff=2):
 		self.block_pos = pos # The position is in blocks
 		self.pos = list(convert_blocks_pos_to_camera_xy(grid_pos=(-self.block_pos[0], -self.block_pos[1])))
 
-		self.entity_id = entity_id
+		if custom_uuid:
+			self.entity_uuid = custom_uuid
+		else:
+			self.entity_uuid = uuid.uuid4()
 
 		self.hitbox_size = hitbox_size
 
@@ -57,7 +61,7 @@ class Entity:
 		pass
 
 	def DrawTag(self, surface):
-		text(surface, txt=str(self.entity_id), x=self.hitbox[0], y=self.hitbox[1]-20, FUENTE=Mc_15, COLOR=(255,0,0))
+		text(surface, txt=str(self.entity_uuid), x=self.screen_pos[0], y=self.screen_pos[1]-20, FUENTE=Mc_15, COLOR=(255,0,0))
 
 	def physics_variables(self):
 		self.EnablePhysics = True
@@ -82,16 +86,15 @@ class Entity:
 
 	def update(self, surface, chunks_list, deltaTime, camera, test=False):
 
-		#self.update_hitbox()
-
 		self.camera_updater(Camera=camera)
+		self.update_screen_pos()
 
 		if self.__isEntityOnScreen__():
 			self.Enable_Physics()
 		else:
 			self.Disable_Phyisics()
 
-		self.update_screen_pos()
+		
 
 		if mg.Pause == False:
 			if self.EnablePhysics:
@@ -99,9 +102,9 @@ class Entity:
 				self.physics(collided_blocks, surface)
 				self.update_pos()
 
-		self.camera_updater(Camera=camera)
-
 		self.update_hitbox()
+
+		#self.camera_updater(Camera=camera)
 
 		self.deltaTime = deltaTime
 
@@ -130,7 +133,7 @@ class Entity:
 		# This causes certain lag
 
 		# Between all the blocks from the screen detect the ones that are closer to the player
-		increaseSize = 50
+		increaseSize = 100
 		biggerHitbox = ( # Make the entity hitbox bigger to detect the surrounding blocks
 					self.hitbox[0] - increaseSize//2,
 					self.hitbox[1] - increaseSize//2,
@@ -143,7 +146,7 @@ class Entity:
 			for i in range(len(chunks_list[c]["BLOCKS"])): # Blocks from each chunk
 				if chunks_list[c]["BLOCKS"][i]["BLOCK"].coll_hitbox2(pygame.Rect(biggerHitbox)):
 					output.append(chunks_list[c]["BLOCKS"][i])
-					#chunks_list[c][i]["BLOCK"].setglow(True)
+					chunks_list[c]["BLOCKS"][i]["BLOCK"].setglow(True)
 		
 		return output
 			
@@ -179,9 +182,9 @@ class Entity:
 					if self.dx > 0:
 						resting = 0
 						for resting in range(self.vel):
-							self.entity_hitbox_test = (self.screen_entity_hitbox[0] - (resting - 5), self.screen_entity_hitbox[1], self.screen_entity_hitbox[2], self.screen_entity_hitbox[3])
+							self.entity_hitbox_test = (self.screen_entity_hitbox[0] - (resting - (5*self.deltaTime)), self.screen_entity_hitbox[1], self.screen_entity_hitbox[2], self.screen_entity_hitbox[3])
 							if not self.block.coll_hitbox( pygame.Rect(self.entity_hitbox_test), undetectable_ids=[0] ):
-								self.dx -= (resting + 5)
+								self.dx -= (resting + 5*self.deltaTime)
 								done = True
 								break
 
@@ -190,9 +193,9 @@ class Entity:
 						done = False
 						resting = 0
 						for resting in range(self.vel):
-							self.entity_hitbox_test = (self.screen_entity_hitbox[0] + (resting - 5), self.screen_entity_hitbox[1], self.screen_entity_hitbox[2], self.screen_entity_hitbox[3])
+							self.entity_hitbox_test = (self.screen_entity_hitbox[0] + (resting - 5*self.deltaTime), self.screen_entity_hitbox[1], self.screen_entity_hitbox[2], self.screen_entity_hitbox[3])
 							if not self.block.coll_hitbox( pygame.Rect(self.entity_hitbox_test), undetectable_ids=[0] ):
-								self.dx += (resting + 5)
+								self.dx += (resting + 5*self.deltaTime)
 								done = True
 								break
 
@@ -264,8 +267,8 @@ class Entity:
 	def get_hitbox(self):
 		return self.hitbox
 
-	def get_id(self):
-		return self.entity_id
+	def get_uuid(self):
+		return self.entity_uuid
 
 	def move(self, direction=None):
 		self.jumping = False
