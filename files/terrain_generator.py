@@ -34,10 +34,9 @@ def airGen(in_coords, Camera, chunk_identifier):
 		for x in range( chunk_size[0] ):
 			POSITION = (x + in_coords, y)
 			chunk_blocks_list.append(
-				{"POS":POSITION,
-				"BLOCK":Block(ID=0, block_pos_grid=POSITION,Camera=Camera)}
+				Block(ID=0, block_pos_grid=POSITION,Camera=Camera)
 				)
-	# SINTAX : chunks_list[num]['BLOCKS'][list_num]['BLOCK'].method()
+	# SINTAX : chunks_list[num]['BLOCKS'][block_num].method()
 	chunks_list.append(
 		{"CHUNK_DATA": Chunk(id=chunk_identifier, size=chunk_size),
 		"BLOCKS":chunk_blocks_list}
@@ -58,7 +57,7 @@ def gettBlockIndex(chunk_id, xy):
 	block_index = 0
 
 	for s in range(len(blocks)):
-		if blocks[s]["POS"] == xy:
+		if blocks[s].getGridCoords() == xy:
 			block_index = s
 			break
 
@@ -67,7 +66,7 @@ def gettBlockIndex(chunk_id, xy):
 def setBlock(chunk_id, block_index, block_id, noise_gen):
 	blocks = get_blocks_chunks_list(len(chunks_list)-1)
 
-	blocks[block_index]["BLOCK"].setBlock(block_id, noiseValue=noise_gen)
+	blocks[block_index].setBlock(block_id, noiseValue=noise_gen)
 
 def generate(in_coords, time_s, Camera, chunk_identifier):
 	# GENERATE AIR BLOCKS
@@ -87,17 +86,14 @@ def generate(in_coords, time_s, Camera, chunk_identifier):
 		for y in range(chunk_size[1]):
 			blockIndex = gettBlockIndex(chunk_id=1, xy=(y_x[0], y))
 
-			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex]["POS"][1] == 8 - int(perlinHeight):
+			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex].getGridCoords()[1] == 8 - int(perlinHeight):
 				setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=1, noise_gen=perlinHeight)
 
-			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex]["POS"][1] < 8 - perlinHeight:
+			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex].getGridCoords()[1] < 8 - perlinHeight:
 				setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=3, noise_gen=perlinHeight)
 
-			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex]["POS"][1] < 3 - perlinHeight:
+			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex].getGridCoords()[1] < 3 - perlinHeight:
 				setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=2, noise_gen=perlinHeight)
-
-	
-	print(chunk_identifier, "finished")
 
 def find_coicidences(chunk_index, block_id):
 	coincidences_list = []
@@ -106,7 +102,7 @@ def find_coicidences(chunk_index, block_id):
 		
 		for _ in range( chunk_size[0] ):
 			
-			if chunks_list[chunk_id]["BLOCKS"][block_index]["BLOCK"].getId() == block_id:
+			if chunks_list[chunk_id]["BLOCKS"][block_index].getId() == block_id:
 				coincidences_list.append(a)
 
 			block_index += 1

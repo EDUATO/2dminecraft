@@ -66,7 +66,7 @@ def game(events, surface):
 	# UPDATE ACTIVECHUNKS
 	for c in range(len(ActiveChunks)):
 		for i in range(len(ActiveChunks[c]["BLOCKS"])):
-			ActiveChunks[c]["BLOCKS"][i]["BLOCK"].update(deltaTime=b.deltaTime, surface=surface, Camera=CameraMain)
+			ActiveChunks[c]["BLOCKS"][i].update(deltaTime=b.deltaTime, surface=surface, Camera=CameraMain)
 
 	if DebugScreen:
 		for c in range(len(ActiveChunks)):
@@ -75,8 +75,9 @@ def game(events, surface):
 	
 
 
-	global p1_pos
+	global p1_pos, p1_sc_pos
 	p1_pos = p1.get_camera_pos()
+	p1_sc_pos = p1.get_screen_pos()
 
 
 	### MOUSE CONTROLLER ###
@@ -93,17 +94,17 @@ def game(events, surface):
 		for i in range(len(ActiveChunks[c]["BLOCKS"])):
 			if not (gui.inGui or Pause) :
 				# Detect a block being touched by the cursor
-				mouse_col_block = ActiveChunks[c]["BLOCKS"][i]["BLOCK"].coll_hitbox2(b.mouse_hitbox)
+				mouse_col_block = ActiveChunks[c]["BLOCKS"][i].coll_hitbox2(b.mouse_hitbox)
 				if mouse_col_block:
 					selected_block = ActiveChunks[c]["BLOCKS"][i]
-					selected_block["BLOCK"].setglow(True)
-					#print(selected_block["BLOCK"].getId())
+					selected_block.setglow(True)
+					#print(selected_block.getId())
 					
 				else:
-					ActiveChunks[c]["BLOCKS"][i]["BLOCK"].resetBreakState() # Reset break state
-					ActiveChunks[c]["BLOCKS"][i]["BLOCK"].setglow(False)
+					ActiveChunks[c]["BLOCKS"][i].resetBreakState() # Reset break state
+					ActiveChunks[c]["BLOCKS"][i].setglow(False)
 			else:
-				ActiveChunks[c]["BLOCKS"][i]["BLOCK"].setglow(False)
+				ActiveChunks[c]["BLOCKS"][i].setglow(False)
 
 	# ENTITIES
 	
@@ -128,29 +129,30 @@ def game(events, surface):
 		block_to_put_id = None
 
 	try:
-		# See if the selected_block is selected
-		if not selected_block["BLOCK"].isGlowing():
-			selected_block = None
-
-		
-		# Clicks
-		if not (gui.inGui or Pause):
-			if mouse[0]:
-				selected_block["BLOCK"].breakBlock(surface=surface, id=0)
-			else:
-				selected_block["BLOCK"].resetBreakState()
-		else:
-			selected_block["BLOCK"].resetBreakState()
-			
-		if mouse[2]:
+		if selected_block != None:
+			# Clicks
 			if not (gui.inGui or Pause):
-				if not block_to_put_id == None:
-					if selected_block["BLOCK"].getId() == 0:
-						if keys[K_LALT] == 1:
-							selected_block["BLOCK"].setBlock(block_to_put_id, background=True)
-						else:
-							if not selected_block["BLOCK"].coll_hitbox2(Rect=pygame.Rect(p1.get_hitbox())):
-								selected_block["BLOCK"].setBlock(block_to_put_id, background=False)
+				if mouse[0]:
+					selected_block.breakBlock(surface=surface, id=0)
+				else:
+					selected_block.resetBreakState()
+			else:
+				selected_block.resetBreakState()
+				
+			if mouse[2]:
+				if not (gui.inGui or Pause):
+					if not block_to_put_id == None:
+						if selected_block.getId() == 0:
+							if keys[K_LALT] == 1:
+								selected_block.setBlock(block_to_put_id, background=True)
+							else:
+								if not selected_block.coll_hitbox2(Rect=pygame.Rect(p1.get_hitbox())):
+									selected_block.setBlock(block_to_put_id, background=False)
+
+			# See if the selected_block is selected
+			if not selected_block.isGlowing():
+				selected_block = None
+
 
 
 	except TypeError:
@@ -183,14 +185,13 @@ def game(events, surface):
 		else:
 			foc = True
 
-
 	if Pause:
 		pygame.mouse.set_visible(True)
 
 def Debugging_Screen(surface, selected_block):
 	""" It shows some variables that may be useful to test """
 
-	player_pos_in_blocks = f.convert_camera_xy_to_block_pos(xy_pos=( (p1_pos[0], p1_pos[1]) ))
+	player_camera_pos = f.xy_pos=( (p1_pos[0], p1_pos[1]) )
 
 
 	if DebugScreen:
@@ -201,26 +202,19 @@ def Debugging_Screen(surface, selected_block):
 
 		debug_screen.addDebugText(text=f"Terrain seed: {seed}", color=(255,255,255))
 
-		debug_screen.addDebugText(text=f"FIRST POS: {round(First[0], 3)}, {round(First[1], 3)}", color=(100,0,200))
-		debug_screen.addDebugText(text=f"SECOND POS: {round(Second[0], 3)}, {round(Second[1], 3)}", color=(100,0,200))
+		debug_screen.addDebugText(text=f"CAMERA MAIN: {round(CameraMain.get_xy()[0],2), round(CameraMain.get_xy()[1],2)}", color=(0,0,200))
 
-		debug_screen.addDebugText(text=f"PLAYER POS: {round(player_pos_in_blocks[0], 3)}, {round(player_pos_in_blocks[1], 3)}", color=(0,200,0))
+		debug_screen.addDebugText(text=f"PLAYER CAM POS: {round(player_camera_pos[0], 3)}, {round(player_camera_pos[1], 3)}", color=(0,200,0))
 
-		debug_screen.addDebugText(text=f"IN CHUNK: {inChunkID}", color=(0,200,0))
-
-		debug_screen.addDebugText(text=f"PLAYER POS2: {round(p1_pos[0], 3)}, {round(p1_pos[1], 3)}", color=(0,200,0))
-
-		
+		debug_screen.addDebugText(text=f"PLAYER SCR POS: {round(p1_sc_pos[0], 3)}, {round(p1_sc_pos[1], 3)}", color=(255,0,100))
 
 		if selected_block != None: 
 
-			debug_screen.addDebugText(text=f"Noise Value: {selected_block['BLOCK'].getNoiseValue()}", color=(255,255,255))
+			debug_screen.addDebugText(text=f"Noise Value: {selected_block.getNoiseValue()}", color=(255,255,255))
 
-			#debug_screen.addDebugText(text=f"isBackground: {selected_block['BLOCK'].isBackground()}", color=(255,255,255))
+			#debug_screen.addDebugText(text=f"isBackground: {selected_block.isBackground()}", color=(255,255,255))
 
-			#debug_screen.addDebugText(text=f"{selected_block['BLOCK'].getBreakPorcentage()} %", color=(255,255,255))
-
-		debug_screen.addDebugText(text=f"CAMERA MAIN: {round(CameraMain.get_xy()[0],2), round(CameraMain.get_xy()[1],2)}", color=(0,0,200))
+			#debug_screen.addDebugText(text=f"{selected_block.getBreakPorcentage()} %", color=(255,255,255))
 
 		#debug_screen.addDebugText(text=f"CAMERA MAIN COORDS: {a}", color=(0,200,0))
 		

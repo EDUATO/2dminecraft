@@ -11,12 +11,9 @@ Blocks_list = {
 	5 : { "Name" : "Bedrock", "crop" : (64,0,16,16), "durability":False, "special":False},
 	6 : { "Name" : "Iron Ore", "crop" : (80,0,16,16), "durability":150, "special":False},
 	7 : { "Name" : "Wooden Planks", "crop" : (96,0,16,16), "durability":70, "special":False},
-	8 : { "Name" : "SECRET", "crop" : (64,0,16,16), "durability":4, "special":False}
+	8 : { "Name" : "SECRET", "crop" : (64,0,16,16), "durability":4, "special":False},
+	8 : { "Name" : "Door1", "crop" : (112,0,16,16), "durability":70},
+	9 : { "Name" : "Door2", "crop" : (128,0,16,16), "durability":70}
 	}
-
-Textures_for_blocks_list = {
-	0 : { "Name" : "Door1", "crop" : (112,0,16,16), "durability":70},
-	1 : { "Name" : "Door2", "crop" : (128,0,16,16), "durability":70}
-}
 
 block_texture = pygame.transform.scale(Blocks_texture, (Blocks_texture.get_width() * block_scale_buff,  Blocks_texture.get_height() * block_scale_buff)) # To the spritesheet

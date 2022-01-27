@@ -1,7 +1,7 @@
 import pygame
 import pygame.locals
 from files.vars import win
-from files.bucle import bucle
+from files. bucle import bucle
 ########## LOCAL MODULES ##########
 
 

@@ -88,6 +88,7 @@ class Entity:
 
 		self.camera_updater(Camera=camera)
 		self.update_screen_pos()
+		self.update_hitbox()
 
 		if self.__isEntityOnScreen__():
 			self.Enable_Physics()
@@ -101,8 +102,6 @@ class Entity:
 				collided_blocks = self.nearbyblocks(chunks_list)
 				self.physics(collided_blocks, surface)
 				self.update_pos()
-
-		self.update_hitbox()
 
 		#self.camera_updater(Camera=camera)
 
@@ -144,9 +143,9 @@ class Entity:
 		output = []
 		for c in range(len(chunks_list)): # Active chunks
 			for i in range(len(chunks_list[c]["BLOCKS"])): # Blocks from each chunk
-				if chunks_list[c]["BLOCKS"][i]["BLOCK"].coll_hitbox2(pygame.Rect(biggerHitbox)):
+				if chunks_list[c]["BLOCKS"][i].coll_hitbox2(pygame.Rect(biggerHitbox)):
 					output.append(chunks_list[c]["BLOCKS"][i])
-					chunks_list[c]["BLOCKS"][i]["BLOCK"].setglow(True)
+					chunks_list[c]["BLOCKS"][i].setglow(True)
 		
 		return output
 			
@@ -168,9 +167,9 @@ class Entity:
 
 		# Check collition
 		for c in range(len(self.oneList)):
-			self.block = self.oneList[c]["BLOCK"]
-			self.block_pos = self.oneList[c]["POS"]
-			self.block_hitbox = pygame.Rect(self.oneList[c]["BLOCK"].getHitbox())
+			self.block = self.oneList[c]
+			self.block_pos = self.oneList[c].getGridCoords()
+			self.block_hitbox = pygame.Rect(self.oneList[c].getHitbox())
 
 			if self.block.blockDetection():
 				
