@@ -12,6 +12,7 @@ import files.functions as f
 from files.Block import every_block_list
 from files.grid import grid
 import files.gui.gui_class as gui
+from files.block_data import placeble_blocks_list
 
 from files.classes_init import * # All the classes/methods will be initialized here
 
@@ -33,6 +34,8 @@ Second = 0
 def game(events, surface):
 	global selected_block, block_to_put_id, ActiveChunks, inChunkID, lastChunkID, p1, foc, First, Second
 	
+	CameraMain.UpdateValues() # UPDATE THE XY VALUES
+
 	focus_camera()
 
 	CameraMain.UpdateValues() # UPDATE THE XY VALUES
@@ -122,11 +125,13 @@ def game(events, surface):
 						selected_block.setglow(True, color=(200, 0, 0))
 					else:
 						selected_block.setglow(True, color=(255,255,0))
-					
+
+					#print(selected_block.getGridCoords())
 					
 				else:
 					ActiveChunks[c]["BLOCKS"][i].resetBreakState() # Reset break state
 					ActiveChunks[c]["BLOCKS"][i].setglow(False)
+					
 			else:
 				ActiveChunks[c]["BLOCKS"][i].setglow(False)
 
@@ -145,9 +150,13 @@ def game(events, surface):
 	try:
 		if selected_block != None:
 			# Clicks
+			block_id = selected_block.getId()
+			block_position = selected_block.getGridCoords()
+
 			if not (gui.inGui or Pause):
 				if mouse[0]:
-					selected_block.breakBlock(surface=surface, id=0, deltaTime=b.deltaTime)
+					
+					placeble_blocks_list[block_id]["class"].break_block(surface=surface, grid_pos=block_position, chunks_list=ActiveChunks, deltaTime=b.deltaTime)
 				else:
 					selected_block.resetBreakState()
 			else:
@@ -158,9 +167,10 @@ def game(events, surface):
 					if not block_to_put_id == None:
 						if selected_block.getId() == 0:
 							if keys[K_LALT] == 1:
-								selected_block.setBlock(block_to_put_id, background=True)
+								pass
 							else:
-								if not mouse_touching_entity: selected_block.setBlock(block_to_put_id, background=False)
+								if not mouse_touching_entity:
+									placeble_blocks_list[block_to_put_id]["class"].place_block(grid_pos=block_position, chunks_list=ActiveChunks)
 									
 
 			# See if the selected_block is selected

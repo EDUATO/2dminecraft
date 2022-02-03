@@ -127,7 +127,7 @@ class Block:
 
 			self.update_block()
 
-	def breakBlock(self, surface, id, deltaTime):
+	def breakBlock(self, surface, deltaTime):
 		# Update durability
 		break_durability = every_block_list[self.block_id]["durability"]
 
@@ -142,10 +142,13 @@ class Block:
 					break
 
 			if self.break_state >= break_durability:
-				self.block_id = 0 # Set the block as 'air'
-				self.resetBreakState()
+				self.ForceBreakBlock()
 
-				self.background = False
+	def ForceBreakBlock(self):
+		self.block_id = 0 # Set the block as 'air'
+		self.resetBreakState()
+
+		self.background = False
 
 	def getBreakPorcentage(self):
 		return self.break_porcentage
