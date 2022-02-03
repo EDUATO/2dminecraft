@@ -1,6 +1,6 @@
 import pygame
 
-from files.block_data import Blocks_list, block_texture
+from files.block_data import every_block_list, block_texture
 from files.vars import modeY, modeX, block_scale_buff
 import files.functions as f
 from files.fonts import *
@@ -156,10 +156,10 @@ def drawInventoryItem(surface, item_id, X, Y, centered=False):
 	if not item_id[0] == None:
 		try:
 			drawInventoryItem.crop = (
-										Blocks_list[item_id[0]]["crop"][0] * block_scale_buff,
-			 							Blocks_list[item_id[0]]["crop"][1] * block_scale_buff, 
-										Blocks_list[item_id[0]]["crop"][2] * block_scale_buff,
-					 					Blocks_list[item_id[0]]["crop"][3] * block_scale_buff
+										every_block_list[item_id[0]]["crop"][0] * block_scale_buff,
+			 							every_block_list[item_id[0]]["crop"][1] * block_scale_buff, 
+										every_block_list[item_id[0]]["crop"][2] * block_scale_buff,
+					 					every_block_list[item_id[0]]["crop"][3] * block_scale_buff
 									)
 
 		except:

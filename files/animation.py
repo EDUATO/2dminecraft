@@ -2,7 +2,6 @@
 
 class Animation:
 	def __init__(self):
-		self.deltaTime = 1
 		self.Animations = {} # {"(animation_name):[value, limit, add_value, [*settings]]"}
 		print("Initializing animation engine")
 
@@ -22,7 +21,6 @@ class Animation:
 		del self.Animations[animation_name]
 
 	def update(self, deltaTime=1, exceptions=[]):
-		self.deltaTime = deltaTime
 
 		self.i = 0
 
@@ -44,7 +42,7 @@ class Animation:
 				self.Animation_settings = self.Animations[self.Animation_key][3]
 
 
-				self.add_formula = (self.Add_Value * self.deltaTime)
+				self.add_formula = (self.Add_Value * deltaTime)
 				
 				if not self.Add_Value == 0:
 					if not (self.get_in_settings(self.Animation_key, 1) > 0 and self.get_in_settings(self.Animation_key, 0) == True):

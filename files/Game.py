@@ -9,7 +9,7 @@ from files.vars import Scene, block_scale_buff, Playing, DebugScreen, block_size
 import files.bucle as b
 from files.fonts import *
 import files.functions as f
-from files.Block import Blocks_list
+from files.Block import every_block_list
 from files.grid import grid
 import files.gui.gui_class as gui
 
@@ -73,6 +73,14 @@ def game(events, surface):
 			ActiveChunks[c]["CHUNK_DATA"].DrawChunkLimits(surface=surface, camera=CameraMain)
 
 	
+	# ENTITIES
+	
+	Second = CameraMain.get_xy()
+
+	classes = Entities_man.getEntitiesClasses()
+
+	for i in range(len(classes)):
+		classes[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain, test=False)
 
 
 	global p1_pos, p1_sc_pos
@@ -81,6 +89,7 @@ def game(events, surface):
 
 
 	### MOUSE CONTROLLER ###
+
 	camera_size = CameraMain.get_camera_size()
 
 	if not (gui.inGui or Pause):
@@ -88,17 +97,32 @@ def game(events, surface):
 		pygame.draw.line(surface, (255,255,255), (b.mouse_hitbox[0], 0), (b.mouse_hitbox[0], camera_size[1]))
 		pygame.draw.line(surface, (255,255,255), (0, b.mouse_hitbox[1]), (camera_size[0], b.mouse_hitbox[1]))
 
-		p1.keyMovement() # Be able to move the player
+		p1.keyMovement(b.deltaTime) # Be able to move the player
 
 	for c in range(len(ActiveChunks)):
 		for i in range(len(ActiveChunks[c]["BLOCKS"])):
 			if not (gui.inGui or Pause) :
 				# Detect a block being touched by the cursor
 				mouse_col_block = ActiveChunks[c]["BLOCKS"][i].coll_hitbox2(b.mouse_hitbox)
+
 				if mouse_col_block:
+					
 					selected_block = ActiveChunks[c]["BLOCKS"][i]
-					selected_block.setglow(True)
-					#print(selected_block.getId())
+
+					block_rect = selected_block.getHitbox()
+					# DETECT IF THE BLOCK THAT THE MOUSE IS TOUCHING IS COLLIDERECTING AN ENTITY #
+					mouse_touching_entity = False
+					for i in range(len(classes)):
+						pygame.draw.rect(surface, (255,0,255), rect=pygame.Rect(classes[i].get_hitbox())) 
+						if block_rect.colliderect(pygame.Rect(classes[i].get_hitbox())):
+							mouse_touching_entity = True
+							break
+
+					if mouse_touching_entity:
+						selected_block.setglow(True, color=(200, 0, 0))
+					else:
+						selected_block.setglow(True, color=(255,255,0))
+					
 					
 				else:
 					ActiveChunks[c]["BLOCKS"][i].resetBreakState() # Reset break state
@@ -106,17 +130,7 @@ def game(events, surface):
 			else:
 				ActiveChunks[c]["BLOCKS"][i].setglow(False)
 
-	# ENTITIES
-	
-	Second = CameraMain.get_xy()
-
-	classes = Entities_man.getEntitiesClasses()
-
-	for i in range(len(classes)):
-		classes[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain, test=False)	
-
-
-
+		
 	keys = pygame.key.get_pressed()
 	mouse = pygame.mouse.get_pressed()
 
@@ -133,7 +147,7 @@ def game(events, surface):
 			# Clicks
 			if not (gui.inGui or Pause):
 				if mouse[0]:
-					selected_block.breakBlock(surface=surface, id=0)
+					selected_block.breakBlock(surface=surface, id=0, deltaTime=b.deltaTime)
 				else:
 					selected_block.resetBreakState()
 			else:
@@ -146,8 +160,8 @@ def game(events, surface):
 							if keys[K_LALT] == 1:
 								selected_block.setBlock(block_to_put_id, background=True)
 							else:
-								if not selected_block.coll_hitbox2(Rect=pygame.Rect(p1.get_hitbox())):
-									selected_block.setBlock(block_to_put_id, background=False)
+								if not mouse_touching_entity: selected_block.setBlock(block_to_put_id, background=False)
+									
 
 			# See if the selected_block is selected
 			if not selected_block.isGlowing():

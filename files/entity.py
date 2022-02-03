@@ -51,6 +51,9 @@ class Entity:
 		self.set_Inventory()
 
 		# body 
+		self.body_init()
+
+	def body_init(self):
 		self.body_parts_keys = list(self.body_parts.keys())
 		for i in range(len(self.body_parts)):
 			self.resized_body_parts[self.body_parts_keys[i]] = [] # Add a list, so you can append info
@@ -75,8 +78,6 @@ class Entity:
 
 		self.jumping = False
 
-		self.deltaTime = 1
-
 	def set_Inventory(self):
 		self.EntityInventory = Inventory()
 		self.EntityHotbar = Hotbar()
@@ -95,17 +96,11 @@ class Entity:
 		else:
 			self.Disable_Phyisics()
 
-		
-
 		if mg.Pause == False:
 			if self.EnablePhysics:
 				collided_blocks = self.nearbyblocks(chunks_list)
-				self.physics(collided_blocks, surface)
+				self.physics(collided_blocks, surface, deltaTime=deltaTime)
 				self.update_pos()
-
-		#self.camera_updater(Camera=camera)
-
-		self.deltaTime = deltaTime
 
 		self.Draw(surface)
 
@@ -113,7 +108,7 @@ class Entity:
 		self.dy = 0
 
 		if test:
-			self.Automate()
+			self.Automate(deltaTime)
 
 	def updateInventory(self, surface, events, mouse, keys):
 		self.EntityInventory.update(surface, mouse, keys)
@@ -150,15 +145,15 @@ class Entity:
 		return output
 			
 
-	def physics(self, blocks_list, surface):
-		self.oneList = blocks_list
+	def physics(self, every_block_list, surface, deltaTime=1):
+		self.oneList = every_block_list
 				
 		# Gravity 
-		self.vel_y += (1 * self.deltaTime)
+		self.vel_y += (1 * deltaTime)
 		if self.vel_y > gravity:
 			self.vel_y = gravity
 
-		self.dy += (self.vel_y * (self.deltaTime))
+		self.dy += (self.vel_y * (deltaTime))
 		
 		self.player_hitbox = pygame.Rect(self.hitbox)
 		self.screen_entity_hitbox = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
@@ -181,9 +176,9 @@ class Entity:
 					if self.dx > 0:
 						resting = 0
 						for resting in range(self.vel):
-							self.entity_hitbox_test = (self.screen_entity_hitbox[0] - (resting - (5*self.deltaTime)), self.screen_entity_hitbox[1], self.screen_entity_hitbox[2], self.screen_entity_hitbox[3])
+							self.entity_hitbox_test = (self.screen_entity_hitbox[0] - (resting - (5*deltaTime)), self.screen_entity_hitbox[1], self.screen_entity_hitbox[2], self.screen_entity_hitbox[3])
 							if not self.block.coll_hitbox( pygame.Rect(self.entity_hitbox_test), undetectable_ids=[0] ):
-								self.dx -= (resting + 5*self.deltaTime)
+								self.dx -= (resting + 5*deltaTime)
 								done = True
 								break
 
@@ -192,9 +187,9 @@ class Entity:
 						done = False
 						resting = 0
 						for resting in range(self.vel):
-							self.entity_hitbox_test = (self.screen_entity_hitbox[0] + (resting - 5*self.deltaTime), self.screen_entity_hitbox[1], self.screen_entity_hitbox[2], self.screen_entity_hitbox[3])
+							self.entity_hitbox_test = (self.screen_entity_hitbox[0] + (resting - 5*deltaTime), self.screen_entity_hitbox[1], self.screen_entity_hitbox[2], self.screen_entity_hitbox[3])
 							if not self.block.coll_hitbox( pygame.Rect(self.entity_hitbox_test), undetectable_ids=[0] ):
-								self.dx += (resting + 5*self.deltaTime)
+								self.dx += (resting + 5*deltaTime)
 								done = True
 								break
 
@@ -206,8 +201,6 @@ class Entity:
 
 					
 					
-
-
 				y_formula = (self.screen_pos[0], self.screen_pos[1] + self.dy, self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
 				# Y collition
 				if self.block.coll_hitbox( pygame.Rect(y_formula), undetectable_ids=[0] ):
@@ -222,14 +215,10 @@ class Entity:
 						self.dy = (self.block.getHitbox().top) - pygame.Rect(self.screen_entity_hitbox).bottom
 
 						self.jumping = False
-
-						self.block_c = self.block.check_block_around_coords(4,4)
 				
 				"""pygame.draw.rect(surface, (0,0,255), pygame.Rect(x_formula))
 				pygame.draw.rect(surface, (255,0,0), pygame.Rect(y_formula))"""
 			
-
-		self.hitbox = (self.player_hitbox.left, self.player_hitbox.right, self.player_hitbox.width, self.player_hitbox.height)
 
 	def update_screen_pos(self):
 		self.screen_pos = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
@@ -263,19 +252,16 @@ class Entity:
 		""" Get the hitbox as a tuple """
 		return self.hitbox
 
-	def get_hitbox(self):
-		return self.hitbox
-
 	def get_uuid(self):
 		return self.entity_uuid
 
-	def move(self, direction=None):
+	def move(self, deltaTime, direction=None):
 		self.jumping = False
 		if direction == "R":
-			self.dx += (self.vel * self.deltaTime)
+			self.dx += (self.vel * deltaTime)
 			
 		if direction == "L":
-			self.dx -= (self.vel * self.deltaTime)
+			self.dx -= (self.vel * deltaTime)
 
 		if direction == "U" and self.jumping == False:
 			self.vel_y = -12
@@ -284,8 +270,8 @@ class Entity:
 	def Automate_Init(self):
 		self.move_time = 0
 		self.Adir = "R"
-	def Automate(self):
-		self.move(self.Adir)
+	def Automate(self, deltaTime):
+		self.move(self.Adir, deltaTime)
 		self.move_time += 1
 		if self.move_time > 300:
 			if self.Adir == "R":

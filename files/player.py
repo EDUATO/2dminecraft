@@ -84,29 +84,29 @@ class Player(Entity):
 
 			surface.blit(self.Front_Arm2, (pos[0] - self.resized_body_parts["Front_Arm"][2] ,pos[1] + self.resized_body_parts["Head2"][3])) # Left hand
 
-	def keyMovement(self):
+	def keyMovement(self, deltaTime):
 		
 		self.keys = pygame.key.get_pressed()
 
 		if self.keys[K_d]:
 			if not self.keys[K_a] == 1:
-				self.move(direction="R")
+				self.move(direction="R", deltaTime=deltaTime)
 				
 		if self.keys[K_a]:
 			if not self.keys[K_d] == 1:
-				self.move(direction="L")
+				self.move(direction="L", deltaTime=deltaTime)
 
 		if self.keys[K_SPACE]:
-			self.move(direction="U")
+			self.move(direction="U", deltaTime=deltaTime)
 
 		# FOR TESTING PURPOSES ONLY
 		if self.keys[K_w]:
 			if not self.keys[K_s] == 1:
-				self.move(direction="W")
+				self.move(direction="W", deltaTime=deltaTime)
 
 		if self.keys[K_s]:
 			if not self.keys[K_w] == 1:
-				self.move(direction="S")
+				self.move(direction="S", deltaTime=deltaTime)
 
 
 

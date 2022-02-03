@@ -5,7 +5,7 @@ import math
 import threading
 
 from files.noise import Noise
-from files.Block import Block, Blocks_list
+from files.Block import Block, every_block_list
 from files.vars import chunk_size, Playing
 from files.chunk import Chunk
 from files.functions import convert_camera_xy_to_block_pos
@@ -34,7 +34,7 @@ def airGen(in_coords, Camera, chunk_identifier):
 		for x in range( chunk_size[0] ):
 			POSITION = (x + in_coords, y)
 			chunk_blocks_list.append(
-				Block(ID=0, block_pos_grid=POSITION,Camera=Camera)
+				Block(block_pos_grid=POSITION,Camera=Camera)
 				)
 	# SINTAX : chunks_list[num]['BLOCKS'][block_num].method()
 	chunks_list.append(
