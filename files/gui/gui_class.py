@@ -1,8 +1,9 @@
 import pygame
 
-from files.block_data import every_block_list, block_texture
+from files.blocks.block_data import every_block_list, block_texture
 from files.vars import modeY, modeX, block_scale_buff
 import files.functions as f
+from files.gui.Text import Text
 from files.fonts import *
 
 inGui = False
@@ -167,13 +168,20 @@ def drawInventoryItem(surface, item_id, X, Y, centered=False):
 			return False # There is no block 
 
 		color = (250,250,250)
+
+		ItemText = Text(x=X , y=Y, txt=str(item_id[1]),FUENTE=Mc_20, COLOR=color, lock=None, screen_areas=(X - 16, Y - 16, block_scale_buff, block_scale_buff))
 		# Draw Text
 		if centered:
-			surface.blit(block_texture, (X - 16 * block_scale_buff/2 , Y - 16 * block_scale_buff/2), drawInventoryItem.crop)
-			f.text(surface, str(item_id[1]), X - 16 * block_scale_buff/2 , Y - 16 * block_scale_buff/2, Mc_20, color )
+			surface.blit(block_texture, (X - (16 * block_scale_buff)/2 , Y - (16 * block_scale_buff)/2), drawInventoryItem.crop)
+			ItemText.setCoords(	x= X - (16 * block_scale_buff)/2,
+			 					y= Y - (16 * block_scale_buff)/2
+			 )
+			
+			ItemText.draw(surface)
+
 		else:
 			surface.blit(block_texture, (X , Y), drawInventoryItem.crop)
-			f.text(surface, str(item_id[1]), X , Y, Mc_20, color )
+			ItemText.draw(surface)
 
 		
 		

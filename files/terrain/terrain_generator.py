@@ -4,12 +4,12 @@ import time
 import math
 import threading
 
-from files.noise import Noise
-from files.Block import Block, every_block_list
+from files.terrain.noise import Noise
+from files.blocks.Block import Block, every_block_list
 from files.vars import chunk_size, Playing
-from files.chunk import Chunk
+from files.terrain.chunk import Chunk
 from files.functions import convert_camera_xy_to_block_pos
-from files.chunk_generator import Chunk_Manager_List
+from files.terrain.chunk_generator import Chunk_Manager_List
 
 
 seed = random.randint(1, 9999)
@@ -86,14 +86,21 @@ def generate(in_coords, time_s, Camera, chunk_identifier):
 		for y in range(chunk_size[1]):
 			blockIndex = gettBlockIndex(chunk_id=1, xy=(y_x[0], y))
 
-			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex].getGridCoords()[1] == 8 - int(perlinHeight):
-				setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=1, noise_gen=perlinHeight)
-
+			# Dirt Block
 			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex].getGridCoords()[1] < 8 - perlinHeight:
 				setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=3, noise_gen=perlinHeight)
 
+			# Grass Block
+			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex].getGridCoords()[1] == 8 - int(perlinHeight):
+				setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=1, noise_gen=perlinHeight)
+
+			# Stone Block
 			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex].getGridCoords()[1] < 3 - perlinHeight:
 				setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=2, noise_gen=perlinHeight)
+
+			# Bedrock
+			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex].getGridCoords()[1] == 0:
+				setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=4, noise_gen=perlinHeight)
 
 def find_coicidences(chunk_index, block_id):
 	coincidences_list = []

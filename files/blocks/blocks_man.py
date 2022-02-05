@@ -3,17 +3,10 @@ class Blocks_manager:
         self.block_id = None
 
         self.blocks_parents = [ 
-            (0, 0),
-            (0, 1),
-            (1, 0),
-            (1, 1),
-            (0, -1),
-            (-1, 0),
-            (-1, -1)
+            (0, 0)
         ]
 
     def place_block(self, grid_pos, chunks_list):
-        print("a")
         grid_positions = self.get_blocks_parents_grid_pos(center_grid_pos=grid_pos)
 
         blocks_to_place = self.seek_block_position(chunks_list, grid_positions)

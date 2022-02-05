@@ -7,17 +7,6 @@ else:
 
 ########## LOCAL MODULES ##########
 
-def text(surface, txt,x, y, FUENTE, COLOR):
-	v = 2
-	# Shadow text
-	text.TextShadow = FUENTE.render(txt,0,(0,0,0))
-	surface.blit(text.TextShadow,(x+v, y))
-	surface.blit(text.TextShadow,(x, y+v))
-
-
-	text.Text = FUENTE.render(txt,0,(COLOR))
-	surface.blit(text.Text,(x,y))
-
 def Lock_to(lock, x, y, width, height, screen_areas=(0, 0, modeX, modeY)):
 
 	if lock == "x":
@@ -28,12 +17,6 @@ def Lock_to(lock, x, y, width, height, screen_areas=(0, 0, modeX, modeY)):
 
 	elif lock == "xy":
 		return (x + screen_areas[2]/2 - width/2, y + screen_areas[3]/2 - height/2 )
-
-	elif lock == "right-top-corner":
-		pass
-
-	elif lock == "left-top-corner":
-		pass
 
 	return 0
 

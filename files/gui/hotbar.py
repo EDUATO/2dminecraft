@@ -5,7 +5,7 @@ from files.import_imp import Widgets_texture
 from files.vars import modeX, modeY, block_scale_buff
 from files.fonts import *
 import files.functions as f
-from files.Block import every_block_list, block_texture
+from files.blocks.Block import every_block_list, block_texture
 import files.bucle as b
 import files.Game as gm
 from files.gui.gui_class import drawInventoryItem

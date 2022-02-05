@@ -1,6 +1,6 @@
 import pygame
-import files.functions as f
 
+from files.gui.Text import Text
 from files.fonts import *
 
 class DebugScreen:
@@ -24,7 +24,9 @@ class DebugScreen:
     def WriteTexts(self, surface):
         y = 10
         for i in range(len(self.DebugList)):
-            f.text(surface, self.DebugList[i]["text"], 20, y, Arial_30, self.DebugList[i]["color"])
+            debugText = Text(20, y, self.DebugList[i]["text"], Arial_30, self.DebugList[i]["color"])
+            debugText.draw(surface)
+
             y += 50
 
     def resetDebugList(self):

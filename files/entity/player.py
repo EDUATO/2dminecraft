@@ -2,7 +2,7 @@ import pygame
 
 from files.import_imp import *
 from files.vars import block_scale_buff
-from files.entity import Entity
+from files.entity.entity import Entity
 import files.bucle as b
 
 class Player(Entity):

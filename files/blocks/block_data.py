@@ -9,6 +9,7 @@ every_block_list = { # This contains every block id, inclusive each part of the 
 	1 : { "Name" : "Grass_Block", "crop" : (0,0,16,16), "durability":40},
 	2 : { "Name" : "Stone_Block", "crop" : (16,0,16,16), "durability":140},
 	3 : { "Name" : "Dirt", "crop" : (32,0,16,16), "durability":35},
+	4 : { "Name" : "Bedrock", "crop" : (64,0,16,16), "durability":False},
 	
 	}
 
@@ -16,12 +17,14 @@ from files.blocks.air import *
 from files.blocks.dirt import *
 from files.blocks.grass_block import *
 from files.blocks.stone import *
+from files.blocks.bedrock import *
 
 placeble_blocks_list = {
 	0 : {"Name" : "Air", "class" : Air()},
 	1 : {"Name" : "Grass_Block", "class" : Grass_Block()},
 	2 : {"Name" : "Stone_Block", "class" : Stone()},
-	3 : {"Name" : "Dirt", "class" : Dirt()}
+	3 : {"Name" : "Dirt", "class" : Dirt()},
+	4 : {"Name" : "Bedrock", "class" : Bedrock()}
 }
 
 
@@ -29,8 +32,7 @@ placeble_blocks_list = {
 
 
 """
-	4 : { "Name" : "Oak_Wood", "crop" : (48,0,16,16), "durability":70},
-	5 : { "Name" : "Bedrock", "crop" : (64,0,16,16), "durability":False},
+	5 : { "Name" : "Oak_Wood", "crop" : (48,0,16,16), "durability":70},
 	6 : { "Name" : "Iron Ore", "crop" : (80,0,16,16), "durability":150},
 	7 : { "Name" : "Wooden Planks", "crop" : (96,0,16,16), "durability":70},
 	8 : { "Name" : "SECRET", "crop" : (64,0,16,16), "durability":4},

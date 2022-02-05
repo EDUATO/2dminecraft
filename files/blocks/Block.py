@@ -1,7 +1,7 @@
 import pygame
 
 from files.vars import block_scale_buff, block_size, block_detection_after_screen
-from files.block_data import *
+from files.blocks.block_data import *
 from files.functions import isSpriteOnTheScreen
 
 Textures_states = {}

@@ -1,12 +1,12 @@
 import pygame
 
 from files.vars import modeX, modeY
-from files.terrain_generator import generate, seed, generation_loop, chunks_list
+from files.terrain.terrain_generator import generate, seed, generation_loop, chunks_list
 from files.import_imp import Blocks_texture, Player_texture
 from files.debugScreen import DebugScreen
 from files.camera import Camera
-from files.player import Player
-from files.Entity_manager import Entities
+from files.entity.player import Player
+from files.entity.Entity_manager import Entities
 from files.functions import convert_blocks_pos_to_camera_xy
 
 # Camera

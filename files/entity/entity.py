@@ -3,15 +3,15 @@ import threading
 import uuid
 
 from files.import_imp import *
-from files.functions import text
 from files.fonts import *
 from files.vars import gravity
-from files.Block import *
+from files.blocks.Block import *
 import files.bucle as b
 import files.Game as mg
 from files.functions import convert_blocks_pos_to_camera_xy, convert_camera_xy_to_block_pos
 from files.gui.hotbar import Hotbar
 from files.gui.Inventory import Inventory
+from files.gui.Text import Text
 
 class Entity:
 	def __init__(self, pos, texture, hitbox_size, camera, body_parts, custom_uuid=False, entity_scale_buff=2):
@@ -64,7 +64,10 @@ class Entity:
 		pass
 
 	def DrawTag(self, surface):
-		text(surface, txt=str(self.entity_uuid), x=self.screen_pos[0], y=self.screen_pos[1]-20, FUENTE=Mc_15, COLOR=(255,0,0))
+		EntityTag = Text(txt=str(self.entity_uuid), x=self.screen_pos[0], y=self.screen_pos[1]-20, FUENTE=Mc_15, COLOR=(255,0,0),
+					 	screen_areas=(self.screen_pos[0], self.screen_pos[1]-20, self.hitbox_size[0], self.screen_pos[1]-20))
+
+		EntityTag.draw(surface=surface)
 
 	def physics_variables(self):
 		self.EnablePhysics = True

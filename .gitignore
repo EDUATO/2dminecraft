@@ -1,4 +1,4 @@
-__pycache__
-files/__pycache__
-files/gui/__pycache__
+*.pyc
 Main.spec
+build/
+dict/

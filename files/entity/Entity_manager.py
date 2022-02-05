@@ -1,5 +1,5 @@
 
-from files.player import Player
+from files.entity.player import Player
 from files.import_imp import Player_texture
 
 EntitiesTypes = {"Player":{"class":Player, "texture":Player_texture}}

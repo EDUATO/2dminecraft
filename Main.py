@@ -17,7 +17,5 @@ def WindowThread():
     t.start()
 
 
-
-
 if __name__ == "__main__":
     bucle(surface=win)

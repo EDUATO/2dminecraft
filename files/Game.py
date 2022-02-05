@@ -9,10 +9,10 @@ from files.vars import Scene, block_scale_buff, Playing, DebugScreen, block_size
 import files.bucle as b
 from files.fonts import *
 import files.functions as f
-from files.Block import every_block_list
+from files.blocks.Block import every_block_list
 from files.grid import grid
 import files.gui.gui_class as gui
-from files.block_data import placeble_blocks_list
+from files.blocks.block_data import placeble_blocks_list
 
 from files.classes_init import * # All the classes/methods will be initialized here
 
@@ -33,18 +33,13 @@ Second = 0
 
 def game(events, surface):
 	global selected_block, block_to_put_id, ActiveChunks, inChunkID, lastChunkID, p1, foc, First, Second
-	
-	CameraMain.UpdateValues() # UPDATE THE XY VALUES
-
-	focus_camera()
-
 	CameraMain.UpdateValues() # UPDATE THE XY VALUES
 
 	inGameEvents(events)
 
 	Entity_hitbox = p1.get_hitbox()
 
-
+	
 	First = CameraMain.get_xy()
 
 	ActiveChunks = []
@@ -90,7 +85,7 @@ def game(events, surface):
 	p1_pos = p1.get_camera_pos()
 	p1_sc_pos = p1.get_screen_pos()
 
-
+	
 	### MOUSE CONTROLLER ###
 
 	camera_size = CameraMain.get_camera_size()
@@ -116,7 +111,6 @@ def game(events, surface):
 					# DETECT IF THE BLOCK THAT THE MOUSE IS TOUCHING IS COLLIDERECTING AN ENTITY #
 					mouse_touching_entity = False
 					for i in range(len(classes)):
-						pygame.draw.rect(surface, (255,0,255), rect=pygame.Rect(classes[i].get_hitbox())) 
 						if block_rect.colliderect(pygame.Rect(classes[i].get_hitbox())):
 							mouse_touching_entity = True
 							break
@@ -187,9 +181,10 @@ def game(events, surface):
 	
 
 	# TEST ONLY
-	vel = 5
+	vel = 10
 	keys = pygame.key.get_pressed()
 	
+	focus_camera()
 
 	if keys[K_RIGHT]:
 		CameraMain.add_to_x_coord(value= (-vel * b.deltaTime))
