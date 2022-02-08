@@ -8,5 +8,7 @@ class Stone(Blocks_manager):
         self.block_id = 2
         self.blocks_parents = [
             (0,0),
-            (0,1)
+            (0,1),
+            (1,1),
+            (1,0)
         ]

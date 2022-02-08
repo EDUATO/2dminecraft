@@ -90,8 +90,7 @@ class Block:
 		if self.BlockOnScreen:
 
 			if not self.block_id == 0: # isAir
-				# Crop block from texture
-				surface.blit(self.block_texture, self.screen_pos, tuple(self.crop))
+				self.DrawBlock(surface)
 
 			# LIGHT
 			if not self.block_id == 0:
@@ -106,6 +105,11 @@ class Block:
 			if self.glow:
 				self.select_rect.fill((self.glow_color[0],self.glow_color[1],self.glow_color[2],128))
 				surface.blit(self.select_rect, tuple(self.screen_pos))
+
+
+	def DrawBlock(self, surface):
+		# Crop block from texture and draw it on the screen
+		surface.blit(self.block_texture, self.screen_pos, tuple(self.crop))
 
 	def coll_hitbox(self, Rect, undetectable_ids=[]):
 		""" Check if a Rect is colliderecting with the block """

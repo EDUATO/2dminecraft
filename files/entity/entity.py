@@ -64,7 +64,7 @@ class Entity:
 		pass
 
 	def DrawTag(self, surface):
-		EntityTag = Text(txt=str(self.entity_uuid), x=self.screen_pos[0], y=self.screen_pos[1]-20, FUENTE=Mc_15, COLOR=(255,0,0),
+		EntityTag = Text(txt=str(self.entity_uuid), x=self.screen_pos[0], y=self.screen_pos[1]-20, FUENTE=Mc_12, COLOR=(255,0,0),lock="x",
 					 	screen_areas=(self.screen_pos[0], self.screen_pos[1]-20, self.hitbox_size[0], self.screen_pos[1]-20))
 
 		EntityTag.draw(surface=surface)
@@ -92,7 +92,7 @@ class Entity:
 
 		self.camera_updater(Camera=camera)
 		self.update_screen_pos()
-		self.update_hitbox()
+		
 
 		if self.__isEntityOnScreen__():
 			self.Enable_Physics()
@@ -121,7 +121,8 @@ class Entity:
 		return self.EntityHotbar
 
 	def Draw(self, surface):
-		self.body_shape(surface, tuple(self.screen_pos), 0)
+		self.update_hitbox()
+		self.body_shape(surface, tuple((self.hitbox[0], self.hitbox[1])), 0)
 		self.DrawTag(surface)
 		#pygame.draw.rect(surface, (255,0,0), pygame.Rect( ( self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff) ))
 
@@ -249,7 +250,7 @@ class Entity:
 		return convert_camera_xy_to_block_pos(xy_pos=(self.get_camera_pos()))
 
 	def get_camera_pos(self):
-		return self.CameraMain.convert_screen_pos_to_camera_xy((self.screen_pos[0], self.screen_pos[1]))
+		return self.CameraMain.convert_screen_pos_to_camera_xy((self.hitbox[0], self.hitbox[1]))
 
 	def get_hitbox(self):
 		""" Get the hitbox as a tuple """

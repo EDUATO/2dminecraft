@@ -8,7 +8,7 @@ from files. bucle import bucle
 def WindowThread():
     from threading import Thread
 
-    def open_window():
+    def open_window(): 
         from files.bucle import bucle
         from files.vars import win
         bucle(surface=win)

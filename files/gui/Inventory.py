@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 
-from files.gui.gui_class import Gui, inGui
+from files.gui.gui_class import Gui
 from files.vars import modeX, modeY, block_scale_buff, slot_size
 from files.import_imp import Inventory_texture, Blocks_texture
 import files.bucle as b

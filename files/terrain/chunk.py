@@ -24,6 +24,15 @@ class Chunk:
 
         return Rect.colliderect(pygame.Rect(chunk_limit))
 
+    def is_rect_in_chunk_x_coords(self, surface, camera, Rect):
+        chunk_limit = self.ChunkLimits(camera)
+        
+        print(Rect.width, chunk_limit[2])
+        if (Rect.x + Rect.width) >= chunk_limit[0] and (Rect.x + Rect.width) < (chunk_limit[0] + chunk_limit[2]):
+            return True
+
+        return False
+
     def ChunkLimits(self, camera):
         # Convert blocks coords to camera_xy
         block_position = convert_blocks_pos_to_camera_xy(grid_pos=(self.x_block_start_pos, 0))[0]

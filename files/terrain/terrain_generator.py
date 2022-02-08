@@ -10,9 +10,10 @@ from files.vars import chunk_size, Playing
 from files.terrain.chunk import Chunk
 from files.functions import convert_camera_xy_to_block_pos
 from files.terrain.chunk_generator import Chunk_Manager_List
+from files.terrain.noisy_terrain import noisy_terrain
 
 
-seed = random.randint(1, 9999)
+seed = 10
 Noise_gen = Noise(seed)
 
 chunks_list = []
@@ -48,25 +49,6 @@ for i in range(255):
 	if not (i+1) > 255:
 		colors.append( ((i+1), (i+1), (i+1)) )
 
-def get_blocks_chunks_list(index):
-	return chunks_list[index]["BLOCKS"]
-
-def gettBlockIndex(chunk_id, xy):
-	blocks = get_blocks_chunks_list(len(chunks_list)-1)
-
-	block_index = 0
-
-	for s in range(len(blocks)):
-		if blocks[s].getGridCoords() == xy:
-			block_index = s
-			break
-
-	return block_index
-
-def setBlock(chunk_id, block_index, block_id, noise_gen):
-	blocks = get_blocks_chunks_list(len(chunks_list)-1)
-
-	blocks[block_index].setBlock(block_id, noiseValue=noise_gen)
 
 def generate(in_coords, time_s, Camera, chunk_identifier):
 	# GENERATE AIR BLOCKS
@@ -84,23 +66,8 @@ def generate(in_coords, time_s, Camera, chunk_identifier):
 
 		perlinHeight = Noise_gen.test(y_x[0], seed, chunk_size[1])
 		for y in range(chunk_size[1]):
-			blockIndex = gettBlockIndex(chunk_id=1, xy=(y_x[0], y))
+			noisy_terrain(PerlinNoise=perlinHeight, y_x=y_x, y=y, chunks_list=chunks_list, chunk_identifier=chunk_id)
 
-			# Dirt Block
-			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex].getGridCoords()[1] < 8 - perlinHeight:
-				setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=3, noise_gen=perlinHeight)
-
-			# Grass Block
-			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex].getGridCoords()[1] == 8 - int(perlinHeight):
-				setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=1, noise_gen=perlinHeight)
-
-			# Stone Block
-			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex].getGridCoords()[1] < 3 - perlinHeight:
-				setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=2, noise_gen=perlinHeight)
-
-			# Bedrock
-			if get_blocks_chunks_list(index=len(chunks_list)-1)[blockIndex].getGridCoords()[1] == 0:
-				setBlock(chunk_id=chunk_identifier, block_index=blockIndex, block_id=4, noise_gen=perlinHeight)
 
 def find_coicidences(chunk_index, block_id):
 	coincidences_list = []

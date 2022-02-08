@@ -17,7 +17,7 @@ pygame.display.set_caption("Programa") # Win's name
 
 fps = pygame.time.Clock()
 
-Frames_per_second = 60
+Frames_per_second = -1
 
 # Mouse hitbox
 mouse_hitbox = pygame.Rect((0,0), (1,1))
@@ -29,7 +29,7 @@ block_to_put_id = 1
 
 gravity = 8
 
-chunk_size = (16, 30)
+chunk_size = (16, 32)
 block_size = 16
 
 slot_size = 16

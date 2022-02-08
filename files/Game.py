@@ -13,13 +13,20 @@ from files.blocks.Block import every_block_list
 from files.grid import grid
 import files.gui.gui_class as gui
 from files.blocks.block_data import placeble_blocks_list
+from files.entity.player_mouse_controller import player_mouse_cotroller
 
 from files.classes_init import * # All the classes/methods will be initialized here
 
 lastChunkID = "None"
 inChunkID = "None"
+
+blocks_to_reset_break_state = []
+
+LastLoadedChunkId = 0
+
 foc = True
 def focus_camera():
+	global pe_alt
 	""" Momentarily """
 	if foc == True:
 		# FOCUS CAMERA
@@ -32,7 +39,7 @@ First = 0
 Second = 0
 
 def game(events, surface):
-	global selected_block, block_to_put_id, ActiveChunks, inChunkID, lastChunkID, p1, foc, First, Second
+	global selected_block, block_to_put_id, ActiveChunks, inChunkID, lastChunkID, p1, foc, First, Second, LastLoadedChunkId
 	CameraMain.UpdateValues() # UPDATE THE XY VALUES
 
 	inGameEvents(events)
@@ -40,18 +47,17 @@ def game(events, surface):
 	Entity_hitbox = p1.get_hitbox()
 
 	
+
 	First = CameraMain.get_xy()
 
 	ActiveChunks = []
-	ActiveChunks = chunks_list
 	for ch in range(len(chunks_list)):
-		ChunkID = chunks_list[ch]["CHUNK_DATA"].isRectInChunk(surface=surface, camera=CameraMain, Rect=pygame.Rect(Entity_hitbox))
+		inChunkID = chunks_list[ch]["CHUNK_DATA"].is_rect_in_chunk_x_coords(surface=surface, camera=CameraMain, Rect=pygame.Rect(Entity_hitbox))
 		ChunkRect = chunks_list[ch]["CHUNK_DATA"].get_chunkBlockRect()
 		LoadChunk = False
 
-		if Entity_hitbox[1] > ChunkRect[1] and Entity_hitbox[1] < ChunkRect[3]:
+		if inChunkID:
 			LoadChunk = True
-
 
 			if inChunkID == "None":
 				inChunkID = chunks_list[ch]["CHUNK_DATA"].get_chunk_id()
@@ -59,7 +65,17 @@ def game(events, surface):
 			else:
 				lastChunkID = inChunkID
 				inChunkID = chunks_list[ch]["CHUNK_DATA"].get_chunk_id()
+				LastLoadedChunkId = inChunkID
+
 			break
+
+	if not LastLoadedChunkId == 0:
+		ActiveChunks.append(chunks_list[LastLoadedChunkId-1])
+
+	ActiveChunks.append(chunks_list[LastLoadedChunkId])
+
+	if not LastLoadedChunkId == len(chunks_list)-1:
+		ActiveChunks.append(chunks_list[LastLoadedChunkId+1])
 
 	# UPDATE ACTIVECHUNKS
 	for c in range(len(ActiveChunks)):
@@ -70,111 +86,73 @@ def game(events, surface):
 		for c in range(len(ActiveChunks)):
 			ActiveChunks[c]["CHUNK_DATA"].DrawChunkLimits(surface=surface, camera=CameraMain)
 
-	
 	# ENTITIES
 	
 	Second = CameraMain.get_xy()
 
 	classes = Entities_man.getEntitiesClasses()
 
+	
+
 	for i in range(len(classes)):
 		classes[i].update(surface=surface, chunks_list=ActiveChunks, deltaTime=b.deltaTime, camera=CameraMain, test=False)
+
+	Entity_hitbox = p1.get_hitbox()
+	pygame.draw.rect(surface=surface, color=(255,255,255), rect=pygame.Rect(Entity_hitbox))
+	focus_camera()
 
 
 	global p1_pos, p1_sc_pos
 	p1_pos = p1.get_camera_pos()
 	p1_sc_pos = p1.get_screen_pos()
 
-	
-	### MOUSE CONTROLLER ###
 
+	keys = pygame.key.get_pressed()
+	mouse = pygame.mouse.get_pressed()
+
+	p1.updateInventory(surface=surface, events=events, mouse=b.mouse_hitbox, keys=keys)
+	### MOUSE CONTROLLER ###
 	camera_size = CameraMain.get_camera_size()
 
-	if not (gui.inGui or Pause):
+	selected_block, mouse_touching_entity = player_mouse_cotroller(chunks_list=ActiveChunks, mouse_hitbox=b.mouse_hitbox, entity_classes=classes)
+
+	if not (Pause or gui.inGui):
 		# Cursor
 		pygame.draw.line(surface, (255,255,255), (b.mouse_hitbox[0], 0), (b.mouse_hitbox[0], camera_size[1]))
 		pygame.draw.line(surface, (255,255,255), (0, b.mouse_hitbox[1]), (camera_size[0], b.mouse_hitbox[1]))
 
 		p1.keyMovement(b.deltaTime) # Be able to move the player
 
-	for c in range(len(ActiveChunks)):
-		for i in range(len(ActiveChunks[c]["BLOCKS"])):
-			if not (gui.inGui or Pause) :
-				# Detect a block being touched by the cursor
-				mouse_col_block = ActiveChunks[c]["BLOCKS"][i].coll_hitbox2(b.mouse_hitbox)
+		try:
+			# Get block id
+			block_to_put_id = p1.getEntityHotbar().get_slot_item()["Item"][0]
+		except:
+			block_to_put_id = None
 
-				if mouse_col_block:
-					
-					selected_block = ActiveChunks[c]["BLOCKS"][i]
+		try:
+			if selected_block != None:
+				# Clicks
+				block_id = selected_block.getId()
+				block_position = selected_block.getGridCoords()
 
-					block_rect = selected_block.getHitbox()
-					# DETECT IF THE BLOCK THAT THE MOUSE IS TOUCHING IS COLLIDERECTING AN ENTITY #
-					mouse_touching_entity = False
-					for i in range(len(classes)):
-						if block_rect.colliderect(pygame.Rect(classes[i].get_hitbox())):
-							mouse_touching_entity = True
-							break
-
-					if mouse_touching_entity:
-						selected_block.setglow(True, color=(200, 0, 0))
-					else:
-						selected_block.setglow(True, color=(255,255,0))
-
-					#print(selected_block.getGridCoords())
-					
-				else:
-					ActiveChunks[c]["BLOCKS"][i].resetBreakState() # Reset break state
-					ActiveChunks[c]["BLOCKS"][i].setglow(False)
-					
-			else:
-				ActiveChunks[c]["BLOCKS"][i].setglow(False)
-
-		
-	keys = pygame.key.get_pressed()
-	mouse = pygame.mouse.get_pressed()
-
-	p1.updateInventory(surface=surface, events=events, mouse=b.mouse_hitbox, keys=keys)
-
-	try:
-		# Get block id
-		block_to_put_id = p1.getEntityHotbar().get_slot_item()["Item"][0]
-	except:
-		block_to_put_id = None
-
-	try:
-		if selected_block != None:
-			# Clicks
-			block_id = selected_block.getId()
-			block_position = selected_block.getGridCoords()
-
-			if not (gui.inGui or Pause):
 				if mouse[0]:
-					
 					placeble_blocks_list[block_id]["class"].break_block(surface=surface, grid_pos=block_position, chunks_list=ActiveChunks, deltaTime=b.deltaTime)
-				else:
-					selected_block.resetBreakState()
-			else:
-				selected_block.resetBreakState()
-				
-			if mouse[2]:
-				if not (gui.inGui or Pause):
-					if not block_to_put_id == None:
-						if selected_block.getId() == 0:
-							if keys[K_LALT] == 1:
-								pass
-							else:
-								if not mouse_touching_entity:
-									placeble_blocks_list[block_to_put_id]["class"].place_block(grid_pos=block_position, chunks_list=ActiveChunks)
-									
 
-			# See if the selected_block is selected
-			if not selected_block.isGlowing():
-				selected_block = None
+				if mouse[2]:
+						if not block_to_put_id == None:
+							if selected_block.getId() == 0:
+								if keys[K_LALT] == 1:
+									pass
+								else:
+									if not mouse_touching_entity:
+										placeble_blocks_list[block_to_put_id]["class"].place_block(grid_pos=block_position, chunks_list=ActiveChunks)
 
+				# See if the selected_block is selected
+				if not selected_block.isGlowing():
+					selected_block = None
 
-
-	except TypeError:
-		pass
+		except TypeError:
+			pass
 
 	Debugging_Screen(surface=surface, selected_block=selected_block)
 	
@@ -183,8 +161,6 @@ def game(events, surface):
 	# TEST ONLY
 	vel = 10
 	keys = pygame.key.get_pressed()
-	
-	focus_camera()
 
 	if keys[K_RIGHT]:
 		CameraMain.add_to_x_coord(value= (-vel * b.deltaTime))
@@ -226,6 +202,8 @@ def Debugging_Screen(surface, selected_block):
 		debug_screen.addDebugText(text=f"PLAYER CAM POS: {round(player_camera_pos[0], 3)}, {round(player_camera_pos[1], 3)}", color=(0,200,0))
 
 		debug_screen.addDebugText(text=f"PLAYER SCR POS: {round(p1_sc_pos[0], 3)}, {round(p1_sc_pos[1], 3)}", color=(255,0,100))
+
+		debug_screen.addDebugText(text=f"CHUNK ID: {inChunkID}", color=(255,0,100))
 
 		if selected_block != None: 
 

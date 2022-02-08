@@ -24,7 +24,8 @@ Entities_man = Entities(CameraMain)
 # Spawn player
 p1_uuid = Entities_man.spawnEntity(CameraMain, type="Player", Blockpos=(3, 20))
 
-Entities_man.spawnEntity(CameraMain, type="Player", Blockpos=(1, 20))
+for i in range(3):
+    Entities_man.spawnEntity(CameraMain, type="Player", Blockpos=(10*i, 20))
 
 # PLAYER'S
 p1 = Entities_man.GetEntityClass(Entityid=p1_uuid)

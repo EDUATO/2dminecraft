@@ -20,7 +20,7 @@ class Blocks_manager:
         blocks_to_break = self.seek_block_position(chunks_list, grid_positions)
         if blocks_to_break != False:
             for b in range(len(blocks_to_break)):
-                blocks_to_break[b].ForceBreakBlock()
+                blocks_to_break[b].breakBlock(surface, deltaTime)
 
 
     def seek_block_position(self, chunks_list, grid_pos:tuple):

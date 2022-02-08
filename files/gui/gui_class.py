@@ -6,8 +6,7 @@ import files.functions as f
 from files.gui.Text import Text
 from files.fonts import *
 
-inGui = False
-
+inGui = False # This will control if the user is in any type of GUI
 class Gui:
 	def __init__(self, sprite):
 		self.sprite = sprite
