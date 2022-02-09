@@ -26,8 +26,7 @@ class Chunk:
 
     def is_rect_in_chunk_x_coords(self, surface, camera, Rect):
         chunk_limit = self.ChunkLimits(camera)
-        
-        print(Rect.width, chunk_limit[2])
+    
         if (Rect.x + Rect.width) >= chunk_limit[0] and (Rect.x + Rect.width) < (chunk_limit[0] + chunk_limit[2]):
             return True
 

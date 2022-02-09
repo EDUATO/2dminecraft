@@ -58,9 +58,6 @@ def Events(surface, events):
 			
 			
 def update(surface, events):
-	# Clear screen
-	surface.fill((154,203,255))
-
 	# Draw on screen
 	dr.Draw(surface, events)
 

@@ -43,7 +43,7 @@ Pause = False
 
 
 ########## SCENE ############
-Scene = 0
+Scene = "game"
 
 ######### ANIMATION #########
 
