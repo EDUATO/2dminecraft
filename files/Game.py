@@ -69,6 +69,7 @@ class Game(Game_Initialization):
 		self.focus_camera()
 
 	def chunks_update(self, surface):
+		print("game", len(self.chunks_list))
 		self.ActiveChunks = []
 		for ch in range(len(self.chunks_list)):
 			self.inChunkID = self.chunks_list[ch]["CHUNK_DATA"].is_rect_in_chunk_x_coords(surface=surface, camera=self.CameraMain, Rect=pygame.Rect(self.Entity_hitbox))

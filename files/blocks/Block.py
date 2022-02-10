@@ -10,7 +10,7 @@ for i in range(9):
 	Textures_states[i] = {"Name" : "Break_state_"+str(i), "crop":((16*i)* block_scale_buff, 16* block_scale_buff, 16 * block_scale_buff, 16 * block_scale_buff )}
 
 class Block:
-	def __init__(self, block_pos_grid, Camera):
+	def __init__(self, block_pos_grid):
 		self.block_id = 0 # At first it will always be air
 		self.block_texture = block_texture
 		self.pos = []
@@ -36,15 +36,10 @@ class Block:
 		self.BlockOnScreen = False
 
 		### UPDATERS ###
-		self.camera_updater(Camera=Camera)
 
 		self.update_block()
 
 		self.grid(self.block_pos_grid)
-
-		self.update_screen_pos()
-
-		self.update_hitbox()
 
 	def camera_updater(self, Camera):
 		self.CameraMain = Camera
@@ -58,7 +53,7 @@ class Block:
 			for i in range(4):
 				self.crop[i] = self.crop[i] * block_scale_buff
 
-	def update_screen_pos(self):
+	def update_screen_pos(self, camera=True):
 		self.screen_pos = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
 
 	def update_hitbox(self):

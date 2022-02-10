@@ -6,31 +6,33 @@ from files.vars import Scene
 from files.gui.pauseMenu import PauseMenu
 from files.terrain.terrain_generator import generate, seed, generation_loop, Chunk_Manager_List
 from files.menu.gameMenu import GameMenu
-
-Game_Main_Class = mg.Game()
+from files.saving.gamesave import save
 
 # TERRAIN GENERATOR
-loop = threading.Thread(target=generation_loop, daemon=True, args=[Game_Main_Class.CameraMain]) # It destroys when the main thread ends
+loop = threading.Thread(target=generation_loop, daemon=True) # It destroys when the main thread ends
 loop.start()
 
 mainMenu = GameMenu()
 
 initialChunksGenerated = False
 
+Game_Main_Class = None
+
 def Draw(surface, events):
-	global initialChunksGenerated
+	global initialChunksGenerated, Game_Main_Class
 	if Scene == "game":
 		if initialChunksGenerated:
 			Game_Main_Class.update(events, surface)
 
 			if mg.Pause:
 				PauseMenu(surface)
-				#save()
+				save()
 				print("Saving game")
 
 		else:
 			if Chunk_Manager_List == []:
 				initialChunksGenerated = True
+				Game_Main_Class = mg.Game()
 
 	elif Scene == "main_menu":
 		mainMenu.show(surface)

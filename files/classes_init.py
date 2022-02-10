@@ -14,9 +14,9 @@ class Game_Initialization:
     def __init__(self):
         self.CameraMain = Camera(init_xy=[0,0], camera_size=[modeX, modeY])
 
-        #self.chunks_list = read_save_files(chunks_list=chunks_list)
+        self.chunks_list = read_save_files(chunks_list=chunks_list)
 
-        self.chunks_list = chunks_list
+        #self.chunks_list = chunks_list
 
         self.coords_to_spawn_cam = convert_blocks_pos_to_camera_xy(grid_pos=(4,20))
 
