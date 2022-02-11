@@ -13,7 +13,7 @@ from files.terrain.chunk_generator import Chunk_Manager_List
 from files.terrain.noisy_terrain import noisy_terrain
 
 
-seed = random.randint(1,10)
+seed = 10
 Noise_gen = Noise(seed)
 
 chunks_list = []

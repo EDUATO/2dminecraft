@@ -1,6 +1,7 @@
 import pygame
 import threading
 import uuid
+import random
 
 from files.import_imp import *
 from files.fonts import *
@@ -98,7 +99,7 @@ class Entity:
 			self.Enable_Physics()
 		else:
 			self.Disable_Phyisics()
-
+		
 		if mg.Pause == False:
 			if self.EnablePhysics:
 				collided_blocks = self.nearbyblocks(chunks_list)
@@ -132,12 +133,26 @@ class Entity:
 
 		# Between all the blocks from the screen detect the ones that are closer to the player
 		increaseSize = 100
-		biggerHitbox = ( # Make the entity hitbox bigger to detect the surrounding blocks
-					self.hitbox[0] - increaseSize//2,
+		biggerHitbox = [ # Make the entity hitbox bigger to detect the surrounding blocks
+					(self.hitbox[0]) - increaseSize//2,
 					self.hitbox[1] - increaseSize//2,
 					self.hitbox[2] + increaseSize,
 					self.hitbox[3] + increaseSize
-		)
+		]
+
+		# dx and dy comprobations
+		if self.dx >= 0:
+			biggerHitbox[2] += self.dx
+		elif self.dx < 0: # Remember self.dx is NEGATIVE
+			biggerHitbox[0] += self.dx
+			biggerHitbox[2] -= self.dx
+
+		if self.dy >= 0:
+			biggerHitbox[3] += self.dy
+		elif self.dy < 0: # Remember self.dy is NEGATIVE
+			biggerHitbox[1] += self.dy
+			biggerHitbox[3] -= self.dy
+ 
 
 		output = []
 		for c in range(len(chunks_list)): # Active chunks
@@ -148,81 +163,107 @@ class Entity:
 		
 		return output
 			
+	def collided_block_tiles(self, blocks_list, rect_formula, ignore=[]):
+		blocks_pos = []
+
+		collided_blocks = []
+		for i in range(len(blocks_list)):
+			blocks_pos.append(blocks_list[i].getGridCoords())
+			blocks_list[i].setglow(True)
+			if blocks_list[i].coll_hitbox(Rect=pygame.Rect(rect_formula), undetectable_ids=[0]):
+				collided_blocks.append(blocks_list[i])
+					
+
+		return collided_blocks
 
 	def physics(self, every_block_list, surface, deltaTime=1):
-		self.oneList = every_block_list
-				
 		# Gravity 
 		self.vel_y += (1 * deltaTime)
 		if self.vel_y > gravity:
 			self.vel_y = gravity
 
-		self.dy += (self.vel_y * (deltaTime))
+		self.dy += (self.vel_y * deltaTime)
 		
-		self.player_hitbox = pygame.Rect(self.hitbox)
 		self.screen_entity_hitbox = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
 
-		self.collitions_ready = [False, False] # Collition x and y
+		self.collition_type = {"right":False, "left":False, "bottom":False, "top":False} #Player's hitbox collition
+		# Check X collition
+		if self.dx >= 0:
+			self.x_rect_formula = (self.screen_pos[0], self.screen_pos[1] , (self.hitbox_size[0] * self.entity_scale_buff + self.dx), self.hitbox_size[1] * self.entity_scale_buff)
+		elif self.dx < 0: # Will add the NEGATIVE self.dx to screen_pos
+			self.x_rect_formula = (self.screen_pos[0] + self.dx, self.screen_pos[1] , (self.hitbox_size[0] * self.entity_scale_buff) - self.dx, self.hitbox_size[1] * self.entity_scale_buff)
 
-		# Check collition
-		for c in range(len(self.oneList)):
-			self.block = self.oneList[c]
-			self.block_pos = self.oneList[c].getGridCoords()
-			self.block_hitbox = pygame.Rect(self.oneList[c].getHitbox())
+		self.x_collided = self.collided_block_tiles(blocks_list=every_block_list, 
+													rect_formula=self.x_rect_formula)
+
+		pygame.draw.rect(surface, (255,0,0), pygame.Rect( self.x_rect_formula ))
+
+		if self.dx > 0:
+			# Get the leftmost block
+			leftmost_block = None
+			for j in range(len(self.x_collided)):
+				self.block = self.x_collided[j]
+
+				x_grid_pos = self.block.getGridCoords()[0]
+				
+				if leftmost_block != None:
+					if x_grid_pos < leftmost_block.getGridCoords()[0]:
+						leftmost_block = self.block
+				else: # leftmost_block IS None
+					leftmost_block = self.block
+
+			if leftmost_block != None:
+				self.dx = (leftmost_block.getHitbox().left) - pygame.Rect(self.screen_entity_hitbox).right
+				self.collition_type["right"] = True # It colliderected with the right part of the hitbox's entity
+
+		elif self.dx < 0:
+			# Get therightmost block
+			rightmost_block = None
+			for j in range(len(self.x_collided)):
+				self.block = self.x_collided[j]
+
+				x_grid_pos = self.block.getGridCoords()[0]
+				
+				if rightmost_block != None:
+					if x_grid_pos < rightmost_block.getGridCoords()[0]:
+						rightmost_block = self.block
+				else: # leftmost_block IS None
+					rightmost_block = self.block
+
+			if rightmost_block != None:
+				self.dx = (rightmost_block.getHitbox().right) - pygame.Rect(self.screen_entity_hitbox).left
+				self.collition_type["left"] = True # It colliderected with the left part of the hitbox's entity
+
+
+		# Check Y collition
+		if self.dy >= 0:
+			self.y_rect_formula = (self.screen_pos[0], self.screen_pos[1] , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff + self.dy)
+		elif self.dy < 0:
+			self.y_rect_formula = (self.screen_pos[0], self.screen_pos[1] + self.dy , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff - self.dy)
+
+		self.y_collided = self.collided_block_tiles(blocks_list=every_block_list, 
+													rect_formula=self.y_rect_formula)
+		
+
+		for y in range(len(self.y_collided)):
+			self.block = self.y_collided[y]
 
 			if self.block.blockDetection():
-				
-				x_formula = (self.screen_pos[0]+ self.dx, self.screen_pos[1] , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
-
-				# X collition
-				if self.block.coll_hitbox( pygame.Rect(x_formula), undetectable_ids=[0] ) and not self.collitions_ready[0]:
-					done = False
-					if self.dx > 0:
-						resting = 0
-						for resting in range(self.vel):
-							self.entity_hitbox_test = (self.screen_entity_hitbox[0] - (resting - (5*deltaTime)), self.screen_entity_hitbox[1], self.screen_entity_hitbox[2], self.screen_entity_hitbox[3])
-							if not self.block.coll_hitbox( pygame.Rect(self.entity_hitbox_test), undetectable_ids=[0] ):
-								self.dx -= (resting + 5*deltaTime)
-								done = True
-								break
-
-							
-					elif self.dx < 0:
-						done = False
-						resting = 0
-						for resting in range(self.vel):
-							self.entity_hitbox_test = (self.screen_entity_hitbox[0] + (resting - 5*deltaTime), self.screen_entity_hitbox[1], self.screen_entity_hitbox[2], self.screen_entity_hitbox[3])
-							if not self.block.coll_hitbox( pygame.Rect(self.entity_hitbox_test), undetectable_ids=[0] ):
-								self.dx += (resting + 5*deltaTime)
-								done = True
-								break
-
-
-					if not done:
-						self.dx = 0
-
-					self.collitions_ready[0] = True
-
+				if self.dy > 0:
+					self.dy = self.block.getHitbox().top - pygame.Rect(self.screen_entity_hitbox).bottom
+					self.vel_y = 0
+					self.collition_type["bottom"] = True
 					
-					
-				y_formula = (self.screen_pos[0], self.screen_pos[1] + self.dy, self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
-				# Y collition
-				if self.block.coll_hitbox( pygame.Rect(y_formula), undetectable_ids=[0] ):
 
-					# Check if its under the ground
-					if self.dy < 0:
-						self.dy = (self.block.getHitbox().bottom) - pygame.Rect(self.screen_entity_hitbox).top
-						self.vel_y = 0
+				elif self.dy < 0:
+					self.dy = self.block.getHitbox().bottom - pygame.Rect(self.screen_entity_hitbox).top
+					self.jumping = False
+					self.collition_type["top"] = True
 
-					elif self.dy >= 0:
-
-						self.dy = (self.block.getHitbox().top) - pygame.Rect(self.screen_entity_hitbox).bottom
-
-						self.jumping = False
-				
-				"""pygame.draw.rect(surface, (0,0,255), pygame.Rect(x_formula))
-				pygame.draw.rect(surface, (255,0,0), pygame.Rect(y_formula))"""
+				break
 			
+		pygame.draw.rect(surface, (0,0,255), pygame.Rect( self.y_rect_formula ))
+
 
 	def update_screen_pos(self):
 		self.screen_pos = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
@@ -268,7 +309,7 @@ class Entity:
 			self.dx -= (self.vel * deltaTime)
 
 		if direction == "U" and self.jumping == False:
-			self.vel_y = -12
+			self.vel_y = -15
 			self.jumping = True
 
 	def Automate_Init(self):

@@ -66,10 +66,6 @@ class Block:
 
 		self.pos.append(-block_pos_grid[1] * (block_size * block_scale_buff))
 
-	def setglow(self, state, color=(255,255,0)):
-		self.glow = state
-		self.glow_color = color
-
 	def update(self, surface, deltaTime, Camera):
 		self.camera_updater(Camera)
 
@@ -158,6 +154,10 @@ class Block:
 
 	def getId(self):
 		return self.block_id
+
+	def setglow(self, state, color=(255,255,0)):
+		self.glow = state
+		self.glow_color = color
 
 	def getNoiseValue(self):
 		return self.noise_value

@@ -17,9 +17,6 @@ from files.entity.player_mouse_controller import player_mouse_cotroller
 
 from files.classes_init import * # Game's classes and vars initialization
 
-First = 0
-Second = 0
-
 class Game(Game_Initialization):
 	def __init__(self):
 		super().__init__()
@@ -45,9 +42,9 @@ class Game(Game_Initialization):
 
 		self.chunks_update(surface) # UPDATE THE VISIBLE CHUNKS
 
-		self.Entities(events, surface) # UPDATE THE ENTITIES POSITION
-
 		self.mouse_controller(surface) # UPDATE THE MOUSE POSITION AND WHETHER THE CURSOR IS OVER A BLOCK
+
+		self.Entities(events, surface) # UPDATE THE ENTITIES POSITION
 
 		self.inGameEvents(events) # KEY EVENTS
 
@@ -55,10 +52,27 @@ class Game(Game_Initialization):
 
 		self.p1.updateInventory(surface=surface, events=events, mouse=b.mouse_hitbox, keys=self.keys)
 
+		vel = 10
+
+		if self.keys[K_RIGHT]:
+			self.CameraMain.add_to_x_coord(value= (-vel * b.deltaTime))
+
+		if self.keys[K_LEFT]:
+			self.CameraMain.add_to_x_coord(value= (vel * b.deltaTime))
+
+		if self.keys[K_UP]:
+			self.CameraMain.add_to_y_coord(value= (vel * b.deltaTime))
+
+		if self.keys[K_DOWN]:
+			self.CameraMain.add_to_y_coord(value= (-vel * b.deltaTime))
+
+
 		if Pause:
 			pygame.mouse.set_visible(True)
 
 	def Entities(self, events, surface):
+		self.update_keys_and_mouse()
+		self.p1.keyMovement(b.deltaTime) # Be able to move the player
 
 		self.classes = self.Entities_man.getEntitiesClasses()
 
@@ -69,7 +83,6 @@ class Game(Game_Initialization):
 		self.focus_camera()
 
 	def chunks_update(self, surface):
-		print("game", len(self.chunks_list))
 		self.ActiveChunks = []
 		for ch in range(len(self.chunks_list)):
 			self.inChunkID = self.chunks_list[ch]["CHUNK_DATA"].is_rect_in_chunk_x_coords(surface=surface, camera=self.CameraMain, Rect=pygame.Rect(self.Entity_hitbox))
@@ -139,8 +152,6 @@ class Game(Game_Initialization):
 			pygame.draw.line(surface, (255,255,255), (b.mouse_hitbox[0], 0), (b.mouse_hitbox[0], self.camera_size[1]))
 			pygame.draw.line(surface, (255,255,255), (0, b.mouse_hitbox[1]), (self.camera_size[0], b.mouse_hitbox[1]))
 
-			self.p1.keyMovement(b.deltaTime) # Be able to move the player
-
 			try:
 				# Get block id
 				block_to_put_id = self.p1.getEntityHotbar().get_slot_item()["Item"][0]
@@ -196,6 +207,8 @@ class Game(Game_Initialization):
 
 				self.debug_screen.addDebugText(text=f"Noise Value: {selected_block.getNoiseValue()}", color=(255,255,255))
 
+				self.debug_screen.addDebugText(text=f"Block Pos: {self.selected_block.getGridCoords()}", color=(200,0,0))
+
 				#debug_screen.addDebugText(text=f"isBackground: {selected_block.isBackground()}", color=(255,255,255))
 
 				#debug_screen.addDebugText(text=f"{selected_block.getBreakPorcentage()} %", color=(255,255,255))
@@ -241,18 +254,6 @@ def game(events, surface):
 	
 
 	# TEST ONLY
-
-	if keys[K_RIGHT]:
-		CameraMain.add_to_x_coord(value= (-vel * b.deltaTime))
-
-	if keys[K_LEFT]:
-		CameraMain.add_to_x_coord(value= (vel * b.deltaTime))
-
-	if keys[K_UP]:
-		CameraMain.add_to_y_coord(value= (vel * b.deltaTime))
-
-	if keys[K_DOWN]:
-		CameraMain.add_to_y_coord(value= (-vel * b.deltaTime))
 
 	if keys[K_f]:
 		if foc:
