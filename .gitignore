@@ -2,5 +2,4 @@
 Main.spec
 build/
 dict/
-
-saves/chunks/*txt
+saves/chunks
