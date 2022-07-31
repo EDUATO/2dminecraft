@@ -27,7 +27,6 @@ def Draw(surface, events):
 			if mg.Pause:
 				PauseMenu(surface)
 				save()
-				print("Saving game")
 
 		else:
 			if Chunk_Manager_List == []:

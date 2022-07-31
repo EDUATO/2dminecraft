@@ -3,3 +3,6 @@ Main.spec
 build/
 dict/
 saves/chunks
+old_versions/
+Sounds/
+sprites/

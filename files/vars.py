@@ -29,7 +29,7 @@ block_to_put_id = 1
 
 gravity = 8
 
-chunk_size = (16, 32)
+chunk_size = (16, 64)
 block_size = 16
 
 slot_size = 16

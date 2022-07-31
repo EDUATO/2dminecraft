@@ -21,54 +21,58 @@ class Game(Game_Initialization):
 	def __init__(self):
 		super().__init__()
 
+		self.init_blocks()
+
 		self.LastLoadedChunkId = 0
-
-		self.update_p1_hitbox()
-		self.update_keys_and_mouse()
-
-		self.classes = self.Entities_man.getEntitiesClasses()
 
 		self.lastChunkID = "None"
 
 		self.foc = True
 
 	def update(self, events, surface):
-		# Clear screen
-		surface.fill((154,203,255))
+		if self.full_initialation:
+			self.classes = self.Entities_man.getEntitiesClasses()
+			# Clear screen
+			surface.fill((154,203,255))
 
-		self.CameraMain.UpdateValues() # UPDATE THE XY VALUES
+			self.CameraMain.UpdateValues() # UPDATE THE XY VALUES
 
-		self.update_p1_hitbox()
+			self.update_p1_hitbox()
 
-		self.chunks_update(surface) # UPDATE THE VISIBLE CHUNKS
+			self.chunks_update(surface) # UPDATE THE VISIBLE CHUNKS
 
-		self.mouse_controller(surface) # UPDATE THE MOUSE POSITION AND WHETHER THE CURSOR IS OVER A BLOCK
+			self.mouse_controller(surface) # UPDATE THE MOUSE POSITION AND WHETHER THE CURSOR IS OVER A BLOCK
 
-		self.Entities(events, surface) # UPDATE THE ENTITIES POSITION
+			self.Entities(events, surface) # UPDATE THE ENTITIES POSITION
 
-		self.inGameEvents(events) # KEY EVENTS
+			self.inGameEvents(events) # KEY EVENTS
 
-		self.debugging_Screen(surface, selected_block=self.selected_block)
+			self.debugging_Screen(surface, selected_block=self.selected_block)
 
-		self.p1.updateInventory(surface=surface, events=events, mouse=b.mouse_hitbox, keys=self.keys)
+			self.p1.updateInventory(surface=surface, events=events, mouse=b.mouse_hitbox, keys=self.keys)
 
-		vel = 10
+			vel = 10
 
-		if self.keys[K_RIGHT]:
-			self.CameraMain.add_to_x_coord(value= (-vel * b.deltaTime))
+			if self.keys[K_RIGHT]:
+				self.CameraMain.add_to_x_coord(value= (-vel * b.deltaTime))
 
-		if self.keys[K_LEFT]:
-			self.CameraMain.add_to_x_coord(value= (vel * b.deltaTime))
+			if self.keys[K_LEFT]:
+				self.CameraMain.add_to_x_coord(value= (vel * b.deltaTime))
 
-		if self.keys[K_UP]:
-			self.CameraMain.add_to_y_coord(value= (vel * b.deltaTime))
+			if self.keys[K_UP]:
+				self.CameraMain.add_to_y_coord(value= (vel * b.deltaTime))
 
-		if self.keys[K_DOWN]:
-			self.CameraMain.add_to_y_coord(value= (-vel * b.deltaTime))
+			if self.keys[K_DOWN]:
+				self.CameraMain.add_to_y_coord(value= (-vel * b.deltaTime))
 
 
-		if Pause:
-			pygame.mouse.set_visible(True)
+			if Pause:
+				pygame.mouse.set_visible(True)
+
+		elif not self.full_initialation:
+			self.init_entities()
+
+			self.init_screen()
 
 	def Entities(self, events, surface):
 		self.update_keys_and_mouse()

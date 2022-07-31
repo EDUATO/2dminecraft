@@ -1,35 +1,49 @@
-import os
+import os, json
+
+def create_folder(dir):
+    try:
+        os.makedirs(name=dir)
+    except FileExistsError:
+        return f"There is already a folder named {dir}"
 
 def read_chunks(chunks_list):
+    # If it does not exist chunks folder, create it
+    create_folder("saves/chunks")
+    
     # See the content of the chunk folder
     folder_content = os.listdir("saves/chunks")
 
-
     chunk_data = []
     return_chunks_list = chunks_list
-    #print(chunks_list)
-    #print(return_chunks_list)
+
+    # Open the chunk.txt files and append the data to chunk_data
     for i in range(len(folder_content)):
         Read_Chunk = open(f"saves/chunks/{folder_content[i]}", "r")
 
-        chunk_data.append([])
-
         chunk_readLines = Read_Chunk.readlines()
 
+        # Clean the data, and deconvert from json to a normal dict
+        deconverted_file = json.loads(chunk_readLines[0]) # Dict type
+
+        # Append the deconverted_file to chunk_data
         for k in range(len(chunk_readLines)):
-            chunk_data[i].append(str(chunk_readLines[k]).replace("\n", "").split("-"))
+            chunk_data.append(deconverted_file)
 
-
-    for j in range(len(chunk_data)): # chunk_data lenght its the same as chunks_list (IT WILL CHANGE LATER)
-        print("J:",j)
-        for b in range(len(return_chunks_list[j]["BLOCKS"])):
-            block_id = int(chunk_data[j][b][0])
-            grid_pos = chunk_data[j][b][1]
-
-            # Seek for a block that has the same position
-            for s in range(len(return_chunks_list[j]["BLOCKS"])):
-                if return_chunks_list[j]["BLOCKS"][b].getGridCoords() == return_chunks_list[j]["BLOCKS"][s].getGridCoords():
-                    return_chunks_list[j]["BLOCKS"][b].setBlock(id=block_id)
+    # Write the data into chunks_list
+    for j in range(len(chunk_data)): # chunk_data lenght its the same as chunks_list
+        # Get chunk_data[j] keys
+        chunk_keys = dict(chunk_data[j]).keys() # Blocks str(id's) 
+        for b in chunk_keys:
+            data_block_id = int(b) # This is integer b
+            # Coords_blocks
+            for c in range(len(chunk_data[j][b])):
+                data_grid_pos = chunk_data[j][b][c]
+                
+                # Seek for a block that has the same position
+                for s in range(len(return_chunks_list[j]["BLOCKS"])):
+                    if tuple(data_grid_pos) == tuple(return_chunks_list[j]["BLOCKS"][s].getGridCoords()):
+                        return_chunks_list[j]["BLOCKS"][s].setBlock(id=data_block_id)
+                        
 
     return return_chunks_list
 

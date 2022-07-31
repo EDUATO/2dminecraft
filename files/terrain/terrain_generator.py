@@ -24,10 +24,10 @@ noise_sc = .1
 
 prw_noise = [1,1]
 
-
+owo = []
 
 def airGen(in_coords, chunk_identifier):
-	global chunks_list
+	global chunks_list, owo
 	chunk_blocks_list = []
 	# Fill the screen with air blocks, to define the blocks
 	# Ordered : (0,0) , (1,0), (2,0), (3,0) *chunk_size[0]*, (0,1), (1,1), (2,1), ...
@@ -37,8 +37,16 @@ def airGen(in_coords, chunk_identifier):
 			chunk_blocks_list.append(
 				Block(block_pos_grid=POSITION)
 				)
-	# SINTAX : chunks_list[num]['BLOCKS'][block_num].method()
+	"""for i in chunk_blocks_list:
+		i.setBlock(1)"""
+	
+	# SINTAX : chunks_list[num]['BLOCKS'][block_num].block_method()
 	chunks_list.append(
+		{"CHUNK_DATA": Chunk(id=chunk_identifier, size=chunk_size),
+		"BLOCKS":chunk_blocks_list}
+	)
+
+	owo.append(
 		{"CHUNK_DATA": Chunk(id=chunk_identifier, size=chunk_size),
 		"BLOCKS":chunk_blocks_list}
 	)

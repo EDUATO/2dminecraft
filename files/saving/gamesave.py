@@ -16,14 +16,30 @@ def chunk_saving():
     for i in range(len(chunks_list)):
         F_r = open(f"saves/chunks/chunk{i}.txt", "w+")
 
-        for j in range(len(chunks_list[i]["BLOCKS"])):
-            blocks_data = f"{chunks_list[i]['BLOCKS'][j].getId()}-{chunks_list[i]['BLOCKS'][j].getGridCoords()}"
-
-            F_r.writelines(f"{blocks_data}\n")
+        # transfom the blocks list in a json file
+        blocks_position_json = json.dumps(
+            obj=get_dict_with_blocks_pos(chunk_id=i)
+        )
+        
+        F_r.writelines(f"{blocks_position_json}")
 
         F_r.close()
 
+def get_dict_with_blocks_pos(chunk_id:int) -> dict:
+    dict_output = {} # Each block type will have positions around the chunk
+
+    for block in chunks_list[chunk_id]["BLOCKS"]:
+        if not (block.getId() == 0):
+            # Check if there is data in block.getId()
+            if not (block.getId() in dict_output.keys()):
+                dict_output[block.getId()] = []
+            
+            dict_output[block.getId()].append(tuple(block.getGridCoords()))
+
+    return dict_output
+
 def save():
+    print("Saving game...")
     chunk_saving()
 
     
