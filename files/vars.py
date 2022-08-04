@@ -39,8 +39,6 @@ block_detection_after_screen = 5
 # Debug
 DebugScreen = False
 
-Pause = False
-
 
 ########## SCENE ############
 Scene = "game"

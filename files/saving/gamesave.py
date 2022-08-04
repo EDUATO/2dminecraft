@@ -1,15 +1,13 @@
 import json
 import os
 
-from files.Game import chunks_list
-
 def create_folder(dir):
     try:
         os.makedirs(name=dir)
     except FileExistsError:
         return f"There is already a folder named {dir}"
 
-def chunk_saving():
+def chunk_saving(chunks_list):
     # Make a foder that will store the loaded chunks from the game
     create_folder(dir="saves/chunks")
 
@@ -18,14 +16,14 @@ def chunk_saving():
 
         # transfom the blocks list in a json file
         blocks_position_json = json.dumps(
-            obj=get_dict_with_blocks_pos(chunk_id=i)
+            obj=get_dict_with_blocks_pos(chunk_id=i, chunks_list=chunks_list)
         )
         
         F_r.writelines(f"{blocks_position_json}")
 
         F_r.close()
 
-def get_dict_with_blocks_pos(chunk_id:int) -> dict:
+def get_dict_with_blocks_pos(chunk_id:int, chunks_list) -> dict:
     dict_output = {} # Each block type will have positions around the chunk
 
     for block in chunks_list[chunk_id]["BLOCKS"]:
@@ -38,8 +36,10 @@ def get_dict_with_blocks_pos(chunk_id:int) -> dict:
 
     return dict_output
 
-def save():
+def save(chunks_list):
     print("Saving game...")
-    chunk_saving()
+    chunk_saving(chunks_list)
+    # Entities saving
+    # Other values saving
 
     

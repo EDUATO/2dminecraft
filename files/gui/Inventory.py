@@ -12,6 +12,7 @@ class Inventory(Gui):
 		self.transformed_sprite = pygame.transform.scale(Inventory_texture, (Inventory_texture.get_width() * block_scale_buff,  Inventory_texture.get_height() * block_scale_buff))
 		self.Inventory_slots = {}
 		self.In_Inventory = False
+		self.Pause = False
 		self.setInventorySlots()
 		super().__init__(self.transformed_sprite)
 
@@ -64,7 +65,7 @@ class Inventory(Gui):
 
 			self.slots_update(surface,slots=self.Inventory_slots, mouse=mouse)
 
-		if not gm.Pause:
+		if self.Pause == False:
 			self.key_update(keys)
 
 	def getInventorySlots(self):

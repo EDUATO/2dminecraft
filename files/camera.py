@@ -6,7 +6,7 @@ class Camera:
 
         self.updateWaitList = {"X": [], "Xtype": "SET",
                                 "Y": [], "Ytype": "SET"}
-
+        self.UpdateValues()
     def set_x_coord(self, value:int):
         self.__setcoords__("X", value)
 
@@ -27,10 +27,8 @@ class Camera:
 
     def __addToCoords__(self, index, value):
         # Add the value to a list, so it can be added to the xy variable later
-        if self.updateWaitList[f"{index}type"] == "SET":
-            self.updateWaitList[index] = []
-            self.updateWaitList[f"{index}type"] = "ADD"
-
+        self.updateWaitList[index] = []
+        self.updateWaitList[f"{index}type"] = "ADD"
         self.updateWaitList[index].append(value)
 
     def UpdateValues(self):

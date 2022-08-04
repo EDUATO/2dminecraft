@@ -40,3 +40,5 @@ class Entities:
     def updateEntitiesCamera(self, CameraMain):
         for i in range(len(self.EntitiesInGame)):
             self.EntitiesInGame[i].camera_updater(Camera=CameraMain)
+
+    def entities_in_game_amount(self): return len(self.EntitiesInGame)

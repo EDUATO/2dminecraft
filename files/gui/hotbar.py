@@ -17,6 +17,7 @@ class Hotbar:
 		self.bar_selector_crop = (0, 22 * block_scale_buff, 24 * block_scale_buff, 24 * block_scale_buff)
 		self.slot_pos = 0
 		self.slot_size = 20
+		self.Pause = False
 		self.slots = []
 
 	def update(self, events, surface, Inventory_slots):
@@ -29,7 +30,7 @@ class Hotbar:
 		# Draw HotBar
 		surface.blit(self.texture , (modeX/2 - self.texture.get_width()/2,modeY - self.bar_crop[3] - 20), self.bar_crop)
 
-		if not gm.Pause:
+		if self.Pause == False:
 			self.mouse_wheel(events)
 
 		self.show_items(surface)

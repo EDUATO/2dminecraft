@@ -5,7 +5,7 @@ import threading
 import math
 
 ########## LOCAL MODULES ##########
-from files.vars import Scene, block_scale_buff, Playing, DebugScreen, block_size, chunk_size, block_to_put_id, modeY, Pause
+from files.vars import Scene, block_scale_buff, Playing, DebugScreen, block_size, chunk_size, block_to_put_id, modeY
 import files.bucle as b
 from files.fonts import *
 import files.functions as f
@@ -14,6 +14,8 @@ from files.grid import grid
 import files.gui.gui_class as gui
 from files.blocks.block_data import placeble_blocks_list
 from files.entity.player_mouse_controller import player_mouse_cotroller
+from files.gui.pauseMenu import PauseMenu
+from files.saving.gamesave import save
 
 from files.classes_init import * # Game's classes and vars initialization
 
@@ -29,13 +31,13 @@ class Game(Game_Initialization):
 
 		self.foc = True
 
+		self.Pause = False
+
 	def update(self, events, surface):
 		if self.full_initialation:
 			self.classes = self.Entities_man.getEntitiesClasses()
 			# Clear screen
 			surface.fill((154,203,255))
-
-			self.CameraMain.UpdateValues() # UPDATE THE XY VALUES
 
 			self.update_p1_hitbox()
 
@@ -65,9 +67,10 @@ class Game(Game_Initialization):
 			if self.keys[K_DOWN]:
 				self.CameraMain.add_to_y_coord(value= (-vel * b.deltaTime))
 
+			self.pause_screen(surface)
 
-			if Pause:
-				pygame.mouse.set_visible(True)
+			self.CameraMain.UpdateValues() # UPDATE THE XY VALUES
+
 
 		elif not self.full_initialation:
 			self.init_entities()
@@ -76,12 +79,15 @@ class Game(Game_Initialization):
 
 	def Entities(self, events, surface):
 		self.update_keys_and_mouse()
-		self.p1.keyMovement(b.deltaTime) # Be able to move the player
 
-		self.classes = self.Entities_man.getEntitiesClasses()
 
-		for i in range(len(self.classes)):
-			self.classes[i].update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain, test=False)
+		classes = self.Entities_man.getEntitiesClasses()
+		self.wat = None
+		for i in range(len(classes)):
+			classes[i].update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain, test=False)
+			self.wat = classes[i]
+
+		self.wat.keyMovement(b.deltaTime) # Be able to move the player
 
 		self.update_p1_hitbox()
 		self.focus_camera()
@@ -120,12 +126,11 @@ class Game(Game_Initialization):
 				self.ActiveChunks[c]["BLOCKS"][i].update(deltaTime=b.deltaTime, surface=surface, Camera=self.CameraMain)
 
 	def inGameEvents(self, events):
-		global Pause
 		
 		for event in events:
 			if event.type == pygame.KEYDOWN:
 				if event.key == K_F3:
-					if not Pause:
+					if not self.Pause:
 						if self.show_debug_screen:
 							self.show_debug_screen = False
 						else:
@@ -133,16 +138,19 @@ class Game(Game_Initialization):
 
 				elif event.key == K_ESCAPE:
 					if not gui.inGui:
-						if Pause:
-							Pause = False
+						if self.Pause:
+							self.Pause = False
 						else:
-							Pause = True
+							self.Pause = True
+
+				elif event.key == K_F7:
+					self.p1 = random.choice(self.Entities_man.getEntitiesClasses())
 
 			elif event.type == pygame.WINDOWMOVED:
-				Pause = True
+				self.Pause = True
 
 			elif event.type == pygame.WINDOWMINIMIZED:
-				Pause = True
+				self.Pause = True
 
 	def mouse_controller(self, surface):
 		self.update_keys_and_mouse() # Update self.mouse and self.keys
@@ -151,7 +159,7 @@ class Game(Game_Initialization):
 
 		self.selected_block, self.mouse_touching_entity = player_mouse_cotroller(chunks_list=self.ActiveChunks, mouse_hitbox=b.mouse_hitbox, entity_classes=self.classes)
 
-		if not (Pause or gui.inGui):
+		if not (self.Pause or gui.inGui):
 			# Cursor
 			pygame.draw.line(surface, (255,255,255), (b.mouse_hitbox[0], 0), (b.mouse_hitbox[0], self.camera_size[1]))
 			pygame.draw.line(surface, (255,255,255), (0, b.mouse_hitbox[1]), (self.camera_size[0], b.mouse_hitbox[1]))
@@ -224,6 +232,13 @@ class Game(Game_Initialization):
 
 			self.debug_screen.resetDebugList()
 
+	def pause_screen(self, surface):
+		if self.Pause:
+			pygame.mouse.set_visible(True)
+			PauseMenu(surface)
+			self.Entities_man.Enable_Physics = False
+			self.save_world()
+
 	def update_keys_and_mouse(self):
 		self.keys = pygame.key.get_pressed()
 		self.mouse = pygame.mouse.get_pressed()
@@ -239,6 +254,9 @@ class Game(Game_Initialization):
 
 	def update_p1_hitbox(self):
 		self.Entity_hitbox = self.p1.get_hitbox()
+
+	def save_world(self):
+		save(chunks_list=self.chunks_list)
 
 def game(events, surface):
 	global selected_block, block_to_put_id, ActiveChunks, inChunkID, lastChunkID, p1, foc, First, Second, LastLoadedChunkId, init, p1

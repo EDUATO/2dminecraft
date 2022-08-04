@@ -7,12 +7,10 @@ from pygame.locals import *
 from files.vars import mouse_hitbox, fps, Frames_per_second, Playing
 import files.draw as dr
 
-from files.saving.gamesave import save
-
 FramebyFrame_mode = False
 
 def bucle(surface):
-	global mouse_hitbox, deltaTime, FPS, Pause
+	global mouse_hitbox, deltaTime, FPS
 	
 	while Playing == 1:
 		
@@ -38,7 +36,7 @@ def Events(surface, events):
 	for event in events:
 
 		if event.type == QUIT:
-			save()
+			dr.Game_Main_Class.save_world()
 			Playing = 0
 			print("Exit")
 			sys.exit()

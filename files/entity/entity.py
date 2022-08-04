@@ -77,6 +77,7 @@ class Entity:
 
 		self.vel_y = 0
 
+		# Physics pos update
 		self.dy = 0
 		self.dx = 0
 
@@ -88,7 +89,7 @@ class Entity:
 		self.EntityHotbar = Hotbar()
 
 	def update_hitbox(self):
-		self.hitbox = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+		self.hitbox = (self.screen_pos[0] + self.dx, self.screen_pos[1] + self.dy, self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
 
 	def update(self, surface, chunks_list, deltaTime, camera, test=False):
 
@@ -103,12 +104,11 @@ class Entity:
 
 		self.update_hitbox()
 
-		if mg.Pause == False:
-			if self.EnablePhysics:
-				collided_blocks = self.nearbyblocks(chunks_list)
-				self.physics(collided_blocks, surface, deltaTime=deltaTime)
-				self.update_pos()
-				self.update_hitbox()
+		if self.EnablePhysics:
+			collided_blocks = self.nearbyblocks(chunks_list)
+			self.physics(collided_blocks, surface, deltaTime=deltaTime)
+			self.update_pos()
+			self.update_hitbox()
 
 		self.Draw(surface)
 
@@ -126,7 +126,9 @@ class Entity:
 		return self.EntityHotbar
 
 	def Draw(self, surface):
-		self.body_shape(surface, tuple((self.hitbox[0], self.hitbox[1])), 0)
+		draw_formula = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+
+		self.body_shape(surface, tuple(draw_formula), 0)
 		self.DrawTag(surface)
 		#pygame.draw.rect(surface, (255,0,0), pygame.Rect( ( self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff) ))
 
@@ -185,44 +187,44 @@ class Entity:
 		nearest_block = None
 		index = 0
 		for j in range(len(collided_blocks)):
-			self.block = collided_blocks[j] # Blocks that the entity collided
+			block = collided_blocks[j] # Blocks that the entity collided
 
 			if direction == "left" or direction == "right":
-				index = 0
+				index = 0 # x coords
 			elif direction == "up" or direction == "bottom":
-				index = 1
+				index = 1 # y coords
 			
-			grid_pos = self.block.getGridCoords()[index]
+			grid_pos = block.getGridCoords()[index]
 
 			if nearest_block != None:
 				if direction == "left" or direction == "up":
 					if grid_pos <= nearest_block.getGridCoords()[index]:
-						nearest_block = self.block
+						nearest_block = block
 				elif direction == "right" or direction == "bottom":
 					if grid_pos >= nearest_block.getGridCoords()[index]:
-						nearest_block = self.block
+						nearest_block = block
 
 				nearest_block.setglow(True, color=(200,0,0))
 			else: # nearest_block IS None
-				nearest_block = self.block
+				nearest_block = block
 
 		return nearest_block
 
 	def x_physics(self, every_block_list, surface):
 		# Check X collition
 		if self.dx >= 0:
-			self.x_rect_formula = (self.screen_pos[0], self.screen_pos[1] , (self.hitbox_size[0] * self.entity_scale_buff + self.dx), self.hitbox_size[1] * self.entity_scale_buff)
+			x_rect_formula = (self.screen_pos[0], self.screen_pos[1] , (self.hitbox_size[0] * self.entity_scale_buff + self.dx), self.hitbox_size[1] * self.entity_scale_buff)
 		elif self.dx < 0: # Will add the NEGATIVE self.dx to screen_pos
-			self.x_rect_formula = (self.screen_pos[0] + self.dx, self.screen_pos[1] , (self.hitbox_size[0] * self.entity_scale_buff) - self.dx, self.hitbox_size[1] * self.entity_scale_buff)
+			x_rect_formula = (self.screen_pos[0] + self.dx, self.screen_pos[1] , (self.hitbox_size[0] * self.entity_scale_buff) - self.dx, self.hitbox_size[1] * self.entity_scale_buff)
 
-		self.x_collided = self.collided_block_tiles(blocks_list=every_block_list, 
-													rect_formula=self.x_rect_formula)
+		x_collided = self.collided_block_tiles(blocks_list=every_block_list, 
+													rect_formula=x_rect_formula)
 
-		pygame.draw.rect(surface, (255,0,0), pygame.Rect( self.x_rect_formula ))
+		pygame.draw.rect(surface, (255,0,0), pygame.Rect( x_rect_formula ))
 
 		if self.dx > 0:
 			# Get the leftmost block
-			leftmost_block = self.get_nearest_block(direction="left",collided_blocks=self.x_collided)
+			leftmost_block = self.get_nearest_block(direction="left",collided_blocks=x_collided)
 
 			if leftmost_block != None:
 				self.dx = (leftmost_block.getHitbox().left) - pygame.Rect(self.screen_entity_hitbox).right
@@ -230,41 +232,42 @@ class Entity:
 
 		elif self.dx < 0:
 			# Get therightmost block
-			rightmost_block = self.get_nearest_block(direction="right",collided_blocks=self.x_collided)
+			rightmost_block = self.get_nearest_block(direction="right",collided_blocks=x_collided)
 
 			if rightmost_block != None:
 				self.dx = (rightmost_block.getHitbox().right) - pygame.Rect(self.screen_entity_hitbox).left
 				self.entity_collition_type["left"] = True # It colliderected with the left part of the hitbox's entity
 
 	def y_physics(self, every_block_list, surface):
-		# Check Y collition
+		# Check Y collition 
+		# Try to calculate the next movement
 		if self.dy >= 0:
-			self.y_rect_formula = (self.screen_pos[0], self.screen_pos[1] , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff + self.dy)
+			y_rect_formula = (self.screen_pos[0], self.screen_pos[1] , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff + self.dy)
 		elif self.dy < 0:
-			self.y_rect_formula = (self.screen_pos[0], self.screen_pos[1] + self.dy , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff - self.dy)
+			y_rect_formula = (self.screen_pos[0], self.screen_pos[1] + self.dy , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff - self.dy)
 
-		self.y_collided = self.collided_block_tiles(blocks_list=every_block_list, 
-													rect_formula=self.y_rect_formula)
+		y_collided = self.collided_block_tiles(blocks_list=every_block_list, 
+													rect_formula=y_rect_formula)
 		
 		if self.dy > 0:
 			# Get the highest block
-			highest_block = self.get_nearest_block(direction="up", collided_blocks=self.y_collided)
+			highest_block = self.get_nearest_block(direction="up", collided_blocks=y_collided)
 
 			if highest_block != None:
-				self.dy = self.block.getHitbox().top - pygame.Rect(self.screen_entity_hitbox).bottom
+				self.dy = highest_block.getHitbox().top - pygame.Rect(self.screen_entity_hitbox).bottom
 				self.vel_y = 0
 				self.entity_collition_type["bottom"] = True
 
 		elif self.dy < 0:
 			# Get the lowest block
-			lowest_block = self.get_nearest_block(direction="bottom", collided_blocks=self.y_collided)
+			lowest_block = self.get_nearest_block(direction="bottom", collided_blocks=y_collided)
 
 			if lowest_block != None:
-				self.dy = self.block.getHitbox().bottom - pygame.Rect(self.screen_entity_hitbox).top
+				self.dy = lowest_block.getHitbox().bottom - pygame.Rect(self.screen_entity_hitbox).top
 				self.jumping = False
 				self.entity_collition_type["top"] = True # good
 			
-		pygame.draw.rect(surface, (0,0,255), pygame.Rect( self.y_rect_formula ))
+		pygame.draw.rect(surface, (0,0,255), pygame.Rect( y_rect_formula ))
 
 		#print(self.entity_collition_type)
 
