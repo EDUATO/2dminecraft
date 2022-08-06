@@ -5,7 +5,7 @@ import threading
 import math
 import pymunk
 import pymunk.pygame_util
-
+import os
 ########## LOCAL MODULES ##########
 from files.vars import Scene, block_scale_buff, Playing, DebugScreen, block_size, chunk_size, block_to_put_id, modeY
 import files.bucle as b
@@ -25,7 +25,7 @@ from files.classes_init import * # Game's classes and vars initialization
 def set_collide_block_hitbox(space:pymunk.Space, hitbox):
 	""" pymunk collide static surface """
 	block_body = pymunk.Body(body_type=pymunk.Body.STATIC)
-	block_body.position = (hitbox[0], hitbox[1])
+	block_body.position = (hitbox[0] + hitbox[2]/2, hitbox[1] + hitbox[3]/2)
 	rect_size = (hitbox[2], hitbox[3])
 	shape = pymunk.Poly.create_box(block_body, rect_size)
 
@@ -99,6 +99,8 @@ class Game(Game_Initialization):
 
 			self.CameraMain.UpdateValues() # UPDATE THE XY VALUES
 
+			#os.system("cls")
+
 		elif not self.full_initialation:
 			self.init_entities(physics_space=self.space)
 
@@ -162,9 +164,13 @@ class Game(Game_Initialization):
 		#print(physics_hitbox)
 
 		for hitbox in physics_hitbox:
-			set_collide_block_hitbox(self.space, hitbox)		
+			set_collide_block_hitbox(self.space, hitbox)
 
-		#self.ActiveChunks[1]["BLOCKS"][2].set_collide_block_hitbox(space=self.space)
+		#print(len(self.space.bodies))
+
+		
+
+	#self.ActiveChunks[1]["BLOCKS"][2].set_collide_block_hitbox(space=self.space)
 
 	def inGameEvents(self, events):
 		
@@ -257,10 +263,19 @@ class Game(Game_Initialization):
 			self.debug_screen.addDebugText(text=f"CHUNK ID: {self.inChunkID}", color=(255,0,100))
 
 			if self.selected_block != None: 
+				hit  = self.selected_block.getHitbox()
 
 				self.debug_screen.addDebugText(text=f"Noise Value: {selected_block.getNoiseValue()}", color=(255,255,255))
 
 				self.debug_screen.addDebugText(text=f"Block Pos: {self.selected_block.getGridCoords()}", color=(200,0,0))
+
+				self.debug_screen.addDebugText(text=f"Block top: {hit.top}", color=(200,0,200))
+
+				self.debug_screen.addDebugText(text=f"Block bottom: {hit.bottom}", color=(200,0,200))
+
+				self.debug_screen.addDebugText(text=f"Block right: {hit.right}", color=(200,0,200))
+
+				self.debug_screen.addDebugText(text=f"Block left: {hit.left}", color=(200,0,200))
 
 				#debug_screen.addDebugText(text=f"isBackground: {selected_block.isBackground()}", color=(255,255,255))
 

@@ -62,7 +62,7 @@ def generate(in_coords, time_s, chunk_identifier):
 	# GENERATE AIR BLOCKS
 	airGen(in_coords, chunk_identifier=chunk_identifier)
 	
-	# GENERATE TERRAIN
+	"""# GENERATE TERRAIN
 	y = 0
 	x = 0
 	chunk_id = chunk_identifier
@@ -74,7 +74,7 @@ def generate(in_coords, time_s, chunk_identifier):
 
 		perlinHeight = Noise_gen.test(y_x[0], seed, chunk_size[1])
 		for y in range(chunk_size[1]):
-			noisy_terrain(PerlinNoise=perlinHeight, y_x=y_x, y=y, chunks_list=chunks_list, chunk_identifier=chunk_id)
+			noisy_terrain(PerlinNoise=perlinHeight, y_x=y_x, y=y, chunks_list=chunks_list, chunk_identifier=chunk_id)"""
 
 
 def find_coicidences(chunk_index, block_id):
