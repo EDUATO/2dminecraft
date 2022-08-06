@@ -16,7 +16,7 @@ initialChunksGenerated = False
 
 Game_Main_Class = None
 
-def Draw(surface, events):
+def Draw(surface, events, deltaTime=1):
 	global initialChunksGenerated, Game_Main_Class
 	if Scene == "game":
 		if initialChunksGenerated:

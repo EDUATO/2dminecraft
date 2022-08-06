@@ -6,7 +6,7 @@ from files.entity.entity import Entity
 import files.bucle as b
 
 class Player(Entity):
-	def __init__(self, texture, pos, Camera, custom_uuid=False):
+	def __init__(self, texture, pos, Camera, pyisics_space, custom_uuid=False):
 	
 		self.camera_updater(Camera)
 
@@ -24,7 +24,7 @@ class Player(Entity):
 		
 		self.pos = self.initial_pos
 
-		super().__init__(self.pos,  texture, (8, 32), Camera, self.body_parts, entity_scale_buff=block_scale_buff, custom_uuid=custom_uuid)
+		super().__init__(self.pos,  texture, (8, 32), Camera, self.body_parts, pyisics_space, entity_scale_buff=block_scale_buff, custom_uuid=custom_uuid)
 
 		self.inventory = []
 

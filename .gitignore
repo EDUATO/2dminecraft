@@ -1,4 +1,4 @@
-*.pyc
+*__pycache__
 Main.spec
 build/
 dict/
@@ -6,3 +6,4 @@ saves/chunks
 old_versions/
 Sounds/
 sprites/
+venviroment/

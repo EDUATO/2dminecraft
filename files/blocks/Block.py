@@ -1,4 +1,6 @@
 import pygame
+import pymunk
+import pymunk.pygame_util
 
 from files.vars import block_scale_buff, block_size, block_detection_after_screen
 from files.blocks.block_data import *
@@ -111,6 +113,16 @@ class Block:
 	def coll_hitbox2(self, Rect):
 		""" Check if a Rect is colliderecting with EVERY block (FASTER THAN coll_hitbox)"""
 		return self.__hitbox_coll__(Rect)
+
+	def set_collide_block_hitbox(self, space:pymunk.Space):
+		if not self.block_id == 0:
+			""" pymunk collide static surface """
+			block_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+			block_body.position = (self.hitbox[0], self.hitbox[1])
+			rect_size = (self.hitbox[2], self.hitbox[3])
+			shape = pymunk.Poly.create_box(block_body, rect_size)
+
+			space.add(shape, block_body)
 
 	def setBlock(self, id, noiseValue=False, background=False):
 		if self.block_id != id:

@@ -28,7 +28,7 @@ class Game_Initialization:
         else:
             self.__error_code__()
 
-    def init_entities(self):
+    def init_entities(self, physics_space):
         if not self.full_initialation:
             self.coords_to_spawn_cam = convert_blocks_pos_to_camera_xy(grid_pos=(4,20))
 
@@ -40,10 +40,10 @@ class Game_Initialization:
             self.Entities_man = Entities(self.CameraMain)
 
             # Spawn player
-            self.p1_uuid = self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(14, 20))
+            self.p1_uuid = self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(14, 20), physics_space=physics_space)
 
-            for i in range(3):
-                self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(3*i, 20))
+            """for i in range(3):
+                self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(3*i, 20), physics_space=physics_space)"""
 
             # PLAYER'S
             self.p1 = self.Entities_man.GetEntityClass(Entityid=self.p1_uuid)

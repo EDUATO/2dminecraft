@@ -3,6 +3,8 @@ import random
 import time
 import threading
 import math
+import pymunk
+import pymunk.pygame_util
 
 ########## LOCAL MODULES ##########
 from files.vars import Scene, block_scale_buff, Playing, DebugScreen, block_size, chunk_size, block_to_put_id, modeY
@@ -16,8 +18,20 @@ from files.blocks.block_data import placeble_blocks_list
 from files.entity.player_mouse_controller import player_mouse_cotroller
 from files.gui.pauseMenu import PauseMenu
 from files.saving.gamesave import save
+from files.blocks_hit_pre_made import unify_blocks_hitbox
 
 from files.classes_init import * # Game's classes and vars initialization
+
+def set_collide_block_hitbox(space:pymunk.Space, hitbox):
+	""" pymunk collide static surface """
+	block_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+	block_body.position = (hitbox[0], hitbox[1])
+	rect_size = (hitbox[2], hitbox[3])
+	shape = pymunk.Poly.create_box(block_body, rect_size)
+
+	shape.color = (random.randint(0,255), 0, 0, 100)
+
+	space.add(shape, block_body)
 
 class Game(Game_Initialization):
 	def __init__(self):
@@ -33,7 +47,15 @@ class Game(Game_Initialization):
 
 		self.Pause = False
 
-	def update(self, events, surface):
+		self.global_game_physics_init()
+		
+	def global_game_physics_init(self):
+		# Global game physics
+		self.space = pymunk.Space()
+		self.space.gravity = (0, 1)
+
+	def update(self, events, surface, deltaTime=1):
+		self.drawOptions = pymunk.pygame_util.DrawOptions(surface)
 		if self.full_initialation:
 			self.classes = self.Entities_man.getEntitiesClasses()
 			# Clear screen
@@ -43,9 +65,12 @@ class Game(Game_Initialization):
 
 			self.chunks_update(surface) # UPDATE THE VISIBLE CHUNKS
 
+			self.space.debug_draw(self.drawOptions)
+
 			self.mouse_controller(surface) # UPDATE THE MOUSE POSITION AND WHETHER THE CURSOR IS OVER A BLOCK
 
 			self.Entities(events, surface) # UPDATE THE ENTITIES POSITION
+
 
 			self.inGameEvents(events) # KEY EVENTS
 
@@ -69,11 +94,13 @@ class Game(Game_Initialization):
 
 			self.pause_screen(surface)
 
+			# Update physics
+			self.space.step(deltaTime)
+
 			self.CameraMain.UpdateValues() # UPDATE THE XY VALUES
 
-
 		elif not self.full_initialation:
-			self.init_entities()
+			self.init_entities(physics_space=self.space)
 
 			self.init_screen()
 
@@ -94,6 +121,7 @@ class Game(Game_Initialization):
 
 	def chunks_update(self, surface):
 		self.ActiveChunks = []
+		self.global_game_physics_init()
 		for ch in range(len(self.chunks_list)):
 			self.inChunkID = self.chunks_list[ch]["CHUNK_DATA"].is_rect_in_chunk_x_coords(surface=surface, camera=self.CameraMain, Rect=pygame.Rect(self.Entity_hitbox))
 			self.ChunkRect = self.chunks_list[ch]["CHUNK_DATA"].get_chunkBlockRect()
@@ -120,10 +148,23 @@ class Game(Game_Initialization):
 		if not self.LastLoadedChunkId == len(self.chunks_list)-1:
 			self.ActiveChunks.append(self.chunks_list[self.LastLoadedChunkId+1])
 
+		blocks_in_screen = [] # with dictionaries with chunk_id, block_ids and hitboxes
 		# UPDATE ACTIVECHUNKS
 		for c in range(len(self.ActiveChunks)):
 			for i in range(len(self.ActiveChunks[c]["BLOCKS"])):
 				self.ActiveChunks[c]["BLOCKS"][i].update(deltaTime=b.deltaTime, surface=surface, Camera=self.CameraMain)
+				block_id = self.ActiveChunks[c]["BLOCKS"][i].blockDetection()
+				if block_id:
+					if self.ActiveChunks[c]["BLOCKS"][i].getId() != 0:
+						blocks_in_screen.append(self.ActiveChunks[c]["BLOCKS"][i].getHitbox())
+
+		physics_hitbox = unify_blocks_hitbox(rect_list=blocks_in_screen)
+		#print(physics_hitbox)
+
+		for hitbox in physics_hitbox:
+			set_collide_block_hitbox(self.space, hitbox)		
+
+		#self.ActiveChunks[1]["BLOCKS"][2].set_collide_block_hitbox(space=self.space)
 
 	def inGameEvents(self, events):
 		
