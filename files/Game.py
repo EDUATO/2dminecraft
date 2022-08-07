@@ -18,20 +18,33 @@ from files.blocks.block_data import placeble_blocks_list
 from files.entity.player_mouse_controller import player_mouse_cotroller
 from files.gui.pauseMenu import PauseMenu
 from files.saving.gamesave import save
-from files.blocks_hit_pre_made import unify_blocks_hitbox
+from files.blocks_hit_pre_made import unify_blocks_hitbox, unify_algorithm
 
 from files.classes_init import * # Game's classes and vars initialization
 
-def set_collide_block_hitbox(space:pymunk.Space, hitbox):
+
+
+def set_collide_block_hitbox(hitbox):
 	""" pymunk collide static surface """
 	block_body = pymunk.Body(body_type=pymunk.Body.STATIC)
 	block_body.position = (hitbox[0] + hitbox[2]/2, hitbox[1] + hitbox[3]/2)
 	rect_size = (hitbox[2], hitbox[3])
 	shape = pymunk.Poly.create_box(block_body, rect_size)
 
-	shape.color = (random.randint(0,255), 0, 0, 100)
+	shape.color = (100, 100,200, 1)
 
-	space.add(shape, block_body)
+	return block_body, shape
+
+def rigid_body(space:pymunk.Space):
+	""" pymunk collide static surface """
+	body = pymunk.Body()
+	body.position = (200, 500)
+	rect_size = (100,100)
+	shape = pymunk.Poly.create_box(body, rect_size)
+	shape.mass = 99
+	shape.elasticity = 0.8
+
+	return body, shape
 
 class Game(Game_Initialization):
 	def __init__(self):
@@ -52,7 +65,9 @@ class Game(Game_Initialization):
 	def global_game_physics_init(self):
 		# Global game physics
 		self.space = pymunk.Space()
-		self.space.gravity = (0, 1)
+		self.space.gravity = (0, 900)
+		self.entities_physics_to_add = [] # Physics blocks that will be removed and updated
+		rigid_body(self.space)
 
 	def update(self, events, surface, deltaTime=1):
 		self.drawOptions = pymunk.pygame_util.DrawOptions(surface)
@@ -64,8 +79,6 @@ class Game(Game_Initialization):
 			self.update_p1_hitbox()
 
 			self.chunks_update(surface) # UPDATE THE VISIBLE CHUNKS
-
-			self.space.debug_draw(self.drawOptions)
 
 			self.mouse_controller(surface) # UPDATE THE MOUSE POSITION AND WHETHER THE CURSOR IS OVER A BLOCK
 
@@ -122,8 +135,9 @@ class Game(Game_Initialization):
 		self.focus_camera()
 
 	def chunks_update(self, surface):
-		self.ActiveChunks = []
+		# Remove physics objects
 		self.global_game_physics_init()
+		self.ActiveChunks = []
 		for ch in range(len(self.chunks_list)):
 			self.inChunkID = self.chunks_list[ch]["CHUNK_DATA"].is_rect_in_chunk_x_coords(surface=surface, camera=self.CameraMain, Rect=pygame.Rect(self.Entity_hitbox))
 			self.ChunkRect = self.chunks_list[ch]["CHUNK_DATA"].get_chunkBlockRect()
@@ -150,25 +164,26 @@ class Game(Game_Initialization):
 		if not self.LastLoadedChunkId == len(self.chunks_list)-1:
 			self.ActiveChunks.append(self.chunks_list[self.LastLoadedChunkId+1])
 
-		blocks_in_screen = [] # with dictionaries with chunk_id, block_ids and hitboxes
+		blocks_on_screen = [] # with dictionaries with chunk_id, block_ids and hitboxes
 		# UPDATE ACTIVECHUNKS
 		for c in range(len(self.ActiveChunks)):
 			for i in range(len(self.ActiveChunks[c]["BLOCKS"])):
 				self.ActiveChunks[c]["BLOCKS"][i].update(deltaTime=b.deltaTime, surface=surface, Camera=self.CameraMain)
-				block_id = self.ActiveChunks[c]["BLOCKS"][i].blockDetection()
-				if block_id:
-					if self.ActiveChunks[c]["BLOCKS"][i].getId() != 0:
-						blocks_in_screen.append(self.ActiveChunks[c]["BLOCKS"][i].getHitbox())
 
-		physics_hitbox = unify_blocks_hitbox(rect_list=blocks_in_screen)
-		#print(physics_hitbox)
+				# Update blocks_on_screen (everyblock except air)
+				block_id = self.ActiveChunks[c]["BLOCKS"][i].block_id
+				block_detection = self.ActiveChunks[c]["BLOCKS"][i].blockDetection() # Detect if a block is  on the screen 
+				if block_id != 0 and block_detection:
+					self.hitbox = self.ActiveChunks[c]["BLOCKS"][i].getHitbox()
+					blocks_on_screen.append(pygame.Rect(self.ActiveChunks[c]["BLOCKS"][i].getHitbox()))
 
-		for hitbox in physics_hitbox:
-			set_collide_block_hitbox(self.space, hitbox)
+		if len(blocks_on_screen) != 0:
+			physics_hitbox = unify_algorithm(rect_list=blocks_on_screen)
 
-		#print(len(self.space.bodies))
-
-		
+			for hitbox in physics_hitbox:
+				body, shape = set_collide_block_hitbox(hitbox)
+				# Add obj to space
+				self.space.add(body, shape)
 
 	#self.ActiveChunks[1]["BLOCKS"][2].set_collide_block_hitbox(space=self.space)
 
@@ -262,10 +277,14 @@ class Game(Game_Initialization):
 
 			self.debug_screen.addDebugText(text=f"CHUNK ID: {self.inChunkID}", color=(255,0,100))
 
+			self.space.debug_draw(self.drawOptions)
+
 			if self.selected_block != None: 
 				hit  = self.selected_block.getHitbox()
 
 				self.debug_screen.addDebugText(text=f"Noise Value: {selected_block.getNoiseValue()}", color=(255,255,255))
+
+				self.debug_screen.addDebugText(text=f"ID: {self.selected_block.getId()}", color=(255,0,255))
 
 				self.debug_screen.addDebugText(text=f"Block Pos: {self.selected_block.getGridCoords()}", color=(200,0,0))
 

@@ -59,6 +59,7 @@ def Events(surface, events):
 			
 			
 def update(surface, events):
+
 	# Draw on screen
 	dr.Draw(surface, events, deltaTime=deltaTime)
 

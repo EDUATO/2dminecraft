@@ -187,9 +187,15 @@ class Entity:
 		if direction == "L":
 			self.dx -= (self.vel * deltaTime)
 
-		if direction == "U" and self.jumping == False:
+		if direction == "U":
+			self.dy -= (self.vel * deltaTime)
+
+		if direction == "S":
+			self.dy += (self.vel * deltaTime)
+
+		"""if direction == "U" and self.jumping == False:
 			self.vel_y = -self.jump_vel
-			self.jumping = True
+			self.jumping = True"""
 
 	def Automate_Init(self):
 		self.move_time = 0

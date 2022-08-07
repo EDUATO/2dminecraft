@@ -39,6 +39,14 @@ def convert_screen_pos_to_camera_xy(screen_pos):
 def convert_camera_xy_to_block_pos(xy_pos:tuple, block_size=(block_size*block_scale_buff)):
 	return (-(xy_pos[0] / block_size), (xy_pos[1] / block_size))
 
+def lined_rect(surface, rect:pygame.Rect, color, width_line):
+	# Horizontals
+	pygame.draw.line(surface, color, (rect.x , rect.y), (rect.width, rect.y), width_line)
+	pygame.draw.line(surface, color, (rect.x, rect.height), (rect.width, rect.height), width_line)
+
+	# Verticals
+	pygame.draw.line(surface, color, (rect.x, rect.y), (rect.x, rect.height), width_line)
+	pygame.draw.line(surface, color, (rect.width, rect.y), (rect.width, rect.height), width_line)
 
 if __name__ == "__main__":
 	a = (-5.0, -15.985)

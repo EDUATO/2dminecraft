@@ -3,53 +3,50 @@ from pygame.locals import *
 
 import os
 
-def unify_two_rects(rect1:pygame.Rect, rect2:pygame.Rect):
-    output_rect = None
-    max_height = 0
-    leftest_point = 0
-    # The tallest point
-    if rect1.top > rect2.top: 
-        max_height = rect1.top 
-    else: 
-        max_height = rect2.top
-
-    # The leftest point
-    if rect1.left < rect2.left: 
-        leftest_point = rect1.left 
-    else: 
-        leftest_point = rect2.right
+def unify_two_rects(rect1:pygame.Rect, rect2:pygame.Rect, x_axis=True):
     
-    #print(f"{rect1.right} / {rect2.left}")
-    if (rect1.right == rect2.left):
-        output_rect = pygame.Rect(leftest_point, rect1.y, rect1.width + rect2.width, rect1.height)
+    output_rect = None
+    leftest_point = 0
+    
+    # The leftest point
+    if rect1.left < rect2.left: leftest_point = rect1.left 
+    else: leftest_point = rect2.right
 
-    """  if rect1.topright == rect2.topleft or rect1.topright == rect2.topleft:
-        if rect1.bottom == rect2.top or rect2.bottom == rect1.top:
-            """
+    if (rect1.right == rect2.left) and (rect1.y == rect2.y):
+        output_rect = pygame.Rect(leftest_point, rect2.y, rect1.width + rect2.width, rect2.height)
+
+
+
+    #if rect1.right == rect2.left or rect1.right == rect2.left:
+
     return output_rect
 
-def unify_blocks_hitbox(rect_list:list)->list:
-    """ The rect flow is from left to right and down to up """
+def unify_blocks_hitbox(rect_list:list, x_axis=True)->list:
+    """Must be sorted from left to right and down to up """
     unions = [] # Rects unions hitboxes
     copied_rect_list = rect_list.copy()
 
-    if len(copied_rect_list) != 0:
-        rect_to_modify = copied_rect_list[0]
-        rect_list.pop(0)
+    rect_to_modify = copied_rect_list[0]
+    copied_rect_list.pop(0)
 
     for union in range(len(rect_list)):
         # Write down here
         if len(copied_rect_list) != 0: 
-            rect_unified = unify_two_rects(rect_to_modify, copied_rect_list[0])
+            rect_unified = unify_two_rects(rect_to_modify, copied_rect_list[0], x_axis=x_axis)
             if rect_unified != None: # If the modification was sucessful
                 rect_to_modify = rect_unified
-                copied_rect_list.remove(copied_rect_list[0])
             else:
                 unions.append(rect_to_modify)
                 rect_to_modify = copied_rect_list[0]
-                copied_rect_list.pop(0)
-        else: break # If copied_rect == 0
+            copied_rect_list.pop(0)
+        else: 
+            unions.append(rect_to_modify)
+            break # If copied_rect == 0
 
     return unions
+
+def unify_algorithm(rect_list:list):
+    output = unify_blocks_hitbox(rect_list)
+    return output
 
                 
