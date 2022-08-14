@@ -33,18 +33,13 @@ def set_collide_block_hitbox(hitbox):
 
 	shape.color = (100, 100,200, 1)
 
-	return block_body, shape
+	return shape
 
-def rigid_body(space:pymunk.Space):
-	""" pymunk collide static surface """
-	body = pymunk.Body()
-	body.position = (200, 500)
-	rect_size = (100,100)
-	shape = pymunk.Poly.create_box(body, rect_size)
-	shape.mass = 99
-	shape.elasticity = 0.8
-
-	return body, shape
+def delete_bodies_from_space(space:pymunk.Space, exceptions=[]):
+	# Get body list to delete
+	space_bodies = space.bodies
+	for body in space_bodies:
+		space.remove(body)
 
 class Game(Game_Initialization):
 	def __init__(self):
@@ -60,14 +55,9 @@ class Game(Game_Initialization):
 
 		self.Pause = False
 
-		self.global_game_physics_init()
-		
-	def global_game_physics_init(self):
-		# Global game physics
-		self.space = pymunk.Space()
-		self.space.gravity = (0, 900)
-		self.entities_physics_to_add = [] # Physics blocks that will be removed and updated
-		rigid_body(self.space)
+		self.once = False
+
+		self.hitboxes_to_delete = []
 
 	def update(self, events, surface, deltaTime=1):
 		self.drawOptions = pymunk.pygame_util.DrawOptions(surface)
@@ -79,11 +69,11 @@ class Game(Game_Initialization):
 			self.update_p1_hitbox()
 
 			self.chunks_update(surface) # UPDATE THE VISIBLE CHUNKS
+			
 
 			self.mouse_controller(surface) # UPDATE THE MOUSE POSITION AND WHETHER THE CURSOR IS OVER A BLOCK
 
 			self.Entities(events, surface) # UPDATE THE ENTITIES POSITION
-
 
 			self.inGameEvents(events) # KEY EVENTS
 
@@ -115,18 +105,18 @@ class Game(Game_Initialization):
 			#os.system("cls")
 
 		elif not self.full_initialation:
-			self.init_entities(physics_space=self.space)
+			self.init_entities()
 
 			self.init_screen()
 
 	def Entities(self, events, surface):
 		self.update_keys_and_mouse()
 
-
 		classes = self.Entities_man.getEntitiesClasses()
-		self.wat = None
+		self.wat = None # TODO Remove later
 		for i in range(len(classes)):
 			classes[i].update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain, test=False)
+			
 			self.wat = classes[i]
 
 		self.wat.keyMovement(b.deltaTime) # Be able to move the player
@@ -136,8 +126,17 @@ class Game(Game_Initialization):
 
 	def chunks_update(self, surface):
 		# Remove physics objects
-		self.global_game_physics_init()
 		self.ActiveChunks = []
+		"""for shape in self.hitboxes_to_delete:
+			self.space.remove(shape, shape.body)"""
+
+		print(self.space.bodies)
+		self.hitboxes_to_delete = []
+
+		#print(space_bodies)
+
+
+
 		for ch in range(len(self.chunks_list)):
 			self.inChunkID = self.chunks_list[ch]["CHUNK_DATA"].is_rect_in_chunk_x_coords(surface=surface, camera=self.CameraMain, Rect=pygame.Rect(self.Entity_hitbox))
 			self.ChunkRect = self.chunks_list[ch]["CHUNK_DATA"].get_chunkBlockRect()
@@ -177,13 +176,17 @@ class Game(Game_Initialization):
 					self.hitbox = self.ActiveChunks[c]["BLOCKS"][i].getHitbox()
 					blocks_on_screen.append(pygame.Rect(self.ActiveChunks[c]["BLOCKS"][i].getHitbox()))
 
-		if len(blocks_on_screen) != 0:
-			physics_hitbox = unify_algorithm(rect_list=blocks_on_screen)
+		"""if not self.once:
+			#self.space.step(1)
+			if len(blocks_on_screen) != 0:
+				physics_hitbox = unify_algorithm(rect_list=blocks_on_screen)
 
-			for hitbox in physics_hitbox:
-				body, shape = set_collide_block_hitbox(hitbox)
-				# Add obj to space
-				self.space.add(body, shape)
+				#### TODO FOR EXPERIMENTAL PURPOSES ####
+				for hitbox in physics_hitbox:
+					shape = set_collide_block_hitbox(hitbox)
+					self.space.add(shape, shape.body)
+					self.hitboxes_to_delete.append(shape)
+			self.once = True"""
 
 	#self.ActiveChunks[1]["BLOCKS"][2].set_collide_block_hitbox(space=self.space)
 
@@ -206,6 +209,7 @@ class Game(Game_Initialization):
 							self.Pause = True
 
 				elif event.key == K_F7:
+					# Swap characters between every player in game
 					self.p1 = random.choice(self.Entities_man.getEntitiesClasses())
 
 			elif event.type == pygame.WINDOWMOVED:

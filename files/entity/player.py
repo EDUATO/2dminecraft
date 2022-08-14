@@ -6,7 +6,7 @@ from files.entity.entity import Entity
 import files.bucle as b
 
 class Player(Entity):
-	def __init__(self, texture, pos, Camera, pyisics_space, custom_uuid=False):
+	def __init__(self, texture, pos, Camera, custom_uuid=False):
 	
 		self.camera_updater(Camera)
 
@@ -24,7 +24,7 @@ class Player(Entity):
 		
 		self.pos = self.initial_pos
 
-		super().__init__(self.pos,  texture, (8, 32), Camera, self.body_parts, pyisics_space, entity_scale_buff=block_scale_buff, custom_uuid=custom_uuid)
+		super().__init__(self.pos,  texture, (8, 32), Camera, self.body_parts, entity_scale_buff=block_scale_buff, custom_uuid=custom_uuid)
 
 		self.inventory = []
 
@@ -83,6 +83,11 @@ class Player(Entity):
 			surface.blit(self.Front_Arm1, (pos[0] + self.resized_body_parts["Front_Body"][2] ,pos[1] + self.resized_body_parts["Head2"][3])) # Right hand
 
 			surface.blit(self.Front_Arm2, (pos[0] - self.resized_body_parts["Front_Arm"][2] ,pos[1] + self.resized_body_parts["Head2"][3])) # Left hand
+
+		# Physics hitbox
+		print(pos)
+		
+		#print(self.physics_shape.body.position)
 
 	def keyMovement(self, deltaTime):
 		

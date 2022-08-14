@@ -1,4 +1,6 @@
 import pygame
+import pymunk
+import pymunk.pygame_util
 
 from files.vars import modeX, modeY
 from files.terrain.terrain_generator import generate, seed, generation_loop, chunks_list
@@ -20,6 +22,13 @@ class Game_Initialization:
         self.initialization_progress = 0
         self.full_initialation = False
 
+        self.global_game_physics_init()
+		
+    def global_game_physics_init(self):
+        # Global game physics
+        self.space = pymunk.Space()
+        self.space.gravity = (0, 900)
+
     def init_blocks(self):
         if not self.full_initialation:
             self.chunks_list = read_save_files(chunks_list=self.chunks_list)
@@ -28,7 +37,7 @@ class Game_Initialization:
         else:
             self.__error_code__()
 
-    def init_entities(self, physics_space):
+    def init_entities(self):
         if not self.full_initialation:
             self.coords_to_spawn_cam = convert_blocks_pos_to_camera_xy(grid_pos=(4,20))
 
@@ -40,13 +49,15 @@ class Game_Initialization:
             self.Entities_man = Entities(self.CameraMain)
 
             # Spawn player
-            self.p1_uuid = self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(14, 20), physics_space=physics_space)
+            self.p1_uuid = self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(14, 20))
 
             """for i in range(3):
-                self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(3*i, 20), physics_space=physics_space)"""
+                self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(3*i, 20))"""
 
             # PLAYER'S
             self.p1 = self.Entities_man.GetEntityClass(Entityid=self.p1_uuid)
+            _physics_shape = self.p1.get_physics_shape()
+            #self.space.add(_physics_shape, _physics_shape.body)
 
             self.check_if_full_initialization()
         

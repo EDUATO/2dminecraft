@@ -23,7 +23,7 @@ def bucle(surface):
 		FPS = fps.tick(Frames_per_second)
 
 		#DeltaTime
-		deltaTime = FPS/15 
+		deltaTime = 1/60 
 
 		Events(surface, events)
 

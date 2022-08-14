@@ -17,7 +17,7 @@ from files.gui.Inventory import Inventory
 from files.gui.Text import Text
 
 class Entity:
-	def __init__(self, pos, texture, hitbox_size, camera, body_parts, physics_space:pymunk.Space, custom_uuid=False, entity_scale_buff=2):
+	def __init__(self, pos, texture, hitbox_size, camera, body_parts, custom_uuid=False, entity_scale_buff=2):
 		self.block_pos = pos # The position is in blocks
 		self.pos = list(convert_blocks_pos_to_camera_xy(grid_pos=(-self.block_pos[0], -self.block_pos[1])))
 
@@ -47,9 +47,10 @@ class Entity:
 
 		self.physics_variables()
 
-		self.update_hitbox()
+		self.physics_shape = self.create_hitbox_physics_rect()
 
-		self.shape = self.create_hitbox_physics_rect(physics_space)
+		self.update_hitbox()
+		self._set_physics_position(pos=(540, 260))
 
 		self.Automate_Init() # FOR TESTING PURPOSES
 
@@ -65,13 +66,15 @@ class Entity:
 			for t in range(4):
 				self.resized_body_parts[self.body_parts_keys[i]].append(self.body_parts[self.body_parts_keys[i]][t] * self.entity_scale_buff )
 
-	def create_hitbox_physics_rect(self, physics_space:pymunk.Space):
-		body = pymunk.Body()
-		body.position = (1, 1)
-		rect_size = (100,100)
-		shape = pymunk.Poly.create_box(body, rect_size)
-		shape.mass = 10
-		physics_space.add(body, shape)
+	def create_hitbox_physics_rect(self):
+		block_body = pymunk.Body(body_type=pymunk.Body.DYNAMIC)
+		block_body.position = (0, 0)
+		rect_size = (200, 100)
+		#block_body.mass = 100
+		shape = pymunk.Poly.create_box(block_body, rect_size)
+
+		shape.color = (100, 100,200, 1)
+
 		return shape
 
 	def body_shape(self,surface, pos, state=0):
@@ -103,13 +106,16 @@ class Entity:
 
 	def update_hitbox(self):
 		self.hitbox = (self.screen_pos[0] + self.dx, self.screen_pos[1] + self.dy, self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+		
 
 	def update(self, surface, chunks_list, deltaTime, camera, test=False):
+		#self.physics_body = self.create_hitbox_physics_rect()
 		#print(self.shape.body.position)
 		self.camera_updater(Camera=camera)
 		self.update_screen_pos()
 		
-
+		
+		#print(f"{self.physics_body[0].position.x}, {self.physics_body[0].position.y}")
 		if self.__isEntityOnScreen__():
 			self.Enable_Physics()
 		else:
@@ -120,7 +126,7 @@ class Entity:
 		if self.EnablePhysics:
 			self.update_pos()
 			self.update_hitbox()
-
+			
 		self.Draw(surface)
 
 		self.dx = 0
@@ -128,6 +134,10 @@ class Entity:
 
 		if test:
 			self.Automate(deltaTime)
+
+	def _set_physics_position(self, pos:tuple): 
+		#self.physics_shape.body._set_position(pos=(int(pos[0]), int(pos[1])))
+		self.physics_shape.body._set_position(pos=(int(pos[0]), int(pos[1])))
 
 	def updateInventory(self, surface, events, mouse, keys):
 		self.EntityInventory.update(surface, mouse, keys)
@@ -178,6 +188,8 @@ class Entity:
 
 	def get_uuid(self):
 		return self.entity_uuid
+
+	def get_physics_shape(self): return self.physics_shape
 
 	def move(self, deltaTime, direction=None):
 		self.jumping = False

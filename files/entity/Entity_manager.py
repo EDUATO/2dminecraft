@@ -9,14 +9,13 @@ class Entities:
         self.EntitiesInGame = []
         self.ActiveEntities = []
 
-    def spawnEntity(self, CameraMain, type, Blockpos,physics_space, custom_uuid=False):
+    def spawnEntity(self, CameraMain, type, Blockpos, custom_uuid=False):
         """ It will spawn an Entity and return its UUID """
 
         self.EntitiesInGame.append(EntitiesTypes[type]["class"](
                                                                 texture=EntitiesTypes[type]["texture"],
                                                                 pos=Blockpos,
                                                                 Camera=CameraMain,
-                                                                pyisics_space=physics_space,
                                                                 custom_uuid=custom_uuid)
                                                                 )
 
