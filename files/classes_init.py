@@ -43,7 +43,7 @@ class Game_Initialization:
             self.p1_uuid = self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(14, 20))
 
             for i in range(3):
-                self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(3*i, 20))
+                self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(3*i, 30))
 
             # PLAYER'S
             self.p1 = self.Entities_man.GetEntityClass(Entityid=self.p1_uuid)

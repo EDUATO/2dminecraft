@@ -1,8 +1,14 @@
+# Python cache    
 *.pyc
+
+# Proyect .exe converter
 Main.spec
 build/
 dict/
+
+# Proyect saves folder and some other folders that are currently in no use
 saves/chunks
-old_versions/
 Sounds/
-sprites/
+
+# Proyect's virtual enviroment
+v_env/

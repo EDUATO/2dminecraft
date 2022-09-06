@@ -37,7 +37,7 @@ def convert_screen_pos_to_camera_xy(screen_pos):
 	return (-(screen_pos[0]), screen_pos[1])
 
 def convert_camera_xy_to_block_pos(xy_pos:tuple, block_size=(block_size*block_scale_buff)):
-	return (-(xy_pos[0] / block_size), (xy_pos[1] / block_size))
+	return ((xy_pos[0] / block_size), -(xy_pos[1] / block_size))
 
 
 if __name__ == "__main__":

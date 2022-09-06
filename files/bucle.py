@@ -20,10 +20,14 @@ def bucle(surface):
 		mouse_hitbox.left, mouse_hitbox.top = pygame.mouse.get_pos()
 
 		# Frames per second
-		FPS = fps.tick(Frames_per_second)
+		FPS = fps.tick(60)
 
 		#DeltaTime
-		deltaTime = FPS/15 
+		deltaTime = FPS/15
+		if deltaTime > 10:
+			deltaTime = 1
+
+		#deltaTime = 9
 
 		Events(surface, events)
 

@@ -34,6 +34,7 @@ class Game(Game_Initialization):
 		self.Pause = False
 
 	def update(self, events, surface):
+		
 		if self.full_initialation:
 			self.classes = self.Entities_man.getEntitiesClasses()
 			# Clear screen
@@ -84,10 +85,15 @@ class Game(Game_Initialization):
 		classes = self.Entities_man.getEntitiesClasses()
 		self.wat = None
 		for i in range(len(classes)):
-			classes[i].update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain, test=False)
-			self.wat = classes[i]
+			
+			if classes[i].get_uuid() != self.p1_uuid:
+				classes[i].update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain, test=False)
+				classes[i].Automate(b.deltaTime)
+			else:
+				self.wat = classes[i]
 
 		self.wat.keyMovement(b.deltaTime) # Be able to move the player
+		self.wat.update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain, test=False)
 
 		self.update_p1_hitbox()
 		self.focus_camera()
@@ -196,6 +202,7 @@ class Game(Game_Initialization):
 		""" It shows some variables that may be useful to test """
 
 		player_block_pos = self.p1.get_block_pos()
+		collision_player = self.p1.EntityPhysics.entity_collition_type
 
 		if self.show_debug_screen:
 
@@ -224,6 +231,11 @@ class Game(Game_Initialization):
 				#debug_screen.addDebugText(text=f"isBackground: {selected_block.isBackground()}", color=(255,255,255))
 
 				#debug_screen.addDebugText(text=f"{selected_block.getBreakPorcentage()} %", color=(255,255,255))
+
+			self.debug_screen.addDebugText(text=f"Right: {collision_player['right']}", color=(0,170,0))
+			self.debug_screen.addDebugText(text=f"Left: {collision_player['left']}", color=(0,170,0))
+			self.debug_screen.addDebugText(text=f"Top: {collision_player['top']}", color=(0,170,0))
+			self.debug_screen.addDebugText(text=f"Bottom: {collision_player['bottom']}", color=(0,170,0))
 
 			#debug_screen.addDebugText(text=f"CAMERA MAIN COORDS: {a}", color=(0,200,0))
 			

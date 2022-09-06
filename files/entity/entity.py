@@ -13,18 +13,18 @@ from files.functions import convert_blocks_pos_to_camera_xy, convert_camera_xy_t
 from files.gui.hotbar import Hotbar
 from files.gui.Inventory import Inventory
 from files.gui.Text import Text
+from files.physics import Physics
 
 class Entity:
 	def __init__(self, pos, texture, hitbox_size, camera, body_parts, custom_uuid=False, entity_scale_buff=2):
 		self.block_pos = pos # The position is in blocks
 		self.pos = list(convert_blocks_pos_to_camera_xy(grid_pos=(-self.block_pos[0], -self.block_pos[1])))
+		self.canMove = True
 
 		if custom_uuid:
 			self.entity_uuid = custom_uuid
 		else:
 			self.entity_uuid = uuid.uuid4()
-
-		self.hitbox_size = hitbox_size
 
 		self.camera_updater(Camera=camera)
 
@@ -34,16 +34,15 @@ class Entity:
 
 		self.entity_scale_buff = entity_scale_buff
 
+		self.hitbox_size = (hitbox_size[0] * self.entity_scale_buff, hitbox_size[1] * self.entity_scale_buff)
+
 		self.player_texture = pygame.transform.scale(self.texture, (self.texture.get_width() * self.entity_scale_buff,  self.texture.get_height() * self.entity_scale_buff)) # To the spritesheet
 
 		self.body_parts = body_parts
 
 		self.resized_body_parts = {}
 
-		self.camera_limit_x = self.camera_size
-		self.camera_limit_y = 300
-
-		self.physics_variables()
+		self.initialize_physics()
 
 		self.update_hitbox()
 
@@ -70,26 +69,24 @@ class Entity:
 
 		EntityTag.draw(surface=surface)
 
-	def physics_variables(self):
+	def initialize_physics(self):
 		self.EnablePhysics = True
 
 		self.vel = 10
 
-		self.vel_y = 0
-
-		# Physics pos update
-		self.dy = 0
-		self.dx = 0
-
 		self.jumping = False
 		self.jump_vel = 16
+
+		self.EntityPhysics = Physics(
+			hitbox_size=self.hitbox_size
+		)
 
 	def set_Inventory(self):
 		self.EntityInventory = Inventory()
 		self.EntityHotbar = Hotbar()
 
 	def update_hitbox(self):
-		self.hitbox = (self.screen_pos[0] + self.dx, self.screen_pos[1] + self.dy, self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+		self.hitbox = (self.screen_pos[0] + self.EntityPhysics.return_dx, self.screen_pos[1] + self.EntityPhysics.dy, self.hitbox_size[0], self.hitbox_size[1])
 
 	def update(self, surface, chunks_list, deltaTime, camera, test=False):
 
@@ -99,21 +96,19 @@ class Entity:
 
 		if self.__isEntityOnScreen__():
 			self.Enable_Physics()
+			self.entity_can_move(True)
 		else:
 			self.Disable_Phyisics()
+			self.entity_can_move(False)
 
 		self.update_hitbox()
 
 		if self.EnablePhysics:
-			collided_blocks = self.nearbyblocks(chunks_list)
-			self.physics(collided_blocks, surface, deltaTime=deltaTime)
+			self.EntityPhysics.update(chunks_list=chunks_list, surface=surface, screen_pos=self.screen_pos, deltaTime=deltaTime)
 			self.update_pos()
 			self.update_hitbox()
 
 		self.Draw(surface)
-
-		self.dx = 0
-		self.dy = 0
 
 		if test:
 			self.Automate(deltaTime)
@@ -126,170 +121,11 @@ class Entity:
 		return self.EntityHotbar
 
 	def Draw(self, surface):
-		draw_formula = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
+		draw_formula = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0], self.hitbox_size[1])
 
 		self.body_shape(surface, tuple(draw_formula), 0)
 		self.DrawTag(surface)
-		#pygame.draw.rect(surface, (255,0,0), pygame.Rect( ( self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff) ))
-
-
-	def nearbyblocks(self, chunks_list):
-
-		# Between all the blocks from the screen detect the ones that are closer to the player
-		increaseSize = 100
-		biggerHitbox = [ # Make the entity hitbox bigger to detect the surrounding blocks
-					(self.hitbox[0]) - increaseSize//2,
-					self.hitbox[1] - increaseSize//2,
-					self.hitbox[2] + increaseSize,
-					self.hitbox[3] + increaseSize
-		]
-		# dx and dy comprobations
-		if self.dx >= 0:
-			biggerHitbox[2] += self.dx
-		elif self.dx < 0: # Remember self.dx is NEGATIVE
-			biggerHitbox[0] += self.dx
-			biggerHitbox[2] -= self.dx
-
-		if self.dy >= 0:
-			biggerHitbox[3] += self.dy
-		elif self.dy < 0: # Remember self.dy is NEGATIVE
-			biggerHitbox[1] += self.dy
-			biggerHitbox[3] -= self.dy
- 
 		
-		output = []
-		for c in range(len(chunks_list)): # Active chunks
-			for i in range(len(chunks_list[c]["BLOCKS"])): # Blocks from each chunk
-				if chunks_list[c]["BLOCKS"][i].coll_hitbox2(pygame.Rect(biggerHitbox)):
-					output.append(chunks_list[c]["BLOCKS"][i])
-					#chunks_list[c]["BLOCKS"][i].setglow(True)
-		
-		return output
-			
-	def collided_block_tiles(self, blocks_list, rect_formula, ignore=[]):
-		blocks_pos = []
-
-		collided_blocks = []
-		for i in range(len(blocks_list)):
-			blocks_pos.append(blocks_list[i].getGridCoords())
-			#blocks_list[i].setglow(True)
-			if blocks_list[i].coll_hitbox(Rect=pygame.Rect(rect_formula), undetectable_ids=[0]):
-				collided_blocks.append(blocks_list[i])
-					
-
-		return collided_blocks
-
-	def get_nearest_block(
-		self,
-		direction, # left - right - up - bottom
-		collided_blocks
-		):
-		nearest_block = None
-		index = 0
-		for j in range(len(collided_blocks)):
-			block = collided_blocks[j] # Blocks that the entity collided
-
-			if direction == "left" or direction == "right":
-				index = 0 # x coords
-			elif direction == "up" or direction == "bottom":
-				index = 1 # y coords
-			
-			grid_pos = block.getGridCoords()[index]
-
-			if nearest_block != None:
-				if direction == "left" or direction == "up":
-					if grid_pos <= nearest_block.getGridCoords()[index]:
-						nearest_block = block
-				elif direction == "right" or direction == "bottom":
-					if grid_pos >= nearest_block.getGridCoords()[index]:
-						nearest_block = block
-
-				nearest_block.setglow(True, color=(200,0,0))
-			else: # nearest_block IS None
-				nearest_block = block
-
-		return nearest_block
-
-	def x_physics(self, every_block_list, surface):
-		# Check X collition
-		if self.dx >= 0:
-			x_rect_formula = (self.screen_pos[0], self.screen_pos[1] , (self.hitbox_size[0] * self.entity_scale_buff + self.dx), self.hitbox_size[1] * self.entity_scale_buff)
-		elif self.dx < 0: # Will add the NEGATIVE self.dx to screen_pos
-			x_rect_formula = (self.screen_pos[0] + self.dx, self.screen_pos[1] , (self.hitbox_size[0] * self.entity_scale_buff) - self.dx, self.hitbox_size[1] * self.entity_scale_buff)
-
-		x_collided = self.collided_block_tiles(blocks_list=every_block_list, 
-													rect_formula=x_rect_formula)
-
-		pygame.draw.rect(surface, (255,0,0), pygame.Rect( x_rect_formula ))
-
-		if self.dx > 0:
-			# Get the leftmost block
-			leftmost_block = self.get_nearest_block(direction="left",collided_blocks=x_collided)
-
-			if leftmost_block != None:
-				self.dx = (leftmost_block.getHitbox().left) - pygame.Rect(self.screen_entity_hitbox).right
-				self.entity_collition_type["right"] = True # It colliderected with the right part of the hitbox's entity
-
-		elif self.dx < 0:
-			# Get therightmost block
-			rightmost_block = self.get_nearest_block(direction="right",collided_blocks=x_collided)
-
-			if rightmost_block != None:
-				self.dx = (rightmost_block.getHitbox().right) - pygame.Rect(self.screen_entity_hitbox).left
-				self.entity_collition_type["left"] = True # It colliderected with the left part of the hitbox's entity
-
-	def y_physics(self, every_block_list, surface):
-		# Check Y collition 
-		# Try to calculate the next movement
-		if self.dy >= 0:
-			y_rect_formula = (self.screen_pos[0], self.screen_pos[1] , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff + self.dy)
-		elif self.dy < 0:
-			y_rect_formula = (self.screen_pos[0], self.screen_pos[1] + self.dy , self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff - self.dy)
-
-		y_collided = self.collided_block_tiles(blocks_list=every_block_list, 
-													rect_formula=y_rect_formula)
-		
-		if self.dy > 0:
-			# Get the highest block
-			highest_block = self.get_nearest_block(direction="up", collided_blocks=y_collided)
-
-			if highest_block != None:
-				self.dy = highest_block.getHitbox().top - pygame.Rect(self.screen_entity_hitbox).bottom
-				self.vel_y = 0
-				self.entity_collition_type["bottom"] = True
-
-		elif self.dy < 0:
-			# Get the lowest block
-			lowest_block = self.get_nearest_block(direction="bottom", collided_blocks=y_collided)
-
-			if lowest_block != None:
-				self.dy = lowest_block.getHitbox().bottom - pygame.Rect(self.screen_entity_hitbox).top
-				self.jumping = False
-				self.entity_collition_type["top"] = True # good
-			
-		pygame.draw.rect(surface, (0,0,255), pygame.Rect( y_rect_formula ))
-
-		#print(self.entity_collition_type)
-
-	def physics(self, every_block_list, surface, deltaTime=1):
-		# Gravity 
-		self.vel_y += (1 * deltaTime)
-		if self.vel_y > gravity:
-			self.vel_y = gravity
-
-		self.dy += (self.vel_y * deltaTime)
-		
-		self.screen_entity_hitbox = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0] * self.entity_scale_buff, self.hitbox_size[1] * self.entity_scale_buff)
-
-		self.entity_collition_type = {"right":False, "left":False, "bottom":False, "top":False} #Player's hitbox collition
-		
-		# X PHYSICS
-		self.x_physics(every_block_list, surface)
-
-		# Y PHYSICS
-		self.y_physics(every_block_list, surface)
-		
-
 	def update_screen_pos(self):
 		self.screen_pos = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
 
@@ -306,8 +142,9 @@ class Entity:
 
 	def update_pos(self):
 		# Update pos
-		self.pos[0] += self.dx
-		self.pos[1] += self.dy
+		self.pos[0] += self.EntityPhysics.return_dx
+		#print(f"e{self.EntityPhysics.dx}")
+		self.pos[1] += self.EntityPhysics.dy
 
 	def get_screen_pos(self):
 		return self.screen_pos 
@@ -326,37 +163,29 @@ class Entity:
 		return self.entity_uuid
 
 	def move(self, deltaTime, direction=None):
-		self.jumping = False
-		if direction == "R":
-			self.dx += (self.vel * deltaTime)
-			
-		if direction == "L":
-			self.dx -= (self.vel * deltaTime)
+		if self.canMove:
+			self.jumping = False
+			if direction == "R":
+				self.EntityPhysics.move_x(force=(self.vel * deltaTime))				
+			if direction == "L":
+				self.EntityPhysics.move_x(force= -(self.vel * deltaTime))	
 
-		if direction == "U" and self.jumping == False:
-			self.vel_y = -self.jump_vel
-			self.jumping = True
+			if direction == "U" and self.jumping == False:
+				self.EntityPhysics.vel_y = -self.jump_vel
+				self.jumping = True
 
 	def Automate_Init(self):
 		self.move_time = 0
 		self.Adir = "R"
 	def Automate(self, deltaTime):
-		self.move(self.Adir, deltaTime)
+		
 		self.move_time += 1
-		if self.move_time > 300:
-			if self.Adir == "R":
-				self.Adir = "L"
-			else:
-				self.Adir = "R"
+		if self.move_time > 50:
+			self.move(deltaTime, direction="U")
 			
 			self.move_time = 0
 
+	def entity_can_move(self, status:bool): self.canMove=status
+
 	def __isEntityOnScreen__(self):
 		return isSpriteOnTheScreen(cameraSize=self.camera_size, screenHitbox=pygame.Rect((self.screen_pos[0], self.screen_pos[1], self.hitbox[2], self.hitbox[3])))
-
-		
-		
-
-		
-
-		
