@@ -1,4 +1,5 @@
 import os, json
+from files.terrain.chunk import Chunk
 
 def create_folder(dir):
     try:
@@ -32,7 +33,7 @@ def read_chunks(chunks_list):
     # Write the data into chunks_list
     for j in range(len(chunk_data)): # chunk_data lenght its the same as chunks_list
         # Get chunk_data[j] keys
-        chunk_keys = dict(chunk_data[j]).keys() # Blocks str(id's) 
+        chunk_keys = dict(chunk_data[j]).keys() # Blocks str(id's)
         for b in chunk_keys:
             data_block_id = int(b) # This is integer b
             # Coords_blocks
@@ -40,9 +41,9 @@ def read_chunks(chunks_list):
                 data_grid_pos = chunk_data[j][b][c]
                 
                 # Seek for a block that has the same position
-                for s in range(len(return_chunks_list[j]["BLOCKS"])):
-                    if tuple(data_grid_pos) == tuple(return_chunks_list[j]["BLOCKS"][s].getGridCoords()):
-                        return_chunks_list[j]["BLOCKS"][s].setBlock(id=data_block_id)
+                block = return_chunks_list[j].get_block(position=data_grid_pos)
+                if block:
+                    block.setBlock(id=data_block_id)
                         
 
     return return_chunks_list

@@ -16,6 +16,7 @@ from files.blocks.block_data import placeble_blocks_list
 from files.entity.player_mouse_controller import player_mouse_cotroller
 from files.gui.pauseMenu import PauseMenu
 from files.saving.gamesave import save
+from files.terrain.chunk import Chunk
 
 from files.classes_init import * # Game's classes and vars initialization
 
@@ -101,19 +102,22 @@ class Game(Game_Initialization):
 	def chunks_update(self, surface):
 		self.ActiveChunks = []
 		for ch in range(len(self.chunks_list)):
-			self.inChunkID = self.chunks_list[ch]["CHUNK_DATA"].is_rect_in_chunk_x_coords(surface=surface, camera=self.CameraMain, Rect=pygame.Rect(self.Entity_hitbox))
-			self.ChunkRect = self.chunks_list[ch]["CHUNK_DATA"].get_chunkBlockRect()
+			# The chunk where the camera is
+			self.inChunkID = self.chunks_list[ch].is_rect_in_chunk_x_coords(
+				surface=surface, camera=self.CameraMain, Rect=pygame.Rect(self.Entity_hitbox))
+
+			self.ChunkRect = self.chunks_list[ch].get_chunkBlockRect()
 			LoadChunk = False
 
 			if self.inChunkID:
 				LoadChunk = True
 
 				if self.inChunkID == "None":
-					self.inChunkID = self.chunks_list[ch]["CHUNK_DATA"].get_chunk_id()
+					self.inChunkID = self.chunks_list[ch].get_chunk_id()
 					self.lastChunkID = self.inChunkID
 				else:
 					self.lastChunkID = self.inChunkID
-					self.inChunkID = self.chunks_list[ch]["CHUNK_DATA"].get_chunk_id()
+					self.inChunkID = self.chunks_list[ch].get_chunk_id()
 					self.LastLoadedChunkId = self.inChunkID
 
 				break
@@ -128,8 +132,8 @@ class Game(Game_Initialization):
 
 		# UPDATE ACTIVECHUNKS
 		for c in range(len(self.ActiveChunks)):
-			for i in range(len(self.ActiveChunks[c]["BLOCKS"])):
-				self.ActiveChunks[c]["BLOCKS"][i].update(deltaTime=b.deltaTime, surface=surface, Camera=self.CameraMain)
+			for i in range(len(self.ActiveChunks[c].blocks)):
+				self.ActiveChunks[c].blocks[i].update(deltaTime=b.deltaTime, surface=surface, Camera=self.CameraMain)
 
 	def inGameEvents(self, events):
 		
@@ -208,7 +212,7 @@ class Game(Game_Initialization):
 
 			# Chunks blorders
 			for c in range(len(self.ActiveChunks)):
-				self.ActiveChunks[c]["CHUNK_DATA"].DrawChunkLimits(surface=surface, camera=self.CameraMain)
+				self.ActiveChunks[c].DrawChunkLimits(surface=surface, camera=self.CameraMain)
 
 
 			self.debug_screen.addDebugText(text=f"FPS: {round(b.fps.get_fps())}", color=(200,0,0))

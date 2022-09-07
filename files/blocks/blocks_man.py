@@ -27,11 +27,11 @@ class Blocks_manager:
         blocks_positions = []
 
         for c in range(len(chunks_list)):
-            for i in range(len(chunks_list[c]["BLOCKS"])):
+            for i in range(len(chunks_list[c].blocks)):
 
                 for g in range(len(grid_pos)):
-                    if chunks_list[c]["BLOCKS"][i].getGridCoords() == grid_pos[g]:
-                        blocks_positions.append(chunks_list[c]["BLOCKS"][i])
+                    if chunks_list[c].blocks[i].getGridCoords() == grid_pos[g]:
+                        blocks_positions.append(chunks_list[c].blocks[i])
 
         if blocks_positions != []:
             return blocks_positions

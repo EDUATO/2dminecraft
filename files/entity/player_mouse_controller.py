@@ -7,12 +7,12 @@ def player_mouse_cotroller(chunks_list, mouse_hitbox, entity_classes):
 	mouse_touching_entity = False
 	#print(inGui)
 	for c in range(len(chunks_list)):
-		for i in range(len(chunks_list[c]["BLOCKS"])):
+		for i in range(len(chunks_list[c].blocks)):
 			# Detect a block being touched by the cursor
-			mouse_col_block = chunks_list[c]["BLOCKS"][i].coll_hitbox2(mouse_hitbox)
+			mouse_col_block = chunks_list[c].blocks[i].coll_hitbox2(mouse_hitbox)
 
 			if mouse_col_block and not inGui:
-				selected_block = chunks_list[c]["BLOCKS"][i]
+				selected_block = chunks_list[c].blocks[i]
 
 				block_rect = selected_block.getHitbox()
 
@@ -28,7 +28,7 @@ def player_mouse_cotroller(chunks_list, mouse_hitbox, entity_classes):
 					selected_block.setglow(True, color=(255,255,0))
 				
 			else:
-				chunks_list[c]["BLOCKS"][i].resetBreakState() # Reset break state
-				chunks_list[c]["BLOCKS"][i].setglow(False)
+				chunks_list[c].blocks[i].resetBreakState() # Reset break state
+				chunks_list[c].blocks[i].setglow(False)
 
 	return selected_block, mouse_touching_entity

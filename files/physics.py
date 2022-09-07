@@ -74,10 +74,10 @@ class Physics:
         
         output = []
         for c in range(len(chunks_list)): # Active chunks
-            for i in range(len(chunks_list[c]["BLOCKS"])): # Blocks from each chunk
-                if chunks_list[c]["BLOCKS"][i].coll_hitbox2(pygame.Rect(biggerHitbox)):
-                    output.append(chunks_list[c]["BLOCKS"][i])
-                    chunks_list[c]["BLOCKS"][i].setglow(True)
+            for i in range(len(chunks_list[c].blocks)): # Blocks from each chunk
+                if chunks_list[c].blocks[i].coll_hitbox2(pygame.Rect(biggerHitbox)):
+                    output.append(chunks_list[c].blocks[i])
+                    chunks_list[c].blocks[i].setglow(True)
         
         return output
 

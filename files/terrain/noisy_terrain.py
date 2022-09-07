@@ -36,7 +36,7 @@ def noisy_terrain(PerlinNoise, y_x, y, chunks_list, chunk_identifier):
 
 
 def get_blocks_chunks_list(index, chunks_list):
-	return chunks_list[index]["BLOCKS"]
+	return chunks_list[index].blocks
 
 def setBlock(chunk_id, block_index, block_id, noise_gen, chunks_list):
 	blocks = get_blocks_chunks_list(len(chunks_list)-1, chunks_list=chunks_list)

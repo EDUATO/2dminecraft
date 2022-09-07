@@ -26,7 +26,7 @@ def chunk_saving(chunks_list):
 def get_dict_with_blocks_pos(chunk_id:int, chunks_list) -> dict:
     dict_output = {} # Each block type will have positions around the chunk
 
-    for block in chunks_list[chunk_id]["BLOCKS"]:
+    for block in chunks_list[chunk_id].blocks:
         if not (block.getId() == 0):
             # Check if there is data in block.getId()
             if not (block.getId() in dict_output.keys()):
