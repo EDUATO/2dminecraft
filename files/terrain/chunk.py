@@ -1,7 +1,10 @@
 import pygame
+import math
+
 from files.functions import convert_blocks_pos_to_camera_xy, convert_camera_xy_to_block_pos, toNegative
 from files.vars import block_scale_buff, block_size, chunk_size
 from files.blocks.Block import Block
+from files.camera import Camera
 
 class Chunk:
     def __init__(self, id):
@@ -32,11 +35,13 @@ class Chunk:
                 )
 
     def isRectInChunk(self,surface, camera, Rect):
+        """ Is rect INSIDE the chunk? """
         chunk_limit = self.ChunkLimits(camera)
 
         return Rect.colliderect(pygame.Rect(chunk_limit))
 
     def is_rect_in_chunk_x_coords(self, surface, camera, Rect):
+        """ Is rect in the x_coords of the chunk? (not necessarily in the interior) """
         chunk_limit = self.ChunkLimits(camera)
     
         if (Rect.x + Rect.width) >= chunk_limit[0] and (Rect.x + Rect.width) < (chunk_limit[0] + chunk_limit[2]):
@@ -77,3 +82,6 @@ class Chunk:
 
     def get_x_block_start_pos(self):
         return self.x_block_start_pos
+
+def detect_chunk_with_position(block_position):
+    return math.floor(block_position[0]/chunk_size[0])

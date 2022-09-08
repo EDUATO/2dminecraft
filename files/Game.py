@@ -16,7 +16,8 @@ from files.blocks.block_data import placeble_blocks_list
 from files.entity.player_mouse_controller import player_mouse_cotroller
 from files.gui.pauseMenu import PauseMenu
 from files.saving.gamesave import save
-from files.terrain.chunk import Chunk
+from files.terrain.chunk import Chunk, detect_chunk_with_position
+from files.terrain.terrain_generator import Chunk_Manager_List
 
 from files.classes_init import * # Game's classes and vars initialization
 
@@ -45,9 +46,9 @@ class Game(Game_Initialization):
 
 			self.chunks_update(surface) # UPDATE THE VISIBLE CHUNKS
 
-			self.mouse_controller(surface) # UPDATE THE MOUSE POSITION AND WHETHER THE CURSOR IS OVER A BLOCK
-
 			self.Entities(events, surface) # UPDATE THE ENTITIES POSITION
+
+			self.mouse_controller(surface) # UPDATE THE MOUSE POSITION AND WHETHER THE CURSOR IS OVER A BLOCK
 
 			self.inGameEvents(events) # KEY EVENTS
 
@@ -82,58 +83,53 @@ class Game(Game_Initialization):
 	def Entities(self, events, surface):
 		self.update_keys_and_mouse()
 
-
 		classes = self.Entities_man.getEntitiesClasses()
 		self.wat = None
 		for i in range(len(classes)):
 			
 			if classes[i].get_uuid() != self.p1_uuid:
 				classes[i].update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain, test=False)
-				classes[i].Automate(b.deltaTime)
+				#classes[i].Automate(b.deltaTime)
 			else:
 				self.wat = classes[i]
 
 		self.wat.keyMovement(b.deltaTime) # Be able to move the player
 		self.wat.update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain, test=False)
+		self.wat_hitbox = self.wat.get_hitbox()
 
 		self.update_p1_hitbox()
 		self.focus_camera()
 
 	def chunks_update(self, surface):
 		self.ActiveChunks = []
-		for ch in range(len(self.chunks_list)):
-			# The chunk where the camera is
-			self.inChunkID = self.chunks_list[ch].is_rect_in_chunk_x_coords(
-				surface=surface, camera=self.CameraMain, Rect=pygame.Rect(self.Entity_hitbox))
+		
+		try:
+			self.inChunkID = detect_chunk_with_position(self.p1.get_block_pos())
+		except: self.inChunkID = 0
 
-			self.ChunkRect = self.chunks_list[ch].get_chunkBlockRect()
-			LoadChunk = False
+		self.Chunks_to_draw = [self.inChunkID-1, self.inChunkID, self.inChunkID+1]
 
-			if self.inChunkID:
-				LoadChunk = True
+		for chunk in chunks_list:
+			if chunk.Chunk_ID in self.Chunks_to_draw:
+				self.ActiveChunks.append(chunk)
 
-				if self.inChunkID == "None":
-					self.inChunkID = self.chunks_list[ch].get_chunk_id()
-					self.lastChunkID = self.inChunkID
-				else:
-					self.lastChunkID = self.inChunkID
-					self.inChunkID = self.chunks_list[ch].get_chunk_id()
-					self.LastLoadedChunkId = self.inChunkID
-
-				break
-
-		if not self.LastLoadedChunkId == 0:
-			self.ActiveChunks.append(self.chunks_list[self.LastLoadedChunkId-1])
-
-		self.ActiveChunks.append(self.chunks_list[self.LastLoadedChunkId])
-
-		if not self.LastLoadedChunkId == len(self.chunks_list)-1:
-			self.ActiveChunks.append(self.chunks_list[self.LastLoadedChunkId+1])
+		for ch_id in self.Chunks_to_draw:
+			if not self.detect_non_generated_chunk(ch_id):
+				Chunk_Manager_List.append(ch_id)
 
 		# UPDATE ACTIVECHUNKS
 		for c in range(len(self.ActiveChunks)):
 			for i in range(len(self.ActiveChunks[c].blocks)):
 				self.ActiveChunks[c].blocks[i].update(deltaTime=b.deltaTime, surface=surface, Camera=self.CameraMain)
+
+	def detect_non_generated_chunk(self, chunk_id):
+		isChunk = False
+		for chunk in chunks_list:
+			if chunk.get_chunk_id() == chunk_id:
+				isChunk = True
+				break
+
+		return isChunk
 
 	def inGameEvents(self, events):
 		

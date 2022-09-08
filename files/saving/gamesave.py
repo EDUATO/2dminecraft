@@ -12,7 +12,7 @@ def chunk_saving(chunks_list):
     create_folder(dir="saves/chunks")
 
     for i in range(len(chunks_list)):
-        F_r = open(f"saves/chunks/chunk{i}.txt", "w+")
+        F_r = open(f"saves/chunks/{i}.txt", "w+")
 
         # transfom the blocks list in a json file
         blocks_position_json = json.dumps(

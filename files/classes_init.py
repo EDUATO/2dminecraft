@@ -1,4 +1,5 @@
 import pygame
+import threading
 
 from files.vars import modeX, modeY
 from files.terrain.terrain_generator import generate, seed, generation_loop, chunks_list
@@ -17,12 +18,16 @@ class Game_Initialization:
 
         self.chunks_list = chunks_list
 
+        self.generation_loop = threading.Thread(target=generation_loop)
+
+        #self.generate_chunks()
+
         self.initialization_progress = 0
         self.full_initialation = False
 
     def init_blocks(self):
         if not self.full_initialation:
-            self.chunks_list = read_save_files(chunks_list=self.chunks_list)
+            #self.chunks_list = read_save_files(chunks_list=self.chunks_list)
             
             self.check_if_full_initialization()
         else:
@@ -66,6 +71,9 @@ class Game_Initialization:
             self.check_if_full_initialization()
         else:
             self.__error_code__()
+
+    def generate_chunks(self):
+        self.generation_loop.start()
 
     def check_if_full_initialization(self):
         self.initialization_progress += 1
