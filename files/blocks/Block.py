@@ -30,6 +30,8 @@ class Block:
 		self.color_block = pygame.Surface((self.block_size), pygame.SRCALPHA).convert()
 		self.block_light = pygame.Surface((self.block_size), pygame.SRCALPHA).convert_alpha()
 
+		self.color = False
+
 		self.light_val = 0
 		self.background_val = 30
 
@@ -40,6 +42,9 @@ class Block:
 		self.update_block()
 
 		self.grid(self.block_pos_grid)
+
+		self.screen_pos = (self.pos[0], self.pos[1])
+		self.update_hitbox()
 
 	def camera_updater(self, Camera):
 		self.CameraMain = Camera
@@ -80,8 +85,12 @@ class Block:
 
 		if self.BlockOnScreen:
 
-			if not self.block_id == 0: # isAir
+			if not( self.block_id == 0 or self.color): # isAir
 				self.DrawBlock(surface)
+
+			if self.color:
+				self.color_block.fill(self.color)
+				surface.blit(self.color_block, tuple(self.screen_pos))
 
 			# LIGHT
 			if not self.block_id == 0:
@@ -112,15 +121,16 @@ class Block:
 		""" Check if a Rect is colliderecting with EVERY block (FASTER THAN coll_hitbox)"""
 		return self.__hitbox_coll__(Rect)
 
-	def setBlock(self, id, noiseValue=False, background=False):
-		if self.block_id != id:
-			self.block_id = id
+	def setBlock(self, id, noiseValue=False, background=False, color=False):
+		""" Place a block"""
+		self.block_id = id
+		self.color = color
 
-			self.noise_value = noiseValue
-				
-			self.background = background
+		self.noise_value = noiseValue
+			
+		self.background = background
 
-			self.update_block()
+		self.update_block()
 
 	def breakBlock(self, surface, deltaTime):
 		# Update durability

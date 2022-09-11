@@ -92,6 +92,7 @@ class Game(Game_Initialization):
 				#classes[i].Automate(b.deltaTime)
 			else:
 				self.wat = classes[i]
+				self.wat.show_tag = False
 
 		self.wat.keyMovement(b.deltaTime) # Be able to move the player
 		self.wat.update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain, test=False)
@@ -268,7 +269,8 @@ class Game(Game_Initialization):
 		self.Entity_hitbox = self.p1.get_hitbox()
 
 	def save_world(self):
-		save(chunks_list=self.chunks_list)
+		"""save(chunks_list=self.chunks_list)"""
+		pass
 
 def game(events, surface):
 	global selected_block, block_to_put_id, ActiveChunks, inChunkID, lastChunkID, p1, foc, First, Second, LastLoadedChunkId, init, p1

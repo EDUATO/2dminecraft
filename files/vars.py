@@ -11,7 +11,7 @@ modeY = 720
 
 flags =  pygame.DOUBLEBUF
 
-win = pygame.display.set_mode((modeX,modeY), pygame.HWSURFACE)
+win = pygame.display.set_mode((modeX,modeY), pygame.RESIZABLE)
 
 pygame.display.set_caption("Programa") # Win's name
 

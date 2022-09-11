@@ -20,8 +20,6 @@ class Game_Initialization:
 
         self.generation_loop = threading.Thread(target=generation_loop)
 
-        #self.generate_chunks()
-
         self.initialization_progress = 0
         self.full_initialation = False
 
@@ -45,7 +43,7 @@ class Game_Initialization:
             self.Entities_man = Entities(self.CameraMain)
 
             # Spawn player
-            self.p1_uuid = self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(14, 20))
+            self.p1_uuid = self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(0, 20))
 
             for i in range(3):
                 self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(3*i, 30))
@@ -71,9 +69,6 @@ class Game_Initialization:
             self.check_if_full_initialization()
         else:
             self.__error_code__()
-
-    def generate_chunks(self):
-        self.generation_loop.start()
 
     def check_if_full_initialization(self):
         self.initialization_progress += 1

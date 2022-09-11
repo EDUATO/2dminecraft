@@ -25,14 +25,21 @@ class Chunk:
         # Will handle all the blocks that are part of the chunk
         self.blocks = []
 
-    def generate(self):
-        """ Will generate air blocks for the chunk """
+    def generate(self, blocks_list_to_generate:list):
+        """ 
+        Will generate air blocks for the chunk 
+        - blocks_list_to_generate must be as long as chunk_size[0]* chunk_size[1]
+        """
+        block_gen_index = 0
         for y in range( chunk_size[1] ):
             for x in range( chunk_size[0] ):
                 POSITION = (x + chunk_size[0]*self.Chunk_ID, y)
                 self.blocks.append(
-                    Block(block_pos_grid=POSITION)
+                    Block(block_pos_grid=POSITION) 
                 )
+                bks = blocks_list_to_generate[block_gen_index]
+                self.blocks[len(self.blocks)-1].setBlock(id=0,color=(0,0, 1 * bks["color"]),noiseValue=bks["noise"] )
+                block_gen_index += 1
 
     def isRectInChunk(self,surface, camera, Rect):
         """ Is rect INSIDE the chunk? """

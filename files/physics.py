@@ -135,7 +135,7 @@ class Physics:
         x_collided = self.collided_block_tiles(blocks_list=every_block_list, 
                                                     rect_formula=x_rect_formula)
 
-        pygame.draw.rect(surface, (255,0,0), pygame.Rect( x_rect_formula ))
+        #pygame.draw.rect(surface, (255,0,0), pygame.Rect( x_rect_formula ))
 
         if self.dx > 0:
             # Get the leftmost block
@@ -187,7 +187,7 @@ class Physics:
                 self.jumping = False
                 self.entity_collition_type["top"] = True # good
             
-        pygame.draw.rect(surface, (0,0,255), pygame.Rect( y_rect_formula ))
+        #pygame.draw.rect(surface, (0,0,255), pygame.Rect( y_rect_formula ))
 
     def move_x(self, force):
         self.dx = force

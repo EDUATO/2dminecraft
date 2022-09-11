@@ -10,6 +10,10 @@ class Player(Entity):
 	
 		self.camera_updater(Camera)
 
+		self.initial_pos = list(pos)
+		
+		self.pos = self.initial_pos
+
 		self.body_parts = {
 			"Head" : (0,0,8,8),
 			"Head2" : (8,0,8,8),
@@ -20,42 +24,11 @@ class Player(Entity):
 			"Front_Arm" : (28, 8, 4, 12)
 		}
 
-		self.initial_pos = list(pos)
-		
-		self.pos = self.initial_pos
-
 		super().__init__(self.pos,  texture, (8, 32), Camera, self.body_parts, entity_scale_buff=block_scale_buff, custom_uuid=custom_uuid)
 
-		self.inventory = []
-
-		# Slots
-		for y in range(6):
-			for x in range(10):
-				self.inventory.append({
-					"NUM" : (y, x),
-					"ITEM" : None
-				})
-		
 		# Crop separated body parts
-		self.head1 = self.player_texture.subsurface((self.resized_body_parts["Head"]))
-
-		self.head2 = self.player_texture.subsurface((self.resized_body_parts["Head2"]))
-
-		self.arm1 = self.player_texture.subsurface((self.resized_body_parts["Arm"]))
-
-		self.arm2 = self.player_texture.subsurface((self.resized_body_parts["Arm"]))
-
-		self.body = self.player_texture.subsurface((self.resized_body_parts["Body"]))
-
-		self.Front_Body = self.player_texture.subsurface((self.resized_body_parts["Front_Body"]))
-
-		self.leg1 = self.player_texture.subsurface((self.resized_body_parts["Leg"]))
-
-		self.leg2 = self.player_texture.subsurface((self.resized_body_parts["Leg"]))
-
-		self.Front_Arm1 = self.player_texture.subsurface((self.resized_body_parts["Front_Arm"]))
-
-		self.Front_Arm2 = self.player_texture.subsurface((self.resized_body_parts["Front_Arm"]))
+		self.crop_body_pieces()
+		
 
 	def body_shape(self,surface, pos, state=0):
 		if state == 0:
@@ -107,6 +80,27 @@ class Player(Entity):
 		if self.keys[K_s]:
 			if not self.keys[K_w] == 1:
 				self.move(direction="S", deltaTime=deltaTime)
+
+	def crop_body_pieces(self):
+		self.head1 = self.player_texture.subsurface((self.resized_body_parts["Head"]))
+
+		self.head2 = self.player_texture.subsurface((self.resized_body_parts["Head2"]))
+
+		self.arm1 = self.player_texture.subsurface((self.resized_body_parts["Arm"]))
+
+		self.arm2 = self.player_texture.subsurface((self.resized_body_parts["Arm"]))
+
+		self.body = self.player_texture.subsurface((self.resized_body_parts["Body"]))
+
+		self.Front_Body = self.player_texture.subsurface((self.resized_body_parts["Front_Body"]))
+
+		self.leg1 = self.player_texture.subsurface((self.resized_body_parts["Leg"]))
+
+		self.leg2 = self.player_texture.subsurface((self.resized_body_parts["Leg"]))
+
+		self.Front_Arm1 = self.player_texture.subsurface((self.resized_body_parts["Front_Arm"]))
+
+		self.Front_Arm2 = self.player_texture.subsurface((self.resized_body_parts["Front_Arm"]))
 
 
 

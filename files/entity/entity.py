@@ -40,6 +40,8 @@ class Entity:
 
 		self.body_parts = body_parts
 
+		self.show_tag = True
+
 		self.resized_body_parts = {}
 
 		self.initialize_physics()
@@ -124,7 +126,8 @@ class Entity:
 		draw_formula = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0], self.hitbox_size[1])
 
 		self.body_shape(surface, tuple(draw_formula), 0)
-		self.DrawTag(surface)
+		if self.show_tag:
+			self.DrawTag(surface)
 		
 	def update_screen_pos(self):
 		self.screen_pos = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
@@ -188,4 +191,5 @@ class Entity:
 	def entity_can_move(self, status:bool): self.canMove=status
 
 	def __isEntityOnScreen__(self):
+		#print(self.screen_pos)
 		return isSpriteOnTheScreen(cameraSize=self.camera_size, screenHitbox=pygame.Rect((self.screen_pos[0], self.screen_pos[1], self.hitbox[2], self.hitbox[3])))

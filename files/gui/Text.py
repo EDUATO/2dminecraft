@@ -5,13 +5,13 @@ from files.vars import modeX, modeY
 import files.functions as f
 
 class Text:
-	def __init__(self, x, y, txt, FUENTE, COLOR, lock=None, screen_areas=(0, 0, modeX, modeY)):
+	def __init__(self, x, y, txt, FUENTE, COLOR, lock=None, screen_areas=(0, 0, modeX, modeY), good_quality=1):
 
 		self.x = x
 		self.y = y
 		self.screen_areas = screen_areas
 		
-		self.Text = FUENTE.render(txt,1,(COLOR))
+		self.Text = FUENTE.render(txt,good_quality,(COLOR))
 
 		self.w = self.Text.get_rect().width
 		self.h = self.Text.get_rect().height
