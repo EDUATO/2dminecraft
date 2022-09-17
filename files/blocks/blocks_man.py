@@ -15,12 +15,10 @@ class Blocks_manager:
                 blocks_to_place[b].setBlock(id=self.block_id)
 
     def break_block(self,surface, grid_pos, chunks_list, deltaTime):
-        grid_positions = self.get_blocks_parents_grid_pos(center_grid_pos=grid_pos)
 
-        blocks_to_break = self.seek_block_position(chunks_list, grid_positions)
+        blocks_to_break = self.seek_block_position(chunks_list, grid_pos)
         if blocks_to_break != False:
-            for b in range(len(blocks_to_break)):
-                blocks_to_break[b].breakBlock(surface, deltaTime)
+            blocks_to_break.breakBlock(surface, deltaTime)
 
 
     def seek_block_position(self, chunks_list, grid_pos:tuple):

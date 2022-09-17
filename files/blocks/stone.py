@@ -6,9 +6,3 @@ class Stone(Blocks_manager):
         Blocks_manager.__init__(self)
 
         self.block_id = 2
-        self.blocks_parents = [
-            (0,0),
-            (0,1),
-            (1,1),
-            (1,0)
-        ]

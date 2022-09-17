@@ -4,14 +4,18 @@ from pygame.locals import *
 
 
 ########## LOCAL MODULES ##########
-from files.vars import mouse_hitbox, fps, Frames_per_second, Playing
+from files.vars import mouse_hitbox, fps, Frames_per_second, Playing, modeY
 import files.draw as dr
+from files.gui.Text import Text 
+from files.fonts import Mc_12
 
 FramebyFrame_mode = False
 
 def bucle(surface):
-	global mouse_hitbox, deltaTime, FPS
+	global mouse_hitbox, deltaTime, FPS, pressed_time
 	
+	pressed_time = 0 # for debug mode
+
 	while Playing == 1:
 		
 		events = pygame.event.get()
@@ -35,7 +39,7 @@ def bucle(surface):
 			update(surface, events)
 		
 def Events(surface, events):
-	global Playing, FramebyFrame_mode
+	global Playing, FramebyFrame_mode, pressed_time
 
 	for event in events:
 
@@ -57,11 +61,24 @@ def Events(surface, events):
 					print("[FramebyFrame] FramebyFrame mode Activated!")
 					print("[FramebyFrame] Use the plus key to go to the following frame")
 
-			elif event.key == K_PLUS:
-				if FramebyFrame_mode:
-					update(surface, events)
+
+	keys = pygame.key.get_pressed()
+
+	if keys[K_PLUS]:
+		if pressed_time == 0 or pressed_time > 30:
+			if FramebyFrame_mode:
+				update(surface, events)
+
+		pressed_time += 1*deltaTime
+	elif not keys[K_PLUS]:
+		pressed_time = 0
 			
 			
+	# Draw debug mode on screen
+	if FramebyFrame_mode:
+		Text(x=10, y=modeY-100, txt="[DebugMode]", FUENTE=Mc_12, COLOR=(0,0,200)).draw(surface)
+		pygame.display.flip()
+
 def update(surface, events):
 	# Draw on screen
 	dr.Draw(surface, events)

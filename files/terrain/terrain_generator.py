@@ -17,7 +17,7 @@ def initial_variables():
 
 	reset_chunk_man_list()
 
-	seed = 10
+	seed = random.randint(-9999999, 9999999)
 	Noise_gen = Noise(seed)
 
 	chunks_list = []
@@ -63,8 +63,8 @@ def generate(in_coords, time_s, chunk_identifier):
 			for x in range(chunk_size[0]):
 				x_pos = x_chunk + x
 
-				perlinHeight = Noise_gen.test(x_pos, y_pos, chunk_size[1])
-				gen_blocks = noisy_terrain(PerlinNoise=perlinHeight, x=x_pos, y=y, chunks_list=chunks_list, chunk_identifier=chunk_identifier)
+				perlinHeight = Noise_gen.test(x_pos, y, chunk_size[1])
+				gen_blocks = noisy_terrain(PerlinNoise=perlinHeight, y=chunk_size[1]-y, chunks_list=chunks_list, chunk_identifier=chunk_identifier)
 				blocks_to_gen += gen_blocks
 
 		chunks_list[len(chunks_list)-1].generate(blocks_list_to_generate=blocks_to_gen)

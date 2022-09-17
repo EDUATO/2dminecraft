@@ -38,7 +38,7 @@ class Chunk:
                     Block(block_pos_grid=POSITION) 
                 )
                 bks = blocks_list_to_generate[block_gen_index]
-                self.blocks[len(self.blocks)-1].setBlock(id=0,color=(0,0, 1 * bks["color"]),noiseValue=bks["noise"] )
+                self.blocks[len(self.blocks)-1].setBlock(id=bks["block"], noiseValue=bks["noise"] )
                 block_gen_index += 1
 
     def isRectInChunk(self,surface, camera, Rect):

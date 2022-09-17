@@ -5,10 +5,10 @@ from opensimplex import OpenSimplex
 class Noise:
 	def __init__(self, seed):
 		self.seed = seed
-		self.smoothness = 20
+		self.smoothness = 60
 		self.tmp = OpenSimplex(seed=self.seed)
 
 	def test(self, x, y, height):
-		self.data = self.tmp.noise2(x/self.smoothness, y) * height
+		self.data = self.tmp.noise2(x/self.smoothness, y/self.smoothness) * height/6
 
-		return round(self.data)
+		return int(self.data)
