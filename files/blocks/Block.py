@@ -2,7 +2,7 @@ import pygame
 
 from files.vars import block_scale_buff, block_size, block_detection_after_screen
 from files.blocks.block_data import *
-from files.functions import isSpriteOnTheScreen
+from files.functions import isSpriteOnTheScreen, change_sprite_color
 
 Textures_states = {}
 
@@ -10,7 +10,7 @@ for i in range(9):
 	Textures_states[i] = {"Name" : "Break_state_"+str(i), "crop":((16*i)* block_scale_buff, 16* block_scale_buff, 16 * block_scale_buff, 16 * block_scale_buff )}
 
 class Block:
-	def __init__(self, block_pos_grid):
+	def __init__(self, block_pos_grid, colored_sprite_rgb=False):
 		self.block_id = 0 # At first it will always be air
 		self.block_texture = block_texture
 		self.pos = []
@@ -19,6 +19,7 @@ class Block:
 		self.block_pos_grid = block_pos_grid # Block Position in grid
 		self.noise_value = False
 		self.background = False # No hitbox
+		self.set_colored_sprite(colored_sprite_rgb)
 
 		self.break_state = 0
 
@@ -45,6 +46,11 @@ class Block:
 
 		self.screen_pos = (self.pos[0], self.pos[1])
 		self.update_hitbox()
+
+	def set_colored_sprite(self, color):
+		self.new_colored_sprite = None
+		if color:
+			self.new_colored_sprite = change_sprite_color(self.block_texture, color)
 
 	def camera_updater(self, Camera):
 		self.CameraMain = Camera
@@ -94,22 +100,29 @@ class Block:
 
 			# LIGHT
 			if not self.block_id == 0:
-				self.block_light.fill((0,0,0, self.light_val))
-				if self.background:
-					# Block light in background
-					if (self.background_val + self.light_val) > 255: self.block_light.fill((0,0,0,255))
-					else: self.block_light.fill((0,0,0,self.background_val + self.light_val))
-					
-				surface.blit(self.block_light, tuple(self.screen_pos))
+				self.block_light_engine(surface)
 
 			if self.glow:
 				self.select_rect.fill((self.glow_color[0],self.glow_color[1],self.glow_color[2],128))
 				surface.blit(self.select_rect, tuple(self.screen_pos))
 
 
+	def block_light_engine(self, surface):
+	
+		self.block_light.fill((0,0,0, self.light_val))
+		if self.background:
+			# Block light in background
+			if (self.background_val + self.light_val) > 255: self.block_light.fill((0,0,0,255))
+			else: self.block_light.fill((0,0,0,self.background_val + self.light_val))
+			
+		surface.blit(self.block_light, tuple(self.screen_pos))
+
 	def DrawBlock(self, surface):
 		# Crop block from texture and draw it on the screen
-		surface.blit(self.block_texture, self.screen_pos, tuple(self.crop))
+		if self.new_colored_sprite:
+			surface.blit(self.new_colored_sprite, self.screen_pos, tuple(self.crop))
+		else:
+			surface.blit(self.block_texture, self.screen_pos, tuple(self.crop))
 
 	def coll_hitbox(self, Rect, undetectable_ids=[]):
 		""" Check if a Rect is colliderecting with the block """

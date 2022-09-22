@@ -5,12 +5,13 @@ from files.functions import convert_blocks_pos_to_camera_xy, convert_camera_xy_t
 from files.vars import block_scale_buff, block_size, chunk_size
 from files.blocks.Block import Block
 from files.camera import Camera
+from files.blocks.block_data import placeble_blocks_list
 
 class Chunk:
     def __init__(self, id):
         self.Chunk_ID = id
         self.x_block_start_pos = self.Chunk_ID * chunk_size[0]
-
+        self.isGenerated = False
         # Keep in mind that they are screen_pos
         self.initial_pos = convert_blocks_pos_to_camera_xy(grid_pos=(self.x_block_start_pos, 0))
         self.block_size = convert_blocks_pos_to_camera_xy(grid_pos=chunk_size)
@@ -38,9 +39,10 @@ class Chunk:
                     Block(block_pos_grid=POSITION) 
                 )
                 bks = blocks_list_to_generate[block_gen_index]
-                self.blocks[len(self.blocks)-1].setBlock(id=bks["block"], noiseValue=bks["noise"] )
+                #self.blocks[len(self.blocks)-1].setBlock(id=bks["block"], noiseValue=bks["noise"] )
+                placeble_blocks_list[bks["block"]]["class"].place_generated_block(self.blocks[block_gen_index])
                 block_gen_index += 1
-
+        self.isGenerated = True
     def isRectInChunk(self,surface, camera, Rect):
         """ Is rect INSIDE the chunk? """
         chunk_limit = self.ChunkLimits(camera)

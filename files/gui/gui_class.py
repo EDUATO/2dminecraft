@@ -168,19 +168,22 @@ def drawInventoryItem(surface, item_id, X, Y, centered=False):
 
 		color = (250,250,250)
 
-		ItemText = Text(x=X , y=Y, txt=str(item_id[1]),FUENTE=Mc_20, COLOR=color, lock=None, screen_areas=(X - 16, Y - 16, block_scale_buff, block_scale_buff))
+		if item_id [1] != 1:
+			ItemText = Text(x=X , y=Y, txt=str(item_id[1]),FUENTE=Mc_20, COLOR=color, lock=None, screen_areas=(X - 16, Y - 16, block_scale_buff, block_scale_buff))
 		# Draw Text
 		if centered:
 			surface.blit(block_texture, (X - (16 * block_scale_buff)/2 , Y - (16 * block_scale_buff)/2), drawInventoryItem.crop)
-			ItemText.setCoords(	x= X - (16 * block_scale_buff)/2,
-			 					y= Y - (16 * block_scale_buff)/2
-			 )
-			
-			ItemText.draw(surface)
+			if item_id [1] != 1:
+				ItemText.setCoords(	x= X - (16 * block_scale_buff)/2,
+									y= Y - (16 * block_scale_buff)/2
+				)
+				
+				ItemText.draw(surface)
 
 		else:
 			surface.blit(block_texture, (X , Y), drawInventoryItem.crop)
-			ItemText.draw(surface)
+			if item_id [1] != 1:
+				ItemText.draw(surface)
 
 		
 		

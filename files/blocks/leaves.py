@@ -1,3 +1,4 @@
+import random
 from files.blocks.blocks_man import Blocks_manager
 
 class Leaves(Blocks_manager):
@@ -10,5 +11,4 @@ class Leaves(Blocks_manager):
             (0,0),
             (0,1)
         ]
-        for i in range(600):
-            self.blocks_parents.append((i+1,0))
+        self.colored = (40, random.randint(51, 200),0)

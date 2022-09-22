@@ -1,4 +1,5 @@
 import pygame
+from pygame.locals import *
 
 if __name__ == "__main__":
 	from vars import modeX, modeY, block_scale_buff, block_size
@@ -40,6 +41,14 @@ def convert_screen_pos_to_camera_xy(screen_pos):
 def convert_camera_xy_to_block_pos(xy_pos:tuple, block_size=(block_size*block_scale_buff)):
 	return ((xy_pos[0] / block_size), -(xy_pos[1] / block_size))
 
+def change_sprite_color(sprite, color):
+	size = sprite.get_size()
+	coloured_background = pygame.Surface(size)
+	coloured_background.fill(color)
+
+	return_sprite = sprite.copy()
+	return_sprite.blit(coloured_background, (0, 0), special_flags = pygame.BLEND_MULT)
+	return return_sprite
 
 if __name__ == "__main__":
 	a = (-5.0, -15.985)

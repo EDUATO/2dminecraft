@@ -48,27 +48,29 @@ class Game(Game_Initialization):
 
 			self.Entities(events, surface) # UPDATE THE ENTITIES POSITION
 
-			self.mouse_controller(surface) # UPDATE THE MOUSE POSITION AND WHETHER THE CURSOR IS OVER A BLOCK
+			if not self.Pause:
+				self.mouse_controller(surface) # UPDATE THE MOUSE POSITION AND WHETHER THE CURSOR IS OVER A BLOCK
 
 			self.inGameEvents(events) # KEY EVENTS
 
 			self.debugging_Screen(surface, selected_block=self.selected_block)
 
-			self.p1.updateInventory(surface=surface, events=events, mouse=b.mouse_hitbox, keys=self.keys)
+			if not self.Pause:
+				self.p1.updateInventory(surface=surface, events=events, mouse=b.mouse_hitbox, keys=self.keys)
 
-			vel = 10
+				vel = 10
 
-			if self.keys[K_RIGHT]:
-				self.CameraMain.add_to_x_coord(value= (-vel * b.deltaTime))
+				if self.keys[K_RIGHT]:
+					self.CameraMain.add_to_x_coord(value= (-vel * b.deltaTime))
 
-			if self.keys[K_LEFT]:
-				self.CameraMain.add_to_x_coord(value= (vel * b.deltaTime))
+				if self.keys[K_LEFT]:
+					self.CameraMain.add_to_x_coord(value= (vel * b.deltaTime))
 
-			if self.keys[K_UP]:
-				self.CameraMain.add_to_y_coord(value= (vel * b.deltaTime))
+				if self.keys[K_UP]:
+					self.CameraMain.add_to_y_coord(value= (vel * b.deltaTime))
 
-			if self.keys[K_DOWN]:
-				self.CameraMain.add_to_y_coord(value= (-vel * b.deltaTime))
+				if self.keys[K_DOWN]:
+					self.CameraMain.add_to_y_coord(value= (-vel * b.deltaTime))
 
 			self.pause_screen(surface)
 
@@ -76,8 +78,6 @@ class Game(Game_Initialization):
 
 
 		elif not self.full_initialation:
-			self.init_entities()
-
 			self.init_screen()
 
 	def Entities(self, events, surface):
@@ -94,7 +94,8 @@ class Game(Game_Initialization):
 				self.wat = classes[i]
 				self.wat.show_tag = False
 
-		self.wat.keyMovement(b.deltaTime) # Be able to move the player
+		if not self.Pause:
+			self.wat.keyMovement(b.deltaTime) # Be able to move the player
 		self.wat.update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain, test=False)
 		self.wat_hitbox = self.wat.get_hitbox()
 
@@ -110,10 +111,14 @@ class Game(Game_Initialization):
 
 		self.Chunks_to_draw = [self.inChunkID-1, self.inChunkID, self.inChunkID+1]
 
+		self.player_in_chunk = None
 		for chunk in chunks_list:
 			if chunk.Chunk_ID in self.Chunks_to_draw:
 				self.ActiveChunks.append(chunk)
+				if chunk.Chunk_ID == self.inChunkID:
+					self.player_in_chunk = chunk
 
+		# Seek for non generated chunks
 		for ch_id in self.Chunks_to_draw:
 			if not self.detect_non_generated_chunk(ch_id):
 				Chunk_Manager_List.append(ch_id)
@@ -222,6 +227,10 @@ class Game(Game_Initialization):
 			self.debug_screen.addDebugText(text=f"PLAYER POS: {round(player_block_pos[0], 3)}, {round(player_block_pos[1], 3)}", color=(0,200,0))
 
 			self.debug_screen.addDebugText(text=f"CHUNK ID: {self.inChunkID}", color=(255,0,100))
+
+			try:
+				self.debug_screen.addDebugText(text=f"Chunk Generated: {self.player_in_chunk.isGenerated}", color=(255,0,100))
+			except AttributeError: pass
 
 			if self.selected_block != None: 
 

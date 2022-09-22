@@ -10,7 +10,7 @@ from files.terrain.noisy_terrain import noisy_terrain
 
 def reset_chunk_man_list():
 	global Chunk_Manager_List
-	Chunk_Manager_List = [0]
+	Chunk_Manager_List = []
 
 def initial_variables():
 	global seed, Noise_gen, chunks_list, con, noise_sc, prw_noise, Chunk_Manager_List
@@ -37,23 +37,18 @@ def canGenerate(in_coords, chunk_identifier):
 	for chunk_ in chunks_list:
 		if chunk_.Chunk_ID == chunk_identifier:
 			return False
-
-	"""chunks_list.append(Chunk(id=chunk_identifier))
-	chunks_list[len(chunks_list)-1].generate()
-"""
 	return True
 
 def generate(in_coords, time_s, chunk_identifier):
 	# GENERATE AIR BLOCKS
 	_canGenerate = canGenerate(in_coords, chunk_identifier=chunk_identifier)
+
 	chunks_list.append(Chunk(id=chunk_identifier))
 	blocks_to_gen = []
-
+	print(_canGenerate)
 	if _canGenerate:
 		#print(f"generating {chunk_identifier}")
 		# GENERATE TERRAIN
-		y = 0
-		x = 0
 		x_chunk = chunk_size[0] * chunk_identifier
 		
 		prw_noise = [x_chunk, 1]
@@ -68,17 +63,21 @@ def generate(in_coords, time_s, chunk_identifier):
 				blocks_to_gen += gen_blocks
 
 		chunks_list[len(chunks_list)-1].generate(blocks_list_to_generate=blocks_to_gen)
-
+	# If the chunk couldn't generate
+	if not chunks_list[len(chunks_list)-1].isGenerated:
+		print("trying to fix")
+		chunks_list.pop(len(chunks_list)-1)
 # Generation
 def generation_loop():
 	global Chunk_Manager_List
-	if Chunk_Manager_List != []:
-		for times in range(len(Chunk_Manager_List)):
+	for times in range(len(Chunk_Manager_List)):
+		if Chunk_Manager_List != []:
 			generate((chunk_size[0] * Chunk_Manager_List[0]), 0, Chunk_Manager_List[0])
-			try:
-				#print(f"[Generation] Chunk {Chunk_Manager_List[0]} generated!")
-				Chunk_Manager_List.pop(0)
-			except IndexError: pass
+			print(f"[Generation] Chunk {Chunk_Manager_List[0]} generated!")
+		
+			Chunk_Manager_List.pop(0)
+		else: break
+
 			
 
 		
