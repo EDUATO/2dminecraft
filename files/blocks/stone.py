@@ -6,3 +6,4 @@ class Stone(Blocks_manager):
         Blocks_manager.__init__(self)
 
         self.block_id = 2
+        self.durability = 200

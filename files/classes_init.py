@@ -2,15 +2,14 @@ import pygame
 import threading
 
 from files.vars import modeX, modeY, chunk_size
-from files.terrain.terrain_generator import generate, seed, chunks_list, Chunk_Manager_List
+from files.terrain.terrain_generator import generate, seed, chunks_list, chunk_manager_list
 from files.import_imp import Blocks_texture, Player_texture
 from files.debugScreen import DebugScreen
 from files.camera import Camera
 from files.entity.player import Player
 from files.entity.Entity_manager import Entities
-from files.functions import convert_blocks_pos_to_camera_xy
+from files.functions import convert_blocks_pos_to_camera_xy, detect_chunk_with_position
 from files.saving.saveload import read_save_files
-from files.terrain.chunk import detect_chunk_with_position
 
 class Game_Initialization:
     def __init__(self):
@@ -32,7 +31,7 @@ class Game_Initialization:
             self.__error_code__()
 
     def init_entities(self):
-        global Chunk_Manager_List
+        global chunk_manager_list
         if not self.full_initialation:
             self.coords_to_spawn_cam = convert_blocks_pos_to_camera_xy(grid_pos=(4,20))
 
@@ -44,11 +43,11 @@ class Game_Initialization:
             self.Entities_man = Entities(self.CameraMain)
 
             # Spawn player
-            player_initial_pos = (500, 40)
+            player_initial_pos = (0, 40)
             self.p1_uuid = self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=player_initial_pos)
 
-            for i in range(3):
-                self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(3*(i+1), 40))
+            for i in range(10):
+                self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(2*(i+1), 40))
 
             # PLAYER'S
             self.p1 = self.Entities_man.GetEntityClass(Entityid=self.p1_uuid)

@@ -4,7 +4,7 @@ from pygame.locals import *
 from files.gui.gui_class import Gui
 from files.vars import modeX, modeY, block_scale_buff, slot_size
 from files.import_imp import Inventory_texture, Blocks_texture
-import files.bucle as b
+import files.mainLoop as b
 import files.Game as gm
 
 class Inventory(Gui):
@@ -14,6 +14,10 @@ class Inventory(Gui):
 		self.In_Inventory = False
 		self.Pause = False
 		self.setInventorySlots()
+		# Append every item
+		for i in range(30):
+			self.add_item(i, 64)
+
 		super().__init__(self.transformed_sprite)
 
 	def setInventorySlots(self):
@@ -21,7 +25,7 @@ class Inventory(Gui):
 
 		# Hotbar slots
 		for x in range(9):
-			self.Inventory_slots[a] = {"Item" : [a+1, 64], "Pos":(8 + ( (2 + slot_size) * x), 140 + 2 , slot_size, slot_size)}
+			self.Inventory_slots[a] = {"Item" : [None, None], "Pos":(8 + ( (2 + slot_size) * x), 140 + 2 , slot_size, slot_size)}
 			a += 1
 
 		# Inventory slots
@@ -77,3 +81,14 @@ class Inventory(Gui):
 
 		elif keys[K_e] == 1:
 			self.open()
+
+	def add_item(self, item_id, amount):
+		for i in range(len(self.Inventory_slots)):
+			if self.Inventory_slots[i]["Item"][0] == item_id:
+				self.Inventory_slots[i]["Item"][0] = item_id
+				self.Inventory_slots[i]["Item"][1] = abs(amount - self.Inventory_slots["Item"][1])
+				break
+			elif self.Inventory_slots[i]["Item"][0] == None:
+				self.Inventory_slots[i]["Item"][0] = item_id
+				self.Inventory_slots[i]["Item"][1] = amount
+				break

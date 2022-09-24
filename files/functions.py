@@ -1,10 +1,11 @@
 import pygame
+import math
 from pygame.locals import *
 
 if __name__ == "__main__":
 	from vars import modeX, modeY, block_scale_buff, block_size
 else:
-	from files.vars import modeX, modeY, block_scale_buff, block_size
+	from files.vars import modeX, modeY, block_scale_buff, block_size, chunk_size
 
 ########## LOCAL MODULES ##########
 
@@ -49,6 +50,9 @@ def change_sprite_color(sprite, color):
 	return_sprite = sprite.copy()
 	return_sprite.blit(coloured_background, (0, 0), special_flags = pygame.BLEND_MULT)
 	return return_sprite
+
+def detect_chunk_with_position(block_position):
+    return math.floor(block_position[0]/chunk_size[0])
 
 if __name__ == "__main__":
 	a = (-5.0, -15.985)

@@ -1,7 +1,7 @@
 import pygame
 
 from files.vars import block_scale_buff, modeX, modeY
-import files.bucle as b
+import files.mainLoop as b
 
 def grid(surface, block_size, color, camera_coords):
 	""" To show the grid on the screen """

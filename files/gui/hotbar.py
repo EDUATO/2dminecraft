@@ -5,10 +5,11 @@ from files.import_imp import Widgets_texture
 from files.vars import modeX, modeY, block_scale_buff
 from files.fonts import *
 import files.functions as f
-from files.blocks.Block import every_block_list, block_texture
-import files.bucle as b
+import files.mainLoop as b
 import files.Game as gm
+from files.gui.Text import Text
 from files.gui.gui_class import drawInventoryItem
+from files.blocks.block_data import every_block_list
 
 class Hotbar:
 	def __init__(self):
@@ -46,6 +47,8 @@ class Hotbar:
 									item_id= self.slots[i]["Item"],
 									X= (modeX/2 - self.texture.get_width()/2 + 9) + (i) * (self.slot_size * block_scale_buff), 
 									Y= (modeY - self.bar_crop[3] - 11) )
+				if self.slots[i] == self.get_slot_item():
+					Text(0, modeY - self.bar_crop[3] - 50, every_block_list[self.slots[i]["Item"][0]]["Name"], Mc_15, (235,235,235), lock="x").draw(surface)
 
 				if DR == False:
 					self.slots[i]["Item"] = [None, None]

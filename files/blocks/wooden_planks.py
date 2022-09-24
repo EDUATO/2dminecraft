@@ -1,11 +1,10 @@
 from files.blocks.blocks_man import Blocks_manager
 from files.terrain.structure import Structure
-from files.vars import structure_manager_list
 
-class Wood(Blocks_manager):
+class WoodenPlanks(Blocks_manager):
     
     def __init__(self):
         Blocks_manager.__init__(self)
 
-        self.block_id = 5
-        self.durability = 120
+        self.block_id = 9
+        self.durability = 100

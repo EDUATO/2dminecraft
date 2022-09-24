@@ -7,7 +7,7 @@ from files.import_imp import *
 from files.fonts import *
 from files.vars import gravity
 from files.blocks.Block import *
-import files.bucle as b
+import files.mainLoop as b
 import files.Game as mg
 from files.functions import convert_blocks_pos_to_camera_xy, convert_camera_xy_to_block_pos
 from files.gui.hotbar import Hotbar
@@ -123,11 +123,12 @@ class Entity:
 		return self.EntityHotbar
 
 	def Draw(self, surface):
-		draw_formula = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0], self.hitbox_size[1])
+		if self.__isEntityOnScreen__():
+			draw_formula = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0], self.hitbox_size[1])
 
-		self.body_shape(surface, tuple(draw_formula), 0)
-		if self.show_tag:
-			self.DrawTag(surface)
+			self.body_shape(surface, tuple(draw_formula), 0)
+			if self.show_tag:
+				self.DrawTag(surface)
 		
 	def update_screen_pos(self):
 		self.screen_pos = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])

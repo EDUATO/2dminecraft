@@ -1,5 +1,5 @@
 from files.vars import win
-from files.bucle import bucle
+from files.mainLoop import mainLoop
 
 if __name__ == "__main__":
-    bucle(surface=win)  
+    mainLoop(surface=win)

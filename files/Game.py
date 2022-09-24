@@ -5,19 +5,18 @@ import threading
 import math
 
 ########## LOCAL MODULES ##########
-from files.vars import Scene, block_scale_buff, Playing, DebugScreen, block_size, chunk_size, block_to_put_id, modeY
-import files.bucle as b
+from files.vars import Scene, block_scale_buff, Playing, DebugScreen, block_size, chunk_size, block_to_put_id, modeY, structure_manager_list
+import files.mainLoop as b
 from files.fonts import *
 import files.functions as f
-from files.blocks.Block import every_block_list
 from files.grid import grid
 import files.gui.gui_class as gui
 from files.blocks.block_data import placeble_blocks_list
 from files.entity.player_mouse_controller import player_mouse_cotroller
 from files.gui.pauseMenu import PauseMenu
 from files.saving.gamesave import save
-from files.terrain.chunk import Chunk, detect_chunk_with_position
-from files.terrain.terrain_generator import Chunk_Manager_List
+from files.terrain.chunk import Chunk
+from files.terrain.terrain_generator import chunk_manager_list
 
 from files.classes_init import * # Game's classes and vars initialization
 
@@ -35,7 +34,7 @@ class Game(Game_Initialization):
 
 		self.Pause = False
 
-	def update(self, events, surface):
+	def update(self, events, surface, running_threads_amount=None):
 		
 		if self.full_initialation:
 			self.classes = self.Entities_man.getEntitiesClasses()
@@ -53,7 +52,7 @@ class Game(Game_Initialization):
 
 			self.inGameEvents(events) # KEY EVENTS
 
-			self.debugging_Screen(surface, selected_block=self.selected_block)
+			self.debugging_Screen(surface, selected_block=self.selected_block, running_threads_amount=running_threads_amount)
 
 			if not self.Pause:
 				self.p1.updateInventory(surface=surface, events=events, mouse=b.mouse_hitbox, keys=self.keys)
@@ -106,7 +105,7 @@ class Game(Game_Initialization):
 		self.ActiveChunks = []
 		
 		try:
-			self.inChunkID = detect_chunk_with_position(self.p1.get_block_pos())
+			self.inChunkID = f.detect_chunk_with_position(self.p1.get_block_pos())
 		except: self.inChunkID = 0
 
 		self.Chunks_to_draw = [self.inChunkID-1, self.inChunkID, self.inChunkID+1]
@@ -121,12 +120,26 @@ class Game(Game_Initialization):
 		# Seek for non generated chunks
 		for ch_id in self.Chunks_to_draw:
 			if not self.detect_non_generated_chunk(ch_id):
-				Chunk_Manager_List.append(ch_id)
+				chunk_manager_list.append(ch_id)
+
+		structs_to_draw = []
+		# Structure test
+		for struct in structure_manager_list:
+			if struct.center_pos_chunk in self.Chunks_to_draw:
+				for i in range(len(struct.blocks_list)): structs_to_draw.append(struct.blocks_list[i])
+				
+			structure_manager_list.remove(struct)
 
 		# UPDATE ACTIVECHUNKS
 		for c in range(len(self.ActiveChunks)):
 			for i in range(len(self.ActiveChunks[c].blocks)):
+				for block in structs_to_draw:
+					if block["pos"] == self.ActiveChunks[c].blocks[i].block_pos_grid:
+						placeble_blocks_list[block["id"]]["class"].place_generated_block(self.ActiveChunks[c].blocks[i])
+
 				self.ActiveChunks[c].blocks[i].update(deltaTime=b.deltaTime, surface=surface, Camera=self.CameraMain)
+
+		
 
 	def detect_non_generated_chunk(self, chunk_id):
 		isChunk = False
@@ -189,6 +202,7 @@ class Game(Game_Initialization):
 
 				if self.mouse[0]:
 					placeble_blocks_list[block_id]["class"].break_block(surface=surface, grid_pos=block_position, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime)
+				else: self.selected_block.resetBreakState()
 
 				if self.mouse[2]:
 					if not block_to_put_id == None:
@@ -204,7 +218,7 @@ class Game(Game_Initialization):
 					self.selected_block = None
 
 
-	def debugging_Screen(self, surface, selected_block):
+	def debugging_Screen(self, surface, selected_block, running_threads_amount=None):
 		""" It shows some variables that may be useful to test """
 
 		player_block_pos = self.p1.get_block_pos()
@@ -219,6 +233,8 @@ class Game(Game_Initialization):
 
 			self.debug_screen.addDebugText(text=f"FPS: {round(b.fps.get_fps())}", color=(200,0,0))
 			
+			self.debug_screen.addDebugText(text=f"Running threads: {running_threads_amount}", color=(200,0,200))
+
 			if not self.foc:
 				self.debug_screen.addDebugText(text=f"[Free cam]", color=(170,0,0))
 

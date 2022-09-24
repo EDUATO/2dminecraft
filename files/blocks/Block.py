@@ -1,7 +1,7 @@
 import pygame
 
 from files.vars import block_scale_buff, block_size, block_detection_after_screen
-from files.blocks.block_data import *
+from files.blocks.block_data import block_texture, every_block_list
 from files.functions import isSpriteOnTheScreen, change_sprite_color
 
 Textures_states = {}
@@ -21,6 +21,7 @@ class Block:
 		self.background = False # No hitbox
 		self.set_colored_sprite(colored_sprite_rgb)
 
+		self.break_durability = 0
 		self.break_state = 0
 
 		self.break_porcentage = 0
@@ -146,24 +147,23 @@ class Block:
 		self.update_block()
 
 	def breakBlock(self, surface, deltaTime):
-		# Update durability
-		break_durability = every_block_list[self.block_id]["durability"]
 
-		if break_durability != False:
+		if self.break_durability != False:
 			self.break_state += (1 * deltaTime)
 
-			self.break_porcentage =  100 * self.break_state // break_durability
+			self.break_porcentage =  100 * self.break_state // self.break_durability
 
 			for i in range(9):
 				if self.break_porcentage >= ( (i+1) * 10) and self.break_porcentage < ( (i+2) * 10):
 					surface.blit(self.block_texture, self.screen_pos, Textures_states[i]["crop"])
 					break
 
-			if self.break_state >= break_durability:
+			if self.break_state >= self.break_durability:
 				self.ForceBreakBlock()
 
 	def ForceBreakBlock(self):
 		self.block_id = 0 # Set the block as 'air'
+		self.break_durability = 0
 		self.resetBreakState()
 
 		self.background = False

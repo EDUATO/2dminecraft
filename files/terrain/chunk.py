@@ -3,9 +3,9 @@ import math
 
 from files.functions import convert_blocks_pos_to_camera_xy, convert_camera_xy_to_block_pos, toNegative
 from files.vars import block_scale_buff, block_size, chunk_size
-from files.blocks.Block import Block
 from files.camera import Camera
 from files.blocks.block_data import placeble_blocks_list
+from files.blocks.Block import Block
 
 class Chunk:
     def __init__(self, id):
@@ -91,6 +91,3 @@ class Chunk:
 
     def get_x_block_start_pos(self):
         return self.x_block_start_pos
-
-def detect_chunk_with_position(block_position):
-    return math.floor(block_position[0]/chunk_size[0])

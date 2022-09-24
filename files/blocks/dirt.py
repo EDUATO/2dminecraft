@@ -6,3 +6,4 @@ class Dirt(Blocks_manager):
         Blocks_manager.__init__(self)
 
         self.block_id = 3
+        self.durability = 35

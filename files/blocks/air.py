@@ -6,3 +6,4 @@ class Air(Blocks_manager):
         Blocks_manager.__init__(self)
 
         self.block_id = 0
+        self.durability = False

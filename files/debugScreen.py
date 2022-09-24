@@ -24,10 +24,10 @@ class DebugScreen:
     def WriteTexts(self, surface):
         y = 10
         for i in range(len(self.DebugList)):
-            debugText = Text(20, y, self.DebugList[i]["text"], Arial_30, self.DebugList[i]["color"])
+            debugText = Text(20, y, self.DebugList[i]["text"], Mc_15, self.DebugList[i]["color"])
             debugText.draw(surface)
 
-            y += 50
+            y += 30
 
     def resetDebugList(self):
         self.DebugList = []

@@ -6,3 +6,4 @@ class Grass_Block(Blocks_manager):
         Blocks_manager.__init__(self)
 
         self.block_id = 1
+        self.durability = 40

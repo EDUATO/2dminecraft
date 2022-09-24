@@ -6,7 +6,7 @@ Version = ""
 Playing = 1
 
 ########### WINDOW ###########
-modeX = 1080
+modeX = 1280
 modeY = 720
 
 flags =  pygame.DOUBLEBUF
@@ -39,10 +39,9 @@ block_detection_after_screen = 5
 # Debug
 DebugScreen = False
 
+structure_manager_list = []
 
-########## SCENE ############
 Scene = "game"
 
-######### ANIMATION #########
 
 

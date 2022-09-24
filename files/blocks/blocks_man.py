@@ -6,11 +6,18 @@ class Blocks_manager:
             (0, 0)
         ]
         self.colored = False
+        self.durability = 1
+
+    def generate_structure(self, position):
+        pass
 
     def __place_data__(self, block):
         self.__init__()
         block.setBlock(id=self.block_id)
         block.set_colored_sprite(self.colored)
+        block.break_durability = self.durability
+        position = block.getGridCoords()
+        self.generate_structure(position)
     
     def place_block(self, grid_pos, chunks_list):
         grid_positions = self.get_blocks_parents_grid_pos(center_grid_pos=grid_pos)
