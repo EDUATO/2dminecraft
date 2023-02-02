@@ -1,5 +1,6 @@
 from files.blocks.blocks_man import Blocks_manager
 
+
 class StoneBricks(Blocks_manager):
     
     def __init__(self):
@@ -7,3 +8,4 @@ class StoneBricks(Blocks_manager):
 
         self.block_id = 10
         self.durability = 200
+    

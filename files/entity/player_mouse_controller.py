@@ -11,7 +11,7 @@ def player_mouse_cotroller(chunks_list, mouse_hitbox, entity_classes):
 			# Detect a block being touched by the cursor
 			mouse_col_block = chunks_list[c].blocks[i].coll_hitbox2(mouse_hitbox)
 
-			if mouse_col_block and not inGui:
+			if mouse_col_block and not inGui[0]:
 				selected_block = chunks_list[c].blocks[i]
 
 				block_rect = selected_block.getHitbox()

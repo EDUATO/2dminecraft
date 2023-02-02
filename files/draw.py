@@ -13,7 +13,9 @@ initialChunksGenerated = False
 
 Game_Main_Class = None
 
-threads_running = None
+threads_running = 0
+
+Game_Main_Class = mg.Game()
 
 loop = threading.Thread(target=generation_loop)
 def Draw(surface, events):
@@ -27,13 +29,8 @@ def Draw(surface, events):
 					loop.start()
 				except RuntimeError: print("Can't generate new chunk, out of memory")
 
-		if initialChunksGenerated and chunk_manager_list == []:
-			Game_Main_Class.update(events, surface, running_threads_amount=threads_running)
-
-		else:
-			if chunk_manager_list == []:
-				initialChunksGenerated = True
-				Game_Main_Class = mg.Game()
+		Game_Main_Class.update(events, surface, running_threads_amount=threads_running)
+		
 		threads_running = threading.active_count()
 
 	elif Scene == "main_menu":

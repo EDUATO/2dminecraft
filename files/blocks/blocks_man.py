@@ -1,3 +1,5 @@
+from files.blocks.Block import Block
+
 class Blocks_manager:
     def __init__(self):
         self.block_id = None
@@ -11,7 +13,7 @@ class Blocks_manager:
     def generate_structure(self, position):
         pass
 
-    def __place_data__(self, block):
+    def __place_data__(self, block:Block):
         self.__init__()
         block.setBlock(id=self.block_id)
         block.set_colored_sprite(self.colored)
@@ -79,3 +81,6 @@ class Blocks_manager:
             output.append(tuple(_tuple))
 
         return tuple(output)
+
+    def rightClickAction(self, block:Block, game):
+        print(block.pos)

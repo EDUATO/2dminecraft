@@ -1,12 +1,12 @@
 import pygame
 
-from files.blocks.block_data import every_block_list, block_texture
+from files.blocks.every_block_data import every_block_list, block_texture
 from files.vars import modeY, modeX, block_scale_buff
 import files.functions as f
 from files.gui.Text import Text
 from files.fonts import *
 
-inGui = False # This will control if the user is in any type of GUI
+inGui = (False, False) # This will control if the user is in any type of GUI
 class Gui:
 	def __init__(self, sprite):
 		self.sprite = sprite
@@ -15,9 +15,9 @@ class Gui:
 		self.prew_slot_id = 0
 		self.used_slots_id = []
 
-	def setInGui(self, state):
+	def setInGui(self, state, gui_type_class):
 		global inGui
-		inGui = state
+		inGui = (state, gui_type_class)
 
 	def slots_update(self, surface, slots, mouse):
 

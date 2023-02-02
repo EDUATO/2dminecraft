@@ -9,7 +9,7 @@ import files.mainLoop as b
 import files.Game as gm
 from files.gui.Text import Text
 from files.gui.gui_class import drawInventoryItem
-from files.blocks.block_data import every_block_list
+from files.blocks.every_block_data import every_block_list
 
 class Hotbar:
 	def __init__(self):

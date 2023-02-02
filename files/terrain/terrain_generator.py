@@ -41,9 +41,7 @@ def generate(in_coords, time_s, chunk_identifier):
 
 	chunks_list.append(Chunk(id=chunk_identifier))
 	blocks_to_gen = []
-	print(_canGenerate)
 	if _canGenerate:
-		#print(f"generating {chunk_identifier}")
 		# GENERATE TERRAIN
 		x_chunk = chunk_size[0] * chunk_identifier
 		
@@ -59,6 +57,7 @@ def generate(in_coords, time_s, chunk_identifier):
 				blocks_to_gen += gen_blocks
 
 		chunks_list[len(chunks_list)-1].generate(blocks_list_to_generate=blocks_to_gen)
+		print(f"[Generation] Chunk {chunk_manager_list[0]} generated!")
 
 # Generation
 def generation_loop():
@@ -66,7 +65,6 @@ def generation_loop():
 	for _ in range(len(chunk_manager_list)):
 		if chunk_manager_list != []:
 			generate((chunk_size[0] * chunk_manager_list[0]), 0, chunk_manager_list[0])
-			print(f"[Generation] Chunk {chunk_manager_list[0]} generated!")
 		
 			chunk_manager_list.pop(0)
 		else: break

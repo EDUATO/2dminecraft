@@ -1,4 +1,4 @@
-import pygame
+import pygame, time
 import sys 
 from pygame.locals import *
 
@@ -11,8 +11,10 @@ from files.fonts import Mc_12
 
 FramebyFrame_mode = False
 
+prev_time = time.time()
+
 def mainLoop(surface):
-	global mouse_hitbox, deltaTime, FPS, pressed_time
+	global mouse_hitbox, deltaTime, FPS, pressed_time, prev_time
 	
 	pressed_time = 0 # for debug mode
 
@@ -24,14 +26,12 @@ def mainLoop(surface):
 		mouse_hitbox.left, mouse_hitbox.top = pygame.mouse.get_pos()
 
 		# Frames per second
-		FPS = fps.tick(60)
+		FPS = fps.tick(-1)
 
 		#DeltaTime
-		deltaTime = FPS/15
-		if deltaTime > 10:
-			deltaTime = 1
-
-		#deltaTime = 9
+		now_time = time.time()
+		deltaTime = (now_time - prev_time) * 90
+		prev_time = now_time
 
 		Events(surface, events)
 

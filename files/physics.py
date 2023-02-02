@@ -44,7 +44,7 @@ class Physics:
         
         #self.dx = 0
     def update_gravity(self, vel_y:int, deltaTime=1):
-        vel_y += (1 * deltaTime)
+        vel_y += deltaTime
         if vel_y > self.gravity:
             vel_y = self.gravity
         return vel_y
@@ -88,14 +88,14 @@ class Physics:
         ):
         nearest_block = None
         index = 0
+
+        if direction == "left" or direction == "right":
+            index = 0 # x coords
+        elif direction == "up" or direction == "bottom":
+            index = 1 # y coords
         for j in range(len(collided_blocks)):
             block = collided_blocks[j] # Blocks that the entity collided
 
-            if direction == "left" or direction == "right":
-                index = 0 # x coords
-            elif direction == "up" or direction == "bottom":
-                index = 1 # y coords
-            
             grid_pos = block.getGridCoords()[index]
 
             if nearest_block != None:
@@ -191,3 +191,9 @@ class Physics:
 
     def move_x(self, force):
         self.dx = force
+
+
+
+class PhysicsHandler:
+    def __init__(self):
+        self.gravity = 9.8

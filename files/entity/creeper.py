@@ -5,8 +5,8 @@ from files.vars import block_scale_buff
 from files.entity.entity import Entity
 import files.mainLoop as b
 
-class Player(Entity):
-	def __init__(self, texture, pos, Camera, custom_uuid=False, physics=True, bot=False):
+class Creeper(Entity):
+	def __init__(self, texture, pos, Camera, custom_uuid=False, physics=True):
 	
 		self.camera_updater(Camera)
 

@@ -1,7 +1,7 @@
 import pygame
 
 from files.vars import block_scale_buff, block_size, block_detection_after_screen
-from files.blocks.block_data import block_texture, every_block_list
+from files.blocks.every_block_data import every_block_list, block_texture
 from files.functions import isSpriteOnTheScreen, change_sprite_color
 
 Textures_states = {}

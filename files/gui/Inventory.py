@@ -54,28 +54,28 @@ class Inventory(Gui):
 		a += 1
 
 	def open(self):
-		self.setInGui(True)
+		self.setInGui(True, self)
 		self.In_Inventory = True
 		pygame.mouse.set_visible(True)
 
 	def close(self):
-		self.setInGui(False)
+		self.setInGui(False, False)
 		self.In_Inventory = False
 		pygame.mouse.set_visible(False)
 
-	def update(self,surface, mouse, keys):
+	def update(self, surface, mouse, keys):
 		if self.In_Inventory == True:
 			surface.blit(self.sprite, (modeX/2 - self.sprite.get_width()/2 , modeY/2 - self.sprite.get_height()/2))
 
 			self.slots_update(surface,slots=self.Inventory_slots, mouse=mouse)
 
 		if self.Pause == False:
-			self.key_update(keys)
+			self.__key_update(keys)
 
 	def getInventorySlots(self):
 		return self.Inventory_slots
 
-	def key_update(self, keys):
+	def __key_update(self, keys):
 		if keys[K_ESCAPE] == 1:
 			self.close()
 

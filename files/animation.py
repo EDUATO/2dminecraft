@@ -1,4 +1,4 @@
-# Animation engine : Made by Eduardo Delfante
+# Animation engine 1.0 : Made by Eduardo Delfante
 
 class Animation:
 	def __init__(self):

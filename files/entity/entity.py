@@ -16,7 +16,7 @@ from files.gui.Text import Text
 from files.physics import Physics
 
 class Entity:
-	def __init__(self, pos, texture, hitbox_size, camera, body_parts, custom_uuid=False, entity_scale_buff=2):
+	def __init__(self, pos, texture, hitbox_size, camera, body_parts, custom_uuid=False, entity_scale_buff=2, physics=True, bot=False):
 		self.block_pos = pos # The position is in blocks
 		self.pos = list(convert_blocks_pos_to_camera_xy(grid_pos=(-self.block_pos[0], -self.block_pos[1])))
 		self.canMove = True
@@ -29,6 +29,8 @@ class Entity:
 		self.camera_updater(Camera=camera)
 
 		self.update_screen_pos()
+
+		self.BOT = bot
 
 		self.texture = texture
 
@@ -44,7 +46,7 @@ class Entity:
 
 		self.resized_body_parts = {}
 
-		self.initialize_physics()
+		self.initialize_physics(physics)
 
 		self.update_hitbox()
 
@@ -66,13 +68,13 @@ class Entity:
 		pass
 
 	def DrawTag(self, surface):
-		EntityTag = Text(txt=str(self.entity_uuid), x=self.screen_pos[0], y=self.screen_pos[1]-20, FUENTE=Mc_12, COLOR=(255,0,0),lock="x",
+		EntityTag = Text(txt="bob-"+str(self.entity_uuid), x=self.screen_pos[0], y=self.screen_pos[1]-20, FUENTE=Mc_12, COLOR=(255,0,0),lock="x",
 					 	screen_areas=(self.screen_pos[0], self.screen_pos[1]-20, self.hitbox_size[0], self.screen_pos[1]-20))
 
 		EntityTag.draw(surface=surface)
 
-	def initialize_physics(self):
-		self.EnablePhysics = True
+	def initialize_physics(self, physics:bool):
+		self.EnablePhysics = physics
 
 		self.vel = 10
 
@@ -90,18 +92,19 @@ class Entity:
 	def update_hitbox(self):
 		self.hitbox = (self.screen_pos[0] + self.EntityPhysics.return_dx, self.screen_pos[1] + self.EntityPhysics.dy, self.hitbox_size[0], self.hitbox_size[1])
 
-	def update(self, surface, chunks_list, deltaTime, camera, test=False):
+	def update(self, surface, chunks_list, deltaTime, camera):
 
 		self.camera_updater(Camera=camera)
 		self.update_screen_pos()
 		
-
-		if self.__isEntityOnScreen__():
+		self.Enable_Physics()
+		self.entity_can_move(True)
+		"""if self.__isEntityOnScreen__():
 			self.Enable_Physics()
 			self.entity_can_move(True)
 		else:
 			self.Disable_Phyisics()
-			self.entity_can_move(False)
+			self.entity_can_move(False)"""
 
 		self.update_hitbox()
 
@@ -109,11 +112,12 @@ class Entity:
 			self.EntityPhysics.update(chunks_list=chunks_list, surface=surface, screen_pos=self.screen_pos, deltaTime=deltaTime)
 			self.update_pos()
 			self.update_hitbox()
+			if self.BOT:
+				self.Automate(deltaTime)
 
 		self.Draw(surface)
 
-		if test:
-			self.Automate(deltaTime)
+		
 
 	def updateInventory(self, surface, events, mouse, keys):
 		self.EntityInventory.update(surface, mouse, keys)
@@ -123,12 +127,12 @@ class Entity:
 		return self.EntityHotbar
 
 	def Draw(self, surface):
-		if self.__isEntityOnScreen__():
-			draw_formula = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0], self.hitbox_size[1])
+		#if self.__isEntityOnScreen__():
+		draw_formula = (self.screen_pos[0], self.screen_pos[1], self.hitbox_size[0], self.hitbox_size[1])
 
-			self.body_shape(surface, tuple(draw_formula), 0)
-			if self.show_tag:
-				self.DrawTag(surface)
+		self.body_shape(surface, tuple(draw_formula), 0)
+		if self.show_tag:
+			self.DrawTag(surface)
 		
 	def update_screen_pos(self):
 		self.screen_pos = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
@@ -188,6 +192,8 @@ class Entity:
 			self.move(deltaTime, direction="U")
 			
 			self.move_time = 0
+
+		print("Hoasas")
 
 	def entity_can_move(self, status:bool): self.canMove=status
 

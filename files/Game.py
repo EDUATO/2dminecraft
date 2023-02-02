@@ -55,12 +55,14 @@ class Game(Game_Initialization):
 			self.debugging_Screen(surface, selected_block=self.selected_block, running_threads_amount=running_threads_amount)
 
 			if not self.Pause:
+				if not gui.inGui[1] == False:
+					gui.inGui[1].update(surface=surface, mouse=b.mouse_hitbox, keys=self.keys)
 				self.p1.updateInventory(surface=surface, events=events, mouse=b.mouse_hitbox, keys=self.keys)
 
 				vel = 10
 
 				if self.keys[K_RIGHT]:
-					self.CameraMain.add_to_x_coord(value= (-vel * b.deltaTime))
+					self.CameraMain.add_to_x_coord(value= -(vel * b.deltaTime))
 
 				if self.keys[K_LEFT]:
 					self.CameraMain.add_to_x_coord(value= (vel * b.deltaTime))
@@ -69,7 +71,7 @@ class Game(Game_Initialization):
 					self.CameraMain.add_to_y_coord(value= (vel * b.deltaTime))
 
 				if self.keys[K_DOWN]:
-					self.CameraMain.add_to_y_coord(value= (-vel * b.deltaTime))
+					self.CameraMain.add_to_y_coord(value= -(vel * b.deltaTime))
 
 			self.pause_screen(surface)
 
@@ -87,7 +89,7 @@ class Game(Game_Initialization):
 		for i in range(len(classes)):
 			
 			if classes[i].get_uuid() != self.p1_uuid:
-				classes[i].update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain, test=False)
+				classes[i].update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain)
 				#classes[i].Automate(b.deltaTime)
 			else:
 				self.wat = classes[i]
@@ -95,7 +97,7 @@ class Game(Game_Initialization):
 
 		if not self.Pause:
 			self.wat.keyMovement(b.deltaTime) # Be able to move the player
-		self.wat.update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain, test=False)
+		self.wat.update(surface=surface, chunks_list=self.ActiveChunks, deltaTime=b.deltaTime, camera=self.CameraMain)
 		self.wat_hitbox = self.wat.get_hitbox()
 
 		self.update_p1_hitbox()
@@ -162,11 +164,14 @@ class Game(Game_Initialization):
 							self.show_debug_screen = True
 
 				elif event.key == K_ESCAPE:
-					if not gui.inGui:
+					if not gui.inGui[0]:
 						if self.Pause:
 							self.Pause = False
 						else:
 							self.Pause = True
+
+				elif event.key == K_l:
+					self.Entities_man.spawnEntity(self.CameraMain, type="Wty", Blockpos=self.p1.get_block_pos(), bot=True)
 
 				elif event.key == K_F7:
 					self.p1 = random.choice(self.Entities_man.getEntitiesClasses())
@@ -184,7 +189,7 @@ class Game(Game_Initialization):
 
 		self.selected_block, self.mouse_touching_entity = player_mouse_cotroller(chunks_list=self.ActiveChunks, mouse_hitbox=b.mouse_hitbox, entity_classes=self.classes)
 
-		if not (self.Pause or gui.inGui):
+		if not (self.Pause or gui.inGui[0]):
 			# Cursor
 			pygame.draw.line(surface, (255,255,255), (b.mouse_hitbox[0], 0), (b.mouse_hitbox[0], self.camera_size[1]))
 			pygame.draw.line(surface, (255,255,255), (0, b.mouse_hitbox[1]), (self.camera_size[0], b.mouse_hitbox[1]))
@@ -206,12 +211,14 @@ class Game(Game_Initialization):
 
 				if self.mouse[2]:
 					if not block_to_put_id == None:
-						if self.selected_block.getId() == 0:
+						if self.selected_block.getId() == 0: # isAir
 							if self.keys[K_LALT] == 1:
 								pass
 							else:
 								if not self.mouse_touching_entity:
 									placeble_blocks_list[block_to_put_id]["class"].place_block(grid_pos=block_position, chunks_list=self.ActiveChunks)
+					if placeble_blocks_list[block_id]["class"].block_id != 0:
+						placeble_blocks_list[block_id]["class"].rightClickAction(block=self.selected_block, game=self)
 
 				# See if the selected_block is selected
 				if not self.selected_block.isGlowing():
