@@ -186,14 +186,7 @@ class Entity:
 		self.move_time = 0
 		self.Adir = "R"
 	def Automate(self, deltaTime):
-		
-		self.move_time += 1
-		if self.move_time > 50:
-			self.move(deltaTime, direction="U")
-			
-			self.move_time = 0
-
-		print("Hoasas")
+		pass
 
 	def entity_can_move(self, status:bool): self.canMove=status
 

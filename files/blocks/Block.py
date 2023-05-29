@@ -20,6 +20,7 @@ class Block:
 		self.noise_value = False
 		self.background = False # No hitbox
 		self.set_colored_sprite(colored_sprite_rgb)
+		self.instant_block_break = True
 
 		self.break_durability = 0
 		self.break_state = 0
@@ -94,7 +95,6 @@ class Block:
 
 			if not( self.block_id == 0 or self.color): # isAir
 				self.DrawBlock(surface)
-
 			if self.color:
 				self.color_block.fill(self.color)
 				surface.blit(self.color_block, tuple(self.screen_pos))
@@ -152,13 +152,15 @@ class Block:
 			self.break_state += (1 * deltaTime)
 
 			self.break_porcentage =  100 * self.break_state // self.break_durability
+			if not self.instant_block_break:
+				for i in range(9):
+					if self.break_porcentage >= ( (i+1) * 10) and self.break_porcentage < ( (i+2) * 10):
+						surface.blit(self.block_texture, self.screen_pos, Textures_states[i]["crop"])
+						break
 
-			for i in range(9):
-				if self.break_porcentage >= ( (i+1) * 10) and self.break_porcentage < ( (i+2) * 10):
-					surface.blit(self.block_texture, self.screen_pos, Textures_states[i]["crop"])
-					break
-
-			if self.break_state >= self.break_durability:
+				if self.break_state >= self.break_durability:
+					self.ForceBreakBlock()
+			else:
 				self.ForceBreakBlock()
 
 	def ForceBreakBlock(self):

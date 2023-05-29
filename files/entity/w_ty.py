@@ -27,7 +27,7 @@ class Wty(Entity):
 		# Crop separated body parts
 		self.crop_body_pieces()
 
-		#self.BOT = True
+		self.BOT = True
 		
 
 	def body_shape(self,surface, pos, state=0):

@@ -10,8 +10,7 @@ class Leaves(Blocks_manager):
 
         self.block_id = 6
         self.blocks_parents = [
-            (0,0),
-            (0,1)
+            (0,0)
         ]
         self.durability = 15
         self.colored = (40, random.randint(51, 200),0)

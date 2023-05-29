@@ -38,12 +38,10 @@ class Game_Initialization:
             self.CameraMain.set_x_coord(self.coords_to_spawn_cam[0])
             self.CameraMain.set_y_coord(self.coords_to_spawn_cam[1])
 
-            self.ActiveChunks = [] # Chunks that are active and will be updated
-
             self.Entities_man = Entities(self.CameraMain)
 
             # Spawn player
-            player_initial_pos = (5, 40)
+            player_initial_pos = (0, 100)
             self.p1_uuid = self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=player_initial_pos)
 
             """for i in range(2):

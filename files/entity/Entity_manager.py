@@ -22,7 +22,7 @@ class Entities:
 
         self.EntitiesInGame.append(EntitiesTypes[type]["class"](
                                                                 texture=EntitiesTypes[type]["texture"],
-                                                                pos=Blockpos,
+                                                                block_pos=Blockpos,
                                                                 Camera=CameraMain,
                                                                 custom_uuid=custom_uuid,
                                                                 physics=physics,

@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 
+from files.vars import block_scale_buff
 
 class Physics:
     def __init__(self,
@@ -21,13 +22,21 @@ class Physics:
         # X and Y diferences
         self.return_dx = 0
         self.dy = 0
-        
-        self.entity_collition_type = {"right":False, "left":False, "bottom":False, "top":False} #Player's hitbox collition
+
+        #Player's hitbox collition
+        self.entity_collition_type = {
+            "right":False,"right-block":None,  # right: Where the collition came from. "right-block": The nearest right-block
+            "left":False, "left-block":None,
+            "bottom":False, "bottom-block":None,
+            "top":False, "top-block":None
+        } 
+
     def update(self, chunks_list, surface, screen_pos, deltaTime=1):
         self.reload_diferences()
         # Gravity
-        self.vel_y = self.update_gravity(self.vel_y)
-        self.dy += (self.vel_y * deltaTime)
+        self.vel_y = self.update_gravity(self.vel_y) 
+        self.dy += round(self.vel_y*deltaTime)
+
 
         self.screen_entity_hitbox = (screen_pos[0], screen_pos[1], self.hitbox_size[0], self.hitbox_size[1])
 
@@ -37,10 +46,27 @@ class Physics:
 
         # X PHYSICS
         self.x_physics(collided_blocks, surface, screen_pos)
+        
 
         # Y PHYSICS
         self.y_physics(collided_blocks, surface, screen_pos)
+        
 
+        # Detect collition in two places at the same time
+        collitions_detected:int = 0
+        if self.entity_collition_type["right"]: 
+            collitions_detected += 1
+        if self.entity_collition_type["left"]: 
+            collitions_detected += 1
+        if self.entity_collition_type["bottom"]: 
+            collitions_detected += 1
+        if self.entity_collition_type["top"]: 
+            collitions_detected += 1
+
+        print(collitions_detected)
+        if collitions_detected < 2:
+            self.applyX_physics_changes()
+        self.applyY_physics_changes()
         
         #self.dx = 0
     def update_gravity(self, vel_y:int, deltaTime=1):
@@ -140,29 +166,25 @@ class Physics:
         if self.dx > 0:
             # Get the leftmost block
             leftmost_block = self.get_nearest_block(direction="left",collided_blocks=x_collided)
+            self.entity_collition_type["left-block"] = leftmost_block
 
             if leftmost_block != None:
-                self.dx = (leftmost_block.getHitbox().left) - pygame.Rect(self.screen_entity_hitbox).right
                 self.entity_collition_type["right"] = True # It colliderected with the right part of the hitbox's entity
 
         elif self.dx < 0:
             # Get therightmost block
             rightmost_block = self.get_nearest_block(direction="right",collided_blocks=x_collided)
+            self.entity_collition_type["right-block"] = rightmost_block
 
             if rightmost_block != None:
-                self.dx = (rightmost_block.getHitbox().right) - pygame.Rect(self.screen_entity_hitbox).left
                 self.entity_collition_type["left"] = True # It colliderected with the left part of the hitbox's entity
-
-        # Reset dx and set return_dx
-        self.return_dx = self.dx
-        self.dx = 0
 
 
     def y_physics(self, every_block_list, surface, screen_pos):
         # Check Y collition 
-        # Try to predict the next movement
+        # Try to predict the next two movements
         if self.dy >= 0:
-            y_rect_formula = (screen_pos[0], screen_pos[1] , self.hitbox_size[0], self.hitbox_size[1] + self.dy)
+            y_rect_formula = (screen_pos[0], screen_pos[1]  , self.hitbox_size[0], self.hitbox_size[1] + self.dy)
         elif self.dy < 0:
             y_rect_formula = (screen_pos[0], screen_pos[1] + self.dy , self.hitbox_size[0], self.hitbox_size[1] - self.dy)
 
@@ -172,24 +194,47 @@ class Physics:
         if self.dy > 0: # If the collision is going up
             # Get the highest block
             highest_block = self.get_nearest_block(direction="up", collided_blocks=y_collided)
+            self.entity_collition_type["top-block"] = highest_block
 
             if highest_block != None:
-                self.dy = highest_block.getHitbox().top - pygame.Rect(self.screen_entity_hitbox).bottom
-                self.vel_y = 0
                 self.entity_collition_type["bottom"] = True
 
         elif self.dy < 0: # If the collision is going down
             # Get the lowest block
             lowest_block = self.get_nearest_block(direction="bottom", collided_blocks=y_collided)
+            self.entity_collition_type["bottom-block"] = lowest_block
 
             if lowest_block != None:
-                self.dy = lowest_block.getHitbox().bottom - pygame.Rect(self.screen_entity_hitbox).top
-                self.jumping = False
                 self.entity_collition_type["top"] = True # good
-            
+
         #pygame.draw.rect(surface, (0,0,255), pygame.Rect( y_rect_formula ))
 
-    def move_x(self, force):
+    def applyX_physics_changes(self):
+        if self.entity_collition_type["right"]: 
+            if self.entity_collition_type["left-block"] != None:
+                self.dx = (self.entity_collition_type["left-block"].getHitbox().left) - pygame.Rect(self.screen_entity_hitbox).right
+                
+
+        elif self.entity_collition_type["left"]: 
+            if self.entity_collition_type["right-block"] != None:
+                self.dx = (self.entity_collition_type["right-block"].getHitbox().right) - pygame.Rect(self.screen_entity_hitbox).left
+    
+        # Reset dx and set return_dx
+        self.return_dx = self.dx
+        self.dx = 0
+
+    def applyY_physics_changes(self):
+        if self.entity_collition_type["bottom"]: 
+            if self.entity_collition_type["top-block"] != None:
+                self.dy = (self.entity_collition_type["top-block"].getHitbox().top) - pygame.Rect(self.screen_entity_hitbox).bottom
+                self.vel_y = 0
+
+        elif self.entity_collition_type["top"]: 
+            if self.entity_collition_type["bottom-block"] != None:
+                self.dy = (self.entity_collition_type["bottom-block"].getHitbox().bottom) - pygame.Rect(self.screen_entity_hitbox).top
+                self.jumping = False
+
+    def move_x(self, force): 
         self.dx = force
 
 

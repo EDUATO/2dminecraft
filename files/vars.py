@@ -23,7 +23,8 @@ Frames_per_second = 60
 mouse_hitbox = pygame.Rect((0,0), (1,1))
 
 # BLOCK SCALE
-block_scale_buff = 3
+block_scale_buff = 2.5
+gui_scale = 3
 
 block_to_put_id = 1
 

@@ -1,7 +1,8 @@
 import pygame
 
-from files.blocks.every_block_data import every_block_list, block_texture
-from files.vars import modeY, modeX, block_scale_buff
+from files.import_imp import Blocks_texture
+from files.blocks.every_block_data import every_block_list
+from files.vars import modeY, modeX, gui_scale
 import files.functions as f
 from files.gui.Text import Text
 from files.fonts import *
@@ -9,6 +10,7 @@ from files.fonts import *
 inGui = (False, False) # This will control if the user is in any type of GUI
 class Gui:
 	def __init__(self, sprite):
+		self.blocks_texture = pygame.transform.scale(Blocks_texture, (Blocks_texture.get_width() * gui_scale, Blocks_texture.get_height() * gui_scale))
 		self.sprite = sprite
 		self.picked_item = [None, 0] # The item ID and the amount
 		self.pressed = [False, False] # Right click and Left click
@@ -25,17 +27,17 @@ class Gui:
 
 		for i in range(len(slots)):
 			self.Slot_Rect_Tuple = (
-									((slots[i]["Pos"][0] * block_scale_buff) + modeX/2 - self.sprite.get_width()/2), # X
-								 	((slots[i]["Pos"][1] * block_scale_buff) + modeY/2 - self.sprite.get_height()/2), # Y
-								 	(slots[i]["Pos"][2] * block_scale_buff) , # Width
-								 	(slots[i]["Pos"][3] * block_scale_buff) # Height
+									((slots[i]["Pos"][0] * gui_scale) + modeX/2 - self.sprite.get_width()/2), # X
+								 	((slots[i]["Pos"][1] * gui_scale) + modeY/2 - self.sprite.get_height()/2), # Y
+								 	(slots[i]["Pos"][2] * gui_scale) , # Width
+								 	(slots[i]["Pos"][3] * gui_scale) # Height
 								)
 			
 			self.Slot_Rect = pygame.Rect( self.Slot_Rect_Tuple )
 
 			# Draw whats inside the slot
 			if not slots[i]["Item"][0] == None:
-				drawInventoryItem(surface, slots[i]["Item"], self.Slot_Rect_Tuple[0], self.Slot_Rect_Tuple[1])
+				drawInventoryItem(surface, self.blocks_texture, slots[i]["Item"], self.Slot_Rect_Tuple[0], self.Slot_Rect_Tuple[1])
 
 			self.slots_action(surface=surface, mouse=mouse ,slots=slots, slot_num=i)
 
@@ -113,7 +115,7 @@ class Gui:
 			# Leave one Item in the slot
 			elif self.picked_item[0] != None:
 				# Add one item
-				if self.picked_item[0] == slots[slot_num]["Item"][0] or slots[slot_num]["Item"][0] == None:
+				if self.picked_item[0] != slots[slot_num]["Item"][0] or slots[slot_num]["Item"][0] == None:
 					if not slot_num in self.used_slots_id:
 						# Leave an item in a slot with the same id
 						if not slots[slot_num]["Item"][0] == None:
@@ -150,38 +152,38 @@ class Gui:
 			slots[slot_id]["Item"][1] += add
 
 	def itemInCursor(self,surface, mouse, item_id):
-		drawInventoryItem(surface, item_id, mouse[0], mouse[1], centered=True)
+		drawInventoryItem(surface,self.blocks_texture, item_id, mouse[0], mouse[1], centered=True)
 
-def drawInventoryItem(surface, item_id, X, Y, centered=False):
-	if not item_id[0] == None:
+def drawInventoryItem(surface, blocks_texture, item_id, X, Y, centered=False):
+	if item_id[0] != None:
 		try:
 			drawInventoryItem.crop = (
-										every_block_list[item_id[0]]["crop"][0] * block_scale_buff,
-			 							every_block_list[item_id[0]]["crop"][1] * block_scale_buff, 
-										every_block_list[item_id[0]]["crop"][2] * block_scale_buff,
-					 					every_block_list[item_id[0]]["crop"][3] * block_scale_buff
+										every_block_list[item_id[0]]["crop"][0] * gui_scale,
+			 							every_block_list[item_id[0]]["crop"][1] * gui_scale, 
+										every_block_list[item_id[0]]["crop"][2] * gui_scale,
+					 					every_block_list[item_id[0]]["crop"][3] * gui_scale
 									)
 
 		except:
-			drawInventoryItem.crop = (0,0,0,0)
+			print(f"There is no block with the id {item_id[0]}")
 			return False # There is no block 
 
 		color = (250,250,250)
 
 		if item_id [1] != 1:
-			ItemText = Text(x=X , y=Y, txt=str(item_id[1]),FUENTE=Mc_20, COLOR=color, lock=None, screen_areas=(X - 16, Y - 16, block_scale_buff, block_scale_buff))
+			ItemText = Text(x=X , y=Y, txt=str(item_id[1]),FUENTE=Mc_20, COLOR=color, lock=None, screen_areas=(X - 16, Y - 16, gui_scale, gui_scale))
 		# Draw Text
 		if centered:
-			surface.blit(block_texture, (X - (16 * block_scale_buff)/2 , Y - (16 * block_scale_buff)/2), drawInventoryItem.crop)
+			surface.blit(blocks_texture, (X - (16 * gui_scale)/2 , Y - (16 * gui_scale)/2), drawInventoryItem.crop)
 			if item_id [1] != 1:
-				ItemText.setCoords(	x= X - (16 * block_scale_buff)/2,
-									y= Y - (16 * block_scale_buff)/2
+				ItemText.setCoords(	x= X - (16 * gui_scale)/2,
+									y= Y - (16 * gui_scale)/2
 				)
 				
 				ItemText.draw(surface)
 
 		else:
-			surface.blit(block_texture, (X , Y), drawInventoryItem.crop)
+			surface.blit(blocks_texture, (X , Y), drawInventoryItem.crop)
 			if item_id [1] != 1:
 				ItemText.draw(surface)
 

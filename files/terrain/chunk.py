@@ -1,5 +1,5 @@
 import pygame
-import math
+import math, time
 
 from files.functions import convert_blocks_pos_to_camera_xy, convert_camera_xy_to_block_pos, toNegative
 from files.vars import block_scale_buff, block_size, chunk_size
@@ -26,7 +26,7 @@ class Chunk:
         # Will handle all the blocks that are part of the chunk
         self.blocks = []
 
-    def generate(self, blocks_list_to_generate:list):
+    def generate(self, blocks_list_to_generate:list, time_sleep=0):
         """ 
         Will generate air blocks for the chunk 
         - blocks_list_to_generate must be as long as chunk_size[0]* chunk_size[1]
@@ -40,8 +40,9 @@ class Chunk:
                 )
                 bks = blocks_list_to_generate[block_gen_index]
                 #self.blocks[len(self.blocks)-1].setBlock(id=bks["block"], noiseValue=bks["noise"] )
-                placeble_blocks_list[bks["block"]]["class"].place_generated_block(self.blocks[block_gen_index])
+                placeble_blocks_list[bks["block"]]["class"].place_generated_block(self.blocks[block_gen_index], noise=bks["noise"])
                 block_gen_index += 1
+                time.sleep(time_sleep)
         self.isGenerated = True
     def isRectInChunk(self,surface, camera, Rect):
         """ Is rect INSIDE the chunk? """

@@ -2,21 +2,22 @@ import pygame
 from pygame.locals import *
 
 from files.gui.gui_class import Gui
-from files.vars import modeX, modeY, block_scale_buff, slot_size
-from files.import_imp import Inventory_texture, Blocks_texture
+from files.vars import modeX, modeY, slot_size, gui_scale
+from files.blocks.every_block_data import every_block_list
+from files.import_imp import Inventory_texture
 import files.mainLoop as b
 import files.Game as gm
 
 class Inventory(Gui):
 	def __init__(self):
-		self.transformed_sprite = pygame.transform.scale(Inventory_texture, (Inventory_texture.get_width() * block_scale_buff,  Inventory_texture.get_height() * block_scale_buff))
+		self.transformed_sprite = pygame.transform.scale(Inventory_texture, (Inventory_texture.get_width() * gui_scale,  Inventory_texture.get_height() * gui_scale))
 		self.Inventory_slots = {}
 		self.In_Inventory = False
 		self.Pause = False
 		self.setInventorySlots()
 		# Append every item
-		for i in range(30):
-			self.add_item(i, 64)
+		for i in range(len(every_block_list) - 1): # To ignore air_block
+			self.add_item(inventory_slot=i, item_id=i+1, amount=64)
 
 		super().__init__(self.transformed_sprite)
 
@@ -82,13 +83,11 @@ class Inventory(Gui):
 		elif keys[K_e] == 1:
 			self.open()
 
-	def add_item(self, item_id, amount):
-		for i in range(len(self.Inventory_slots)):
-			if self.Inventory_slots[i]["Item"][0] == item_id:
-				self.Inventory_slots[i]["Item"][0] = item_id
-				self.Inventory_slots[i]["Item"][1] = abs(amount - self.Inventory_slots["Item"][1])
-				break
-			elif self.Inventory_slots[i]["Item"][0] == None:
-				self.Inventory_slots[i]["Item"][0] = item_id
-				self.Inventory_slots[i]["Item"][1] = amount
-				break
+	def add_item(self, inventory_slot:int, item_id, amount):
+		if self.Inventory_slots[inventory_slot]["Item"][0] == item_id:
+			self.Inventory_slots[inventory_slot]["Item"][0] = item_id
+			self.Inventory_slots[inventory_slot]["Item"][1] = abs(amount - self.Inventory_slots["Item"][1])
+
+		if self.Inventory_slots[inventory_slot]["Item"][0] == None:
+			self.Inventory_slots[inventory_slot]["Item"][0] = item_id
+			self.Inventory_slots[inventory_slot]["Item"][1] = amount

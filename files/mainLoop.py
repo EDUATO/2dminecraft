@@ -26,7 +26,7 @@ def mainLoop(surface):
 		mouse_hitbox.left, mouse_hitbox.top = pygame.mouse.get_pos()
 
 		# Frames per second
-		FPS = fps.tick(-1)
+		FPS = fps.tick(60)
 
 		#DeltaTime
 		now_time = time.time()

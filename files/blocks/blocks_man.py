@@ -13,12 +13,13 @@ class Blocks_manager:
     def generate_structure(self, position):
         pass
 
-    def __place_data__(self, block:Block):
+    def __place_data__(self, block:Block, noise=None):
         self.__init__()
         block.setBlock(id=self.block_id)
         block.set_colored_sprite(self.colored)
         block.break_durability = self.durability
         position = block.getGridCoords()
+        block.noise_value = noise
         self.generate_structure(position)
     
     def place_block(self, grid_pos, chunks_list):
@@ -29,8 +30,8 @@ class Blocks_manager:
             for b in range(len(blocks_to_place)):
                 self.__place_data__(blocks_to_place[b])
 
-    def place_generated_block(self, block):
-        self.__place_data__(block)
+    def place_generated_block(self, block, noise=None):
+        self.__place_data__(block, noise)
 
     def break_block(self,surface, grid_pos, chunks_list, deltaTime):
         blocks_to_break = self.seek_one_block_position(chunks_list, grid_pos)

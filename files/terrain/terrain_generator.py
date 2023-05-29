@@ -1,10 +1,10 @@
 import pygame
-import random
+import random, time
 
 from files.terrain.noise import Noise
 from files.vars import chunk_size
 from files.terrain.chunk import Chunk
-from files.terrain.noisy_terrain import noisy_terrain
+from files.terrain.noisy_terrain import noise_terrain_generator
 from files.blocks.Block import Block
 
 
@@ -13,7 +13,7 @@ def reset_chunk_man_list():
 	chunk_manager_list = []
 
 def initial_variables():
-	global seed, Noise_gen, chunks_list, prw_noise, chunk_manager_list
+	global seed, Noise_gen, chunks_list, chunk_manager_list
 
 	reset_chunk_man_list()
 
@@ -21,8 +21,6 @@ def initial_variables():
 	Noise_gen = Noise(seed)
 
 	chunks_list = []
-
-	prw_noise = [1,1] # Previows noise
 
 initial_variables()
 
@@ -43,21 +41,12 @@ def generate(in_coords, time_s, chunk_identifier):
 	blocks_to_gen = []
 	if _canGenerate:
 		# GENERATE TERRAIN
-		x_chunk = chunk_size[0] * chunk_identifier
-		
-		prw_noise = [x_chunk, 1]
-		
-		for y in range(chunk_size[1]):
-			y_pos = chunk_size[1] + y
-			for x in range(chunk_size[0]):
-				x_pos = x_chunk + x
+		blocks_to_gen = noise_terrain_generator(chunk_identifier, Noise_gen)
+		chunks_list[len(chunks_list)-1].generate(blocks_list_to_generate=blocks_to_gen, time_sleep=time_s)
+		#print(f"[Generation] Chunk {chunk_manager_list[0]} generated!")
+		time.sleep(time_s)
 
-				perlinHeight = Noise_gen.test(x_pos, y, chunk_size[1])
-				gen_blocks = noisy_terrain(PerlinNoise=perlinHeight, y=chunk_size[1]-y, chunks_list=chunks_list, chunk_identifier=chunk_identifier)
-				blocks_to_gen += gen_blocks
 
-		chunks_list[len(chunks_list)-1].generate(blocks_list_to_generate=blocks_to_gen)
-		print(f"[Generation] Chunk {chunk_manager_list[0]} generated!")
 
 # Generation
 def generation_loop():
@@ -68,6 +57,7 @@ def generation_loop():
 		
 			chunk_manager_list.pop(0)
 		else: break
+
 
 			
 

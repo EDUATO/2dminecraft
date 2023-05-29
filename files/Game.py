@@ -125,10 +125,10 @@ class Game(Game_Initialization):
 				chunk_manager_list.append(ch_id)
 
 		structs_to_draw = []
-		# Structure test
 		for struct in structure_manager_list:
 			if struct.center_pos_chunk in self.Chunks_to_draw:
-				for i in range(len(struct.blocks_list)): structs_to_draw.append(struct.blocks_list[i])
+				for i in range(len(struct.blocks_list)): 
+					structs_to_draw.append(struct.blocks_list[i])
 				
 			structure_manager_list.remove(struct)
 
@@ -138,8 +138,9 @@ class Game(Game_Initialization):
 				for block in structs_to_draw:
 					if block["pos"] == self.ActiveChunks[c].blocks[i].block_pos_grid:
 						placeble_blocks_list[block["id"]]["class"].place_generated_block(self.ActiveChunks[c].blocks[i])
-
+				
 				self.ActiveChunks[c].blocks[i].update(deltaTime=b.deltaTime, surface=surface, Camera=self.CameraMain)
+				
 
 		
 
@@ -172,6 +173,8 @@ class Game(Game_Initialization):
 
 				elif event.key == K_l:
 					self.Entities_man.spawnEntity(self.CameraMain, type="Wty", Blockpos=self.p1.get_block_pos(), bot=True)
+				elif event.key == K_c:
+					self.Entities_man.spawnEntity(self.CameraMain, type="Creeper", Blockpos=self.p1.get_block_pos())
 
 				elif event.key == K_F7:
 					self.p1 = random.choice(self.Entities_man.getEntitiesClasses())
@@ -303,30 +306,5 @@ class Game(Game_Initialization):
 	def save_world(self):
 		"""save(chunks_list=self.chunks_list)"""
 		pass
-
-def game(events, surface):
-	global selected_block, block_to_put_id, ActiveChunks, inChunkID, lastChunkID, p1, foc, First, Second, LastLoadedChunkId, init, p1
-
-	First = CameraMain.get_xy()
-	
-	Second = CameraMain.get_xy()
-
-	global p1_pos, p1_sc_pos
-	p1_pos = p1.get_camera_pos()
-	p1_sc_pos = p1.get_screen_pos()
-	### MOUSE CONTROLLER ###
-	
-
-	Debugging_Screen(surface=surface, selected_block=selected_block)
-	
-	
-
-	# TEST ONLY
-
-	if keys[K_f]:
-		if foc:
-			foc = False
-		else:
-			foc = True
 		
 

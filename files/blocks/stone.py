@@ -9,7 +9,4 @@ class Stone(Blocks_manager):
         self.durability = 200
 
     def rightClickAction(self, block, game):
-        entity_classes = game.Entities_man.getEntitiesClasses()
-        for i in range(len(entity_classes)):
-            if entity_classes[i].get_uuid() == game.p1_uuid:
-                entity_classes[i].EntityInventory.open()
+        pass

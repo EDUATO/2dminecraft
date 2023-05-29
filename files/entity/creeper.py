@@ -6,7 +6,7 @@ from files.entity.entity import Entity
 import files.mainLoop as b
 
 class Creeper(Entity):
-	def __init__(self, texture, pos, Camera, custom_uuid=False, physics=True):
+	def __init__(self, texture, pos, Camera, custom_uuid=False, physics=True, bot=False):
 	
 		self.camera_updater(Camera)
 
@@ -26,7 +26,7 @@ class Creeper(Entity):
 		print(self.pos)
 		super().__init__(
 			pos=self.pos,  texture=texture, hitbox_size=(8, 32), camera=Camera, body_parts=self.body_parts, 
-			entity_scale_buff=block_scale_buff, custom_uuid=custom_uuid, physics=physics)
+			entity_scale_buff=block_scale_buff, custom_uuid=custom_uuid, physics=physics, bot=bot)
 
 		# Crop separated body parts
 		self.crop_body_pieces()

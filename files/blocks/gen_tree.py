@@ -16,17 +16,20 @@ class Tree(Blocks_manager):
 	def generate_structure(self, position):
 		structure = Structure(position)
 
-		structure.add_block(5, (0,0))
+		# Dirt block
+		structure.add_block(3, (0,0))
+
 		structure.add_block(5, (0,1))
+		structure.add_block(5, (0,2))
 		
 		#leaves
-		structure.add_block(6, (0,2))
-		structure.add_block(6, (1,2))
-		structure.add_block(6, (-1,2))
-		structure.add_block(6, (2,2))
-		structure.add_block(6, (-2,2))
-
 		structure.add_block(6, (0,3))
 		structure.add_block(6, (1,3))
 		structure.add_block(6, (-1,3))
+		structure.add_block(6, (2,3))
+		structure.add_block(6, (-2,3))
+
+		structure.add_block(6, (0,4))
+		structure.add_block(6, (1,4))
+		structure.add_block(6, (-1,4))
 		structure_manager_list.append(structure)
