@@ -2,14 +2,10 @@
 from files.entity.player import Player
 from files.import_imp import Player_texture
 
-from files.entity.creeper import Creeper
-from files.import_imp import Creeper_texture
-
 from files.entity.w_ty import Wty
 from files.import_imp import Wty_texture
 
-EntitiesTypes = {"Player":{"class":Player, "texture":Player_texture}, 
-                "Creeper":{"class":Creeper, "texture":Creeper_texture},
+EntitiesTypes = {"Player":{"class":Player, "texture":Player_texture},
                 "Wty":{"class":Wty, "texture":Wty_texture}}
 
 class Entities:

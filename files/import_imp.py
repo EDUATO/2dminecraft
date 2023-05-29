@@ -14,7 +14,7 @@ class import_images:
 		import_images.fonts(self)
 
 	def images(self):
-		global Blocks_texture, Player_texture, Inventory_texture, Widgets_texture, Creeper_texture
+		global Blocks_texture, Player_texture, Inventory_texture, Widgets_texture
 		global Wty_texture
 
 		# Images
@@ -25,8 +25,6 @@ class import_images:
 		Inventory_texture = pygame.image.load("sprites/gui/Inventory.png").convert_alpha()
 
 		Widgets_texture = pygame.image.load("sprites/gui/widgets.png").convert_alpha()
-
-		Creeper_texture = pygame.image.load("sprites/creeper.png").convert_alpha()
 
 		Wty_texture = pygame.image.load("sprites/wty.png").convert_alpha()
 		
