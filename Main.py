@@ -1,5 +1,6 @@
-from files.vars import win
-from files.mainLoop import mainLoop
+from files.vars import modeX, modeY
+from files.App import App
 
 if __name__ == "__main__":
-    mainLoop(surface=win)
+    a = App(dims=(modeX, modeY))
+    a.update()
