@@ -4,11 +4,11 @@ import math, time
 from files.functions import convert_blocks_pos_to_camera_xy, convert_camera_xy_to_block_pos, toNegative
 from files.vars import block_scale_buff, block_size, chunk_size
 from files.camera import Camera
-from files.blocks.block_data import placeble_blocks_list
+from files.blocks.block_data import get_placeble_blocks_list
 from files.blocks.Block import Block
 
 class Chunk:
-    def __init__(self, id):
+    def __init__(self, App, id):
         self.Chunk_ID = id
         self.x_block_start_pos = self.Chunk_ID * chunk_size[0]
         self.isGenerated = False
@@ -22,11 +22,12 @@ class Chunk:
             -self.block_size[0],
             self.block_size[1]
         )
+        self.placeble_blocks_list = get_placeble_blocks_list(App)
 
         # Will handle all the blocks that are part of the chunk
         self.blocks = []
 
-    def generate(self, blocks_list_to_generate:list, time_sleep=0):
+    def generate(self, App, blocks_list_to_generate:list, time_sleep=0):
         """ 
         Will generate air blocks for the chunk 
         - blocks_list_to_generate must be as long as chunk_size[0]* chunk_size[1]
@@ -36,11 +37,11 @@ class Chunk:
             for x in range( chunk_size[0] ):
                 POSITION = (x + chunk_size[0]*self.Chunk_ID, y)
                 self.blocks.append(
-                    Block(block_pos_grid=POSITION) 
+                    Block(App=App, block_pos_grid=POSITION) 
                 )
                 bks = blocks_list_to_generate[block_gen_index]
                 #self.blocks[len(self.blocks)-1].setBlock(id=bks["block"], noiseValue=bks["noise"] )
-                placeble_blocks_list[bks["block"]]["class"].place_generated_block(self.blocks[block_gen_index], noise=bks["noise"])
+                self.placeble_blocks_list[bks["block"]]["class"].place_generated_block(App, self.blocks[block_gen_index], noise=bks["noise"])
                 block_gen_index += 1
                 time.sleep(time_sleep)
         self.isGenerated = True
@@ -68,13 +69,13 @@ class Chunk:
 
         return (chunk_camera_pos[0], chunk_camera_pos[1], self.chunkBlockRect[2], self.chunkBlockRect[3])
 
-    def DrawChunkLimits(self,surface, camera):
+    def DrawChunkLimits(self,App, camera):
         """ Draw the chunk borders in the game """
         chunks_limits = self.ChunkLimits(camera)
 
         # Draw the lines
-        pygame.draw.line(surface, (255,255,0), (chunks_limits[0], chunks_limits[1]), (chunks_limits[0], chunks_limits[1] + chunks_limits[3]), width=2) # First
-        pygame.draw.line(surface, (255,255,0), (chunks_limits[0], chunks_limits[2]), (chunks_limits[1], chunks_limits[3]), width=2) # Second
+        pygame.draw.line(App.surface, (255,255,0), (chunks_limits[0], chunks_limits[1]), (chunks_limits[0], chunks_limits[1] + chunks_limits[3]), width=2) # First
+        pygame.draw.line(App.surface, (255,255,0), (chunks_limits[0], chunks_limits[2]), (chunks_limits[1], chunks_limits[3]), width=2) # Second
 
     def get_block(self, position:tuple):
         for block in self.blocks:

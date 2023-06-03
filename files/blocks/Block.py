@@ -1,7 +1,7 @@
-import pygame
+import pygame, random
 
 from files.vars import block_scale_buff, block_size, block_detection_after_screen
-from files.blocks.every_block_data import every_block_list, block_texture
+from files.blocks.every_block_data import get_every_block_list
 from files.functions import isSpriteOnTheScreen, change_sprite_color
 
 Textures_states = {}
@@ -10,17 +10,18 @@ for i in range(9):
 	Textures_states[i] = {"Name" : "Break_state_"+str(i), "crop":((16*i)* block_scale_buff, 16* block_scale_buff, 16 * block_scale_buff, 16 * block_scale_buff )}
 
 class Block:
-	def __init__(self, block_pos_grid, colored_sprite_rgb=False):
+	def __init__(self, App, block_pos_grid, colored_sprite_rgb=False):
 		self.block_id = 0 # At first it will always be air
-		self.block_texture = block_texture
+		self.block_texture = App.assets.Block_texture_tr
+		
 		self.pos = []
 		self.glow = False
 		self.glow_color = (255,255,0)
 		self.block_pos_grid = block_pos_grid # Block Position in grid
 		self.noise_value = False
-		self.background = False # No hitbox
+		self.background = True # No hitbox
 		self.set_colored_sprite(colored_sprite_rgb)
-		self.instant_block_break = True
+		self.instant_block_break = False
 
 		self.break_durability = 0
 		self.break_state = 0
@@ -49,6 +50,8 @@ class Block:
 		self.screen_pos = (self.pos[0], self.pos[1])
 		self.update_hitbox()
 
+		self.every_block_list = get_every_block_list(App)
+
 	def set_colored_sprite(self, color):
 		self.new_colored_sprite = None
 		if color:
@@ -61,12 +64,12 @@ class Block:
 
 	def update_block(self):
 		if not self.block_id == 0: # isAir
-			self.crop = list(every_block_list[self.block_id]["crop"])
+			self.crop = list(self.every_block_list[self.block_id]["crop"])
 			# Update place to crop
 			for i in range(4):
 				self.crop[i] = self.crop[i] * block_scale_buff
 
-	def update_screen_pos(self, camera=True):
+	def update_screen_pos(self):
 		self.screen_pos = (self.pos[0] + self.CameraXY[0], self.pos[1] + self.CameraXY[1])
 
 	def update_hitbox(self):
@@ -79,36 +82,34 @@ class Block:
 
 		self.pos.append(-block_pos_grid[1] * (block_size * block_scale_buff))
 
-	def update(self, surface, deltaTime, Camera):
+	def update(self, App, deltaTime, Camera):
 		self.camera_updater(Camera)
 
 		self.update_screen_pos()
 
 		self.update_hitbox()
 
-		self.DrawOnScreen(surface, deltaTime)
+		self.DrawOnScreen(App, deltaTime)
 
-	def DrawOnScreen(self, surface, deltaTime):
+	def DrawOnScreen(self, App, deltaTime):
 		self.BlockOnScreen = self.isBlockOnScreen()
-
 		if self.BlockOnScreen:
 
 			if not( self.block_id == 0 or self.color): # isAir
-				self.DrawBlock(surface)
-			if self.color:
-				self.color_block.fill(self.color)
-				surface.blit(self.color_block, tuple(self.screen_pos))
+				self.DrawBlock(App)
+				if self.color:
+					self.color_block.fill(self.color)
+					surface.blit(self.color_block, tuple(self.screen_pos))
 
-			# LIGHT
-			if not self.block_id == 0:
-				self.block_light_engine(surface)
+				# LIGHT
+				self.block_light_engine(App)
 
-			if self.glow:
-				self.select_rect.fill((self.glow_color[0],self.glow_color[1],self.glow_color[2],128))
-				surface.blit(self.select_rect, tuple(self.screen_pos))
+				if self.glow:
+					self.select_rect.fill((self.glow_color[0],self.glow_color[1],self.glow_color[2],128))
+					App.surface.blit(self.select_rect, tuple(self.screen_pos))
 
 
-	def block_light_engine(self, surface):
+	def block_light_engine(self, App):
 	
 		self.block_light.fill((0,0,0, self.light_val))
 		if self.background:
@@ -116,14 +117,15 @@ class Block:
 			if (self.background_val + self.light_val) > 255: self.block_light.fill((0,0,0,255))
 			else: self.block_light.fill((0,0,0,self.background_val + self.light_val))
 			
-		surface.blit(self.block_light, tuple(self.screen_pos))
+		App.surface.blit(self.block_light, tuple(self.screen_pos))
 
-	def DrawBlock(self, surface):
+	def DrawBlock(self, App):
 		# Crop block from texture and draw it on the screen
 		if self.new_colored_sprite:
-			surface.blit(self.new_colored_sprite, self.screen_pos, tuple(self.crop))
+			# Colored blocks, like leaves
+			App.surface.blit(self.new_colored_sprite, self.screen_pos, tuple(self.crop))
 		else:
-			surface.blit(self.block_texture, self.screen_pos, tuple(self.crop))
+			App.surface.blit(self.block_texture, self.screen_pos, tuple(self.crop))
 
 	def coll_hitbox(self, Rect, undetectable_ids=[]):
 		""" Check if a Rect is colliderecting with the block """
@@ -146,7 +148,7 @@ class Block:
 
 		self.update_block()
 
-	def breakBlock(self, surface, deltaTime):
+	def breakBlock(self, App, deltaTime):
 
 		if self.break_durability != False:
 			self.break_state += (1 * deltaTime)
@@ -155,7 +157,7 @@ class Block:
 			if not self.instant_block_break:
 				for i in range(9):
 					if self.break_porcentage >= ( (i+1) * 10) and self.break_porcentage < ( (i+2) * 10):
-						surface.blit(self.block_texture, self.screen_pos, Textures_states[i]["crop"])
+						App.surface.blit(self.block_texture, self.screen_pos, Textures_states[i]["crop"])
 						break
 
 				if self.break_state >= self.break_durability:

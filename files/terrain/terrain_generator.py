@@ -33,27 +33,26 @@ def canGenerate(in_coords, chunk_identifier):
 			return False
 	return True
 
-def generate(in_coords, time_s, chunk_identifier):
+def generate(App, in_coords, time_s, chunk_identifier):
 	# GENERATE AIR BLOCKS
 	_canGenerate = canGenerate(in_coords, chunk_identifier=chunk_identifier)
 
-	chunks_list.append(Chunk(id=chunk_identifier))
+	chunks_list.append(Chunk(App=App, id=chunk_identifier))
 	blocks_to_gen = []
 	if _canGenerate:
 		# GENERATE TERRAIN
 		blocks_to_gen = noise_terrain_generator(chunk_identifier, Noise_gen)
-		chunks_list[len(chunks_list)-1].generate(blocks_list_to_generate=blocks_to_gen, time_sleep=time_s)
+		chunks_list[len(chunks_list)-1].generate(App, blocks_list_to_generate=blocks_to_gen, time_sleep=time_s)
 		#print(f"[Generation] Chunk {chunk_manager_list[0]} generated!")
-		time.sleep(time_s)
 
 
 
 # Generation
-def generation_loop():
+def generation_loop(App):
 	global chunk_manager_list
 	for _ in range(len(chunk_manager_list)):
 		if chunk_manager_list != []:
-			generate((chunk_size[0] * chunk_manager_list[0]), 0, chunk_manager_list[0])
+			generate(App, (chunk_size[0] * chunk_manager_list[0]), 0, chunk_manager_list[0])
 		
 			chunk_manager_list.pop(0)
 		else: break

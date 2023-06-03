@@ -1,6 +1,5 @@
 import pygame
 from files.gui.Text import Text
-from files.fonts import *
 
 
 class GameMenu:

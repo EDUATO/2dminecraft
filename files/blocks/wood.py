@@ -4,8 +4,8 @@ from files.vars import structure_manager_list
 
 class Wood(Blocks_manager):
     
-    def __init__(self):
-        Blocks_manager.__init__(self)
+    def __init__(self, App):
+        Blocks_manager.__init__(self, App)
 
         self.block_id = 5
         self.durability = 120

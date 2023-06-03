@@ -4,8 +4,8 @@ from files.vars import structure_manager_list
 
 class House(Blocks_manager):
 
-	def __init__(self):
-		Blocks_manager.__init__(self)
+	def __init__(self, App):
+		Blocks_manager.__init__(self, App)
 
 		self.block_id = 8
 		self.blocks_parents = [

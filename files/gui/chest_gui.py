@@ -6,17 +6,14 @@ from files.vars import modeX, modeY, slot_size, gui_scale
 from files.blocks.every_block_data import get_every_block_list
 import files.Game as gm
 
-class Inventory(Gui):
+class ChestContainer(Gui):
 	def __init__(self, App):
-		self.transformed_sprite = App.assets.Inventory_texture_tr
+		self.transformed_sprite = App.assets.Chest_con_texture
 		self.Inventory_slots = {}
 		self.In_Inventory = False
 		self.Pause = False
 		self.setInventorySlots()
-		self.every_block_list = get_every_block_list(App)
-		# Append every item
-		for i in range(len(self.every_block_list) - 1): # To ignore air_block
-			self.add_item(inventory_slot=i, item_id=i+1, amount=64)
+		self.add_item(inventory_slot=20, item_id=4, amount=64)
 
 		super().__init__(App, self.transformed_sprite)
 
@@ -34,24 +31,11 @@ class Inventory(Gui):
 				self.Inventory_slots[a] = {"Item" : [None, None], "Pos":(8 + ( (2 + slot_size) * x), 84 + ( (2 + slot_size) * y), slot_size, slot_size)}
 				a += 1
 
-		# Armor slots
-		for y in range(4):
-			self.Inventory_slots[a] = {"Item" : [None, None], "Pos":(6 + (2),8 + ( (2 + slot_size) * y), slot_size, slot_size)}
-			a += 1
-
-		# Second hand
-		self.Inventory_slots[a] = {"Item" : [None, None], "Pos":(76 + 1, 61 + 1 , slot_size, slot_size)}
-		a += 1
-
-		# Crafting
-		for y in range(2):
-			for x in range(2):
-				self.Inventory_slots[a] = {"Item" : [None, None], "Pos":(98 + ( (2 + slot_size) * x), 18 + ( (2 + slot_size) * y), slot_size, slot_size)}
+		# Chest slots
+		for z in range(3):
+			for x in range(9):
+				self.Inventory_slots[a] = {"Item" : [None, None], "Pos":(8 + ( (2 + slot_size) * x), 18 + ( (2 + slot_size) * z), slot_size, slot_size)}
 				a += 1
-
-		# Crafting result
-		self.Inventory_slots[a] = {"Item" : [None, None], "Pos":(153 + (1), 27 + (1), slot_size, slot_size)}
-		a += 1
 
 	def open(self):
 		self.setInGui(True, self)

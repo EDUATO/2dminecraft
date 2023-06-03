@@ -3,11 +3,8 @@ import threading
 import uuid
 import random
 
-from files.import_imp import *
-from files.fonts import *
 from files.vars import gravity
 from files.blocks.Block import *
-import files.mainLoop as b
 import files.Game as mg
 from files.functions import convert_blocks_pos_to_camera_xy, convert_camera_xy_to_block_pos
 from files.gui.hotbar import Hotbar
@@ -16,7 +13,7 @@ from files.gui.Text import Text
 from files.physics import Physics
 
 class Entity:
-	def __init__(self, pos, texture, hitbox_size, camera, body_parts, custom_uuid=False, entity_scale_buff=2, physics=True, bot=False):
+	def __init__(self, App, pos, texture, hitbox_size, camera, body_parts, custom_uuid=False, entity_scale_buff=2, physics=True, bot=False):
 		self.block_pos = pos # The position is in blocks
 		self.pos = list(convert_blocks_pos_to_camera_xy(grid_pos=(-self.block_pos[0], -self.block_pos[1])))
 		self.canMove = True
@@ -52,7 +49,7 @@ class Entity:
 
 		self.Automate_Init() # FOR TESTING PURPOSES
 
-		self.set_Inventory()
+		self.set_Inventory(App)
 
 		# body 
 		self.body_init()
@@ -85,43 +82,37 @@ class Entity:
 			hitbox_size=self.hitbox_size
 		)
 
-	def set_Inventory(self):
-		self.EntityInventory = Inventory()
-		self.EntityHotbar = Hotbar()
+	def set_Inventory(self, App):
+		self.EntityInventory = Inventory(App)
+		self.EntityHotbar = Hotbar(App)
 
 	def update_hitbox(self):
 		self.hitbox = (self.screen_pos[0] + self.EntityPhysics.return_dx, self.screen_pos[1] + self.EntityPhysics.dy, self.hitbox_size[0], self.hitbox_size[1])
 
-	def update(self, surface, chunks_list, deltaTime, camera):
+	def update(self, App, chunks_list, deltaTime, camera):
 
 		self.camera_updater(Camera=camera)
 		self.update_screen_pos()
 		
 		self.Enable_Physics()
 		self.entity_can_move(True)
-		"""if self.__isEntityOnScreen__():
-			self.Enable_Physics()
-			self.entity_can_move(True)
-		else:
-			self.Disable_Phyisics()
-			self.entity_can_move(False)"""
 
 		self.update_hitbox()
 
 		if self.EnablePhysics:
-			self.EntityPhysics.update(chunks_list=chunks_list, surface=surface, screen_pos=self.screen_pos, deltaTime=deltaTime)
+			self.EntityPhysics.update(chunks_list=chunks_list, surface=App.surface, screen_pos=self.screen_pos, deltaTime=deltaTime)
 			self.update_pos()
 			self.update_hitbox()
 			if self.BOT:
 				self.Automate(deltaTime)
 
-		self.Draw(surface)
+		self.Draw(App.surface)
 
 		
 
-	def updateInventory(self, surface, events, mouse, keys):
-		self.EntityInventory.update(surface, mouse, keys)
-		self.EntityHotbar.update(events, surface, Inventory_slots=self.EntityInventory.getInventorySlots())
+	def updateInventory(self, App, keys):
+		self.EntityInventory.update(App, keys)
+		self.EntityHotbar.update(App, Inventory_slots=self.EntityInventory.getInventorySlots())
 	
 	def getEntityHotbar(self):
 		return self.EntityHotbar

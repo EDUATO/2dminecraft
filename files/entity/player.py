@@ -1,13 +1,11 @@
 import pygame, math
 
-from files.import_imp import *
 from files.vars import block_scale_buff
 from files.entity.entity import Entity
 from files.functions import convert_blocks_pos_to_camera_xy
-import files.mainLoop as b
 
 class Player(Entity):
-	def __init__(self, texture, block_pos, Camera, custom_uuid=False, physics=True, bot=False):
+	def __init__(self, App, texture, block_pos, Camera, custom_uuid=False, physics=True, bot=False):
 	
 		self.camera_updater(Camera)
 
@@ -27,7 +25,7 @@ class Player(Entity):
 			"Front_Arm" : (28, 8, 4, 12)
 		}
 		super().__init__(
-			pos=self.block_pos,  texture=texture, hitbox_size=(8, 32), camera=Camera, body_parts=self.body_parts, 
+			App=App, pos=self.block_pos,  texture=texture, hitbox_size=(8, 32), camera=Camera, body_parts=self.body_parts, 
 			entity_scale_buff=block_scale_buff, custom_uuid=custom_uuid, physics=physics)
 
 		# Crop separated body parts
@@ -85,24 +83,24 @@ class Player(Entity):
 		
 		self.keys = pygame.key.get_pressed()
 
-		if self.keys[K_d]:
-			if not self.keys[K_a] == 1:
+		if self.keys[pygame.K_d]:
+			if not self.keys[pygame.K_a] == 1:
 				self.move(direction="R", deltaTime=deltaTime)
 				
-		if self.keys[K_a]:
-			if not self.keys[K_d] == 1:
+		if self.keys[pygame.K_a]:
+			if not self.keys[pygame.K_d] == 1:
 				self.move(direction="L", deltaTime=deltaTime)
 
-		if self.keys[K_SPACE]:
+		if self.keys[pygame.K_SPACE]:
 			self.move(direction="U", deltaTime=deltaTime)
 
 		# FOR TESTING PURPOSES ONLY
-		if self.keys[K_w]:
-			if not self.keys[K_s] == 1:
+		if self.keys[pygame.K_w]:
+			if not self.keys[pygame.K_s] == 1:
 				self.move(direction="W", deltaTime=deltaTime)
 
-		if self.keys[K_s]:
-			if not self.keys[K_w] == 1:
+		if self.keys[pygame.K_s]:
+			if not self.keys[pygame.K_w] == 1:
 				self.move(direction="S", deltaTime=deltaTime)
 
 	def crop_body_pieces(self):

@@ -62,8 +62,7 @@ class Physics:
             collitions_detected += 1
         if self.entity_collition_type["top"]: 
             collitions_detected += 1
-
-        print(collitions_detected)
+            
         if collitions_detected < 2:
             self.applyX_physics_changes()
         self.applyY_physics_changes()

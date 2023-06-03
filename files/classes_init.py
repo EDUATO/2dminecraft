@@ -3,16 +3,16 @@ import threading
 
 from files.vars import modeX, modeY, chunk_size
 from files.terrain.terrain_generator import generate, seed, chunks_list, chunk_manager_list
-from files.import_imp import Blocks_texture, Player_texture
 from files.debugScreen import DebugScreen
 from files.camera import Camera
 from files.entity.player import Player
 from files.entity.Entity_manager import Entities
 from files.functions import convert_blocks_pos_to_camera_xy, detect_chunk_with_position
 from files.saving.saveload import read_save_files
+from files.blocks.block_data import get_placeble_blocks_list
 
 class Game_Initialization:
-    def __init__(self):
+    def __init__(self, App):
         self.CameraMain = Camera(init_xy=[0,0], camera_size=[modeX, modeY])
 
         self.initialization_progress = 0
@@ -20,7 +20,9 @@ class Game_Initialization:
 
         self.chunks_list = chunks_list
 
-        self.init_entities()
+        self.placeble_blocks_list = get_placeble_blocks_list(App)
+
+        self.init_entities(App)
 
     def init_blocks(self):
         if not self.full_initialation:
@@ -30,7 +32,7 @@ class Game_Initialization:
         else:
             self.__error_code__()
 
-    def init_entities(self):
+    def init_entities(self, App):
         global chunk_manager_list
         if not self.full_initialation:
             self.coords_to_spawn_cam = convert_blocks_pos_to_camera_xy(grid_pos=(4,20))
@@ -38,11 +40,11 @@ class Game_Initialization:
             self.CameraMain.set_x_coord(self.coords_to_spawn_cam[0])
             self.CameraMain.set_y_coord(self.coords_to_spawn_cam[1])
 
-            self.Entities_man = Entities(self.CameraMain)
+            self.Entities_man = Entities(App, self.CameraMain)
 
             # Spawn player
-            player_initial_pos = (0, 100)
-            self.p1_uuid = self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=player_initial_pos)
+            player_initial_pos = (0, 40)
+            self.p1_uuid = self.Entities_man.spawnEntity(App, self.CameraMain, type="Player", Blockpos=player_initial_pos)
 
             """for i in range(2):
                 self.Entities_man.spawnEntity(self.CameraMain, type="Player", Blockpos=(2*(i+1), 40))"""

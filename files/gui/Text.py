@@ -19,8 +19,8 @@ class Text:
 
 		self.change_lock(lock)
 
-	def draw(self, surface):
-		surface.blit(self.Text,(self.Lock_formula[0] + self.x,self.Lock_formula[1] + self.y))
+	def draw(self, App):
+		App.surface.blit(self.Text,(self.Lock_formula[0] + self.x,self.Lock_formula[1] + self.y))
 
 	def change_lock(self, lock):
 		self.set_lock_formula(lock)

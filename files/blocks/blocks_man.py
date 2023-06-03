@@ -1,7 +1,7 @@
 from files.blocks.Block import Block
 
 class Blocks_manager:
-    def __init__(self):
+    def __init__(self, App):
         self.block_id = None
 
         self.blocks_parents = [ 
@@ -13,8 +13,8 @@ class Blocks_manager:
     def generate_structure(self, position):
         pass
 
-    def __place_data__(self, block:Block, noise=None):
-        self.__init__()
+    def __place_data__(self, App, block:Block, noise=None):
+        self.__init__(App)
         block.setBlock(id=self.block_id)
         block.set_colored_sprite(self.colored)
         block.break_durability = self.durability
@@ -22,21 +22,21 @@ class Blocks_manager:
         block.noise_value = noise
         self.generate_structure(position)
     
-    def place_block(self, grid_pos, chunks_list):
+    def place_block(self, App, grid_pos, chunks_list):
         grid_positions = self.get_blocks_parents_grid_pos(center_grid_pos=grid_pos)
 
         blocks_to_place = self.seek_several_blocks_positions(chunks_list, grid_positions)
         if blocks_to_place != False:
             for b in range(len(blocks_to_place)):
-                self.__place_data__(blocks_to_place[b])
+                self.__place_data__(App, blocks_to_place[b])
 
-    def place_generated_block(self, block, noise=None):
-        self.__place_data__(block, noise)
+    def place_generated_block(self, App, block, noise=None):
+        self.__place_data__(App, block, noise)
 
-    def break_block(self,surface, grid_pos, chunks_list, deltaTime):
+    def break_block(self,App, grid_pos, chunks_list, deltaTime):
         blocks_to_break = self.seek_one_block_position(chunks_list, grid_pos)
         if blocks_to_break != False:
-            blocks_to_break.breakBlock(surface, deltaTime)
+            blocks_to_break.breakBlock(App, deltaTime)
 
 
     def seek_several_blocks_positions(self, chunks_list, grid_pos:tuple):

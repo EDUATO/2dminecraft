@@ -5,8 +5,8 @@ from files.vars import structure_manager_list
 
 class Leaves(Blocks_manager):
     
-    def __init__(self):
-        Blocks_manager.__init__(self)
+    def __init__(self, App):
+        Blocks_manager.__init__(self, App)
 
         self.block_id = 6
         self.blocks_parents = [

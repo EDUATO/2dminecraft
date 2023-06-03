@@ -15,30 +15,28 @@ Game_Main_Class = None
 
 threads_running = 0
 
-Game_Main_Class = mg.Game()
-
 loop = threading.Thread(target=generation_loop)
-def Draw(surface, events):
-	global initialChunksGenerated, Game_Main_Class, loop, threads_running
+def Draw(App):
+	global initialChunksGenerated, loop, threads_running
 	
 	if Scene == "game":
 		if chunk_manager_list != []:
 			if not loop.is_alive():
-				loop = threading.Thread(target=generation_loop)
+				loop = threading.Thread(target=lambda:generation_loop(App))
 				try:
 					loop.start()
 				except RuntimeError: print("Can't generate new chunk, out of memory")
 
-		Game_Main_Class.update(events, surface, running_threads_amount=threads_running)
+		App.Game_Main_Class.update(App, running_threads_amount=threads_running)
 		
 		threads_running = threading.active_count()
 
 	elif Scene == "main_menu":
-		mainMenu.show(surface)
+		mainMenu.show(App.surface)
 
-	for event in events:
+	for event in App.events:
 		if event.type == pygame.KEYDOWN:
 			if event.key == K_r:
 				reset_chunk_man_list()
 				initial_variables()
-				Game_Main_Class = mg.Game()
+				App.Game_Main_Class = mg.Game(App)

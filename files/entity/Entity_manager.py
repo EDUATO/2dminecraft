@@ -1,23 +1,25 @@
 
 from files.entity.player import Player
-from files.import_imp import Player_texture
 
 from files.entity.w_ty import Wty
-from files.import_imp import Wty_texture
 
-EntitiesTypes = {"Player":{"class":Player, "texture":Player_texture},
-                "Wty":{"class":Wty, "texture":Wty_texture}}
+
 
 class Entities:
-    def __init__(self, CameraMain, id=1):
+    def __init__(self, App, CameraMain, id=1):
+        self.EntitiesTypes = {
+            "Player":{"class":Player, "texture":App.assets.Player_texture},
+            "Wty":{"class":Wty, "texture":App.assets.Wty_texture}}
+
         self.EntitiesInGame = []
         self.ActiveEntities = []
 
-    def spawnEntity(self, CameraMain, type, Blockpos, custom_uuid=False, physics=True, bot=False):
+    def spawnEntity(self,App, CameraMain, type, Blockpos, custom_uuid=False, physics=True, bot=False):
         """ It will spawn an Entity and return its UUID """
 
-        self.EntitiesInGame.append(EntitiesTypes[type]["class"](
-                                                                texture=EntitiesTypes[type]["texture"],
+        self.EntitiesInGame.append(self.EntitiesTypes[type]["class"](
+                                                                App=App,
+                                                                texture=self.EntitiesTypes[type]["texture"],
                                                                 block_pos=Blockpos,
                                                                 Camera=CameraMain,
                                                                 custom_uuid=custom_uuid,

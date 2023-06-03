@@ -4,7 +4,6 @@ from files.vars import block_scale_buff, modeX, modeY
 
 def grid(surface, block_size, color, camera_coords):
 	""" To show the grid on the screen """
-	# TODO Big coordinates while showing the grid lags the game
 
 	# X
 	for i in range(modeX + int(abs(camera_coords[0]))):

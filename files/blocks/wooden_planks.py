@@ -3,8 +3,8 @@ from files.terrain.structure import Structure
 
 class WoodenPlanks(Blocks_manager):
     
-    def __init__(self):
-        Blocks_manager.__init__(self)
+    def __init__(self, App):
+        Blocks_manager.__init__(self, App)
 
         self.block_id = 9
         self.durability = 100
